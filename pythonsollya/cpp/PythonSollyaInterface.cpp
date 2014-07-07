@@ -9,13 +9,9 @@
 #include <Python.h>
 #include "structmember.h"
 #include <iostream>
-#include <sstream>
 #include <sollya.h>
-#include <boost/regex.hpp>
-#include <fstream>
 
 #include "utils.hpp"
-#include "StringProcessing.hpp"
 #include "PythonSollyaInterface_functions.hpp"
 #include "PythonSollyaInterface_gen_functions.hpp"
 #include "PythonSollyaObject.hpp"
@@ -97,24 +93,12 @@ static PyObject* python_PSI_roundingwarnings(PyObject* self, PyObject* args) {
 
 
 
-PyObject* python_PSI_preProcessFile(PyObject* self, PyObject* args) {
-	PyObject* py_filename;
-	PyArg_ParseTuple(args, "O", &py_filename);
-
-	char* filename = PyString_AsString(py_filename);
-
-	processFile(string(filename));
-
-	Py_INCREF(Py_None);
-	return Py_None;
-}
 
 
 
 
 /** table of PSI module function */
 static PyMethodDef PSI_functions [] = {
-	{"preprocessFile", python_PSI_preProcessFile, METH_VARARGS, "preprocess a file"},
 	{"askSollya", python_PSI_askSollya, METH_VARARGS, "send a character string to sollya for evaluation"},
 
 	// inclusion of generated wrapper functions
@@ -269,47 +253,4 @@ void PythonSollyaInterface::destroy() {
 	sollya_lib_close();
 }
 
-#define NUMBER_PATTERN "([^a-zA-Z_])(-?[\\d]+\\.?[\\d]*|-?[\\d]*\\.[\\d]+)s"
 
-void PythonSollyaInterface::runString(string command, bool no_exec_f, bool enable_process) {
-	// dumping command into history
-	cmd_history.push_back(command);
-
-	std::vector<std::string> module_vector;
-
-	// translating c++ string to c char*
-	boost::regex numberPattern(NUMBER_PATTERN);
-	sproc_status_t status = status_out;
-	string command_trans = enable_process ? processString(command, status, module_vector) : command; 
-
-	const char* cmd_ = command_trans.c_str();
-
-
-	if (!no_exec_f) PyRun_SimpleString(cmd_);
-	else cout << cmd_ << endl;
-}
-
-
-void PythonSollyaInterface::runFile(const char* filename_, bool no_exec_f, bool preprocess) {
-	string modFileName;
-	if (preprocess) {
-		modFileName = processFile(filename_);
-	} else {
-		modFileName = string(filename_);
-	}
-
-	if (!no_exec_f) {
-		FILE* initScript = fopen(modFileName.c_str(), "rb");
-		PyRun_SimpleFile(initScript, modFileName.c_str());
-	}
-}
-
-void PythonSollyaInterface::dumpHistory(string filename_) {
-	ofstream output_file(filename_.c_str());
-	std::list<std::string>::iterator it;
-	for (it = PythonSollyaInterface::cmd_history.begin(); it != PythonSollyaInterface::cmd_history.end(); it++) {
-		output_file << (*it) << endl;
-	}
-
-	output_file.close();
-}

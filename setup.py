@@ -26,7 +26,7 @@ if "build" in sys.argv:
     wrapper_generator.main("%s/build/PythonSollyaInterface_gen_functions.cpp" % (PYTHONSOLLYA_DIR))
 
 PSI_module = Extension("PythonSollyaInterface", 
-	libraries = ['boost_regex', 'mpfr', 'gmp', 'xml2', 'mpfi', 'sollya'], 
+	libraries = ['sollya'], 
     # if sollya svn is not build in the most current directories (/usr/lib ... /usr/local)
     # sollya.h directory should be added in the following list
 	include_dirs = ["%s/include" % LOCAL_INSTALL_DIR, 'pythonsollya/cpp', 'pythonsollya/build'],
@@ -42,7 +42,6 @@ PSI_module = Extension("PythonSollyaInterface",
 				"%s/cpp/utils.cpp" % (PYTHONSOLLYA_DIR), 
 				"%s/cpp/PythonSollyaObject.cpp" % (PYTHONSOLLYA_DIR), 
 				"%s/cpp/parserRule.cpp" % (PYTHONSOLLYA_DIR),  
-				#"%s/cpp/StringProcessing.cpp" % (PYTHONSOLLYA_DIR),
 				"%s/build/PythonSollyaInterface_functions.cpp" % (PYTHONSOLLYA_DIR),
 				"%s/build/PythonSollyaInterface_gen_functions.cpp" % (PYTHONSOLLYA_DIR),
                 ],
@@ -53,7 +52,6 @@ PSI_module = Extension("PythonSollyaInterface",
                 "%s/cpp/parserRule.hpp" % (PYTHONSOLLYA_DIR),
                 "%s/cpp/PythonSollyaObject.hpp" % (PYTHONSOLLYA_DIR),
                 "%s/cpp/PythonDouble.hpp" % (PYTHONSOLLYA_DIR),
-                #"%s/cpp/StringProcessing.hpp" % (PYTHONSOLLYA_DIR),
                 "%s/cpp/PythonSollyaInterface.hpp" % (PYTHONSOLLYA_DIR),
                 "%s/cpp/utils.hpp" % (PYTHONSOLLYA_DIR),
                 "%s/cpp/python_sollyaObject_struct.h" % (PYTHONSOLLYA_DIR),
