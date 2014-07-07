@@ -9,7 +9,8 @@ import wrapper.wrapper_generator as wrapper_generator
 # Directory containing pythonsollya sources
 PYTHONSOLLYA_DIR = "./pythonsollya/"
 # root directory to find ./include and ./lib containing sollya 
-LOCAL_INSTALL_DIR = "/work1/nbrunie/local_install"
+# TODO: to be replace by your own directory
+LOCAL_INSTALL_DIR = "/work1/hardware/users/nbrunie/MetaLibmProject/ProofOfConcept/local"
 
 if "build" in sys.argv:
     # testing existence of PYTHONSOLLYA_DIR/build dir
@@ -41,7 +42,7 @@ PSI_module = Extension("PythonSollyaInterface",
 				"%s/cpp/utils.cpp" % (PYTHONSOLLYA_DIR), 
 				"%s/cpp/PythonSollyaObject.cpp" % (PYTHONSOLLYA_DIR), 
 				"%s/cpp/parserRule.cpp" % (PYTHONSOLLYA_DIR),  
-				"%s/cpp/StringProcessing.cpp" % (PYTHONSOLLYA_DIR),
+				#"%s/cpp/StringProcessing.cpp" % (PYTHONSOLLYA_DIR),
 				"%s/build/PythonSollyaInterface_functions.cpp" % (PYTHONSOLLYA_DIR),
 				"%s/build/PythonSollyaInterface_gen_functions.cpp" % (PYTHONSOLLYA_DIR),
                 ],
@@ -52,7 +53,7 @@ PSI_module = Extension("PythonSollyaInterface",
                 "%s/cpp/parserRule.hpp" % (PYTHONSOLLYA_DIR),
                 "%s/cpp/PythonSollyaObject.hpp" % (PYTHONSOLLYA_DIR),
                 "%s/cpp/PythonDouble.hpp" % (PYTHONSOLLYA_DIR),
-                "%s/cpp/StringProcessing.hpp" % (PYTHONSOLLYA_DIR),
+                #"%s/cpp/StringProcessing.hpp" % (PYTHONSOLLYA_DIR),
                 "%s/cpp/PythonSollyaInterface.hpp" % (PYTHONSOLLYA_DIR),
                 "%s/cpp/utils.hpp" % (PYTHONSOLLYA_DIR),
                 "%s/cpp/python_sollyaObject_struct.h" % (PYTHONSOLLYA_DIR),
