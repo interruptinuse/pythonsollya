@@ -18,7 +18,7 @@
 
 using namespace std;
 
-PyDoc_STRVAR(PythonSollyaInterface__doc__, "PythonSollyaInterface is a dummy python wrapper from sollya library\n");
+PyDoc_STRVAR(PythonSollyaInterface__doc__, "PythonSollyaInterface is a dummy python wrapper for sollya library\n");
 
 #define DEFERRED_ADDRESS(ADDR) 0
 

@@ -69,7 +69,7 @@ setup(name = "PythonSollyaInterface",
 	ext_modules = [PSI_module], 
     scripts = ["setup.py"],
     packages = ["pythonsollya"],
-	 py_modules = [#"%s/python/__init__.py" % (PYTHONSOLLYA_DIR),
+	 py_modules = [
                  "pythonsollya",
                  "pythonsollya.python.interval",
                  "pythonsollya.python.utils"
