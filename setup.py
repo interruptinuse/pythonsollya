@@ -10,7 +10,7 @@ import wrapper.wrapper_generator as wrapper_generator
 PYTHONSOLLYA_DIR = "./pythonsollya/"
 # root directory to find ./include and ./lib containing sollya 
 # TODO: to be replace by your own directory
-LOCAL_INSTALL_DIR = "/work1/hardware/users/nbrunie/MetaLibmProject/ProofOfConcept/local"
+LOCAL_INSTALL_DIR = os.environ.get("LOCAL_INSTALL_DIR")
 
 if "build" in sys.argv:
     # testing existence of PYTHONSOLLYA_DIR/build dir
@@ -38,10 +38,8 @@ PSI_module = Extension("PythonSollyaInterface",
 	sources = [	
                 # code source files
                 "%s/cpp/PythonSollyaInterface.cpp" % (PYTHONSOLLYA_DIR), 
-				"%s/cpp/lexerRule.cpp" % (PYTHONSOLLYA_DIR),   
 				"%s/cpp/utils.cpp" % (PYTHONSOLLYA_DIR), 
 				"%s/cpp/PythonSollyaObject.cpp" % (PYTHONSOLLYA_DIR), 
-				"%s/cpp/parserRule.cpp" % (PYTHONSOLLYA_DIR),  
 				"%s/build/PythonSollyaInterface_functions.cpp" % (PYTHONSOLLYA_DIR),
 				"%s/build/PythonSollyaInterface_gen_functions.cpp" % (PYTHONSOLLYA_DIR),
                 ],
@@ -49,13 +47,11 @@ PSI_module = Extension("PythonSollyaInterface",
                 # headers
                 "%s/build/PythonSollyaInterface_functions.hpp" % (PYTHONSOLLYA_DIR),
                 "%s/build/PythonSollyaInterface_gen_functions.hpp" % (PYTHONSOLLYA_DIR),
-                "%s/cpp/parserRule.hpp" % (PYTHONSOLLYA_DIR),
                 "%s/cpp/PythonSollyaObject.hpp" % (PYTHONSOLLYA_DIR),
                 "%s/cpp/PythonDouble.hpp" % (PYTHONSOLLYA_DIR),
                 "%s/cpp/PythonSollyaInterface.hpp" % (PYTHONSOLLYA_DIR),
                 "%s/cpp/utils.hpp" % (PYTHONSOLLYA_DIR),
                 "%s/cpp/python_sollyaObject_struct.h" % (PYTHONSOLLYA_DIR),
-                "%s/cpp/ParserContext.h" % (PYTHONSOLLYA_DIR),
                 ],
 
 	)
@@ -67,7 +63,7 @@ setup(name = "PythonSollyaInterface",
 	author_email = "nicolas.brunie@kalray.eu",
 	url = "none",
 	ext_modules = [PSI_module], 
-    scripts = ["setup.py"],
+    scripts = [],
     packages = ["pythonsollya"],
 	 py_modules = [
                  "pythonsollya",
