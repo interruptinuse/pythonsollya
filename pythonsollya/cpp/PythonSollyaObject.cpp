@@ -19,6 +19,13 @@
 
 using namespace std;
 
+
+#define INVALID_OP(TEST) if (TEST) {\
+        PyObject* py_result = Py_None;\
+        Py_INCREF(py_result);\
+        return py_result;\
+    }
+
 void metalibm_catch_signal(int signalNumber)
 {
 	cout << "handling signal SIGSEGV" << endl;
@@ -32,6 +39,7 @@ void metalibm_catch_signal(int signalNumber)
 	int result;
 
 	sollya_obj_t sollya_degree = sollya_lib_degree(self->sollya_object);
+
 	// transforming sollya int to python int
 	sollya_lib_get_constant_as_int(&result, sollya_degree);
 
@@ -136,6 +144,8 @@ PyObject* python_sollyaObject_interval(PyObject* self, PyObject* args) {
 	sollya_obj_t sol_left_bound = buildOperandFromPyObject(py_left_bound);
 	sollya_obj_t sol_right_bound = buildOperandFromPyObject(py_right_bound);
 
+    INVALID_OP(!sol_right_bound || !sol_left_bound)
+
 	// building sollya interval from bounds
 	sollya_obj_t sol_interval = sollya_lib_range(sol_left_bound, sol_right_bound);
 
@@ -148,6 +158,9 @@ PyObject* python_sollyaObject_interval(PyObject* self, PyObject* args) {
 
 PyObject* python_sollyaObject_test_nan(PyObject* a) {
     sollya_obj_t obj_a = buildOperandFromPyObject(a);
+
+    INVALID_OP(!obj_a)
+
     PyObject* py_result = Py_None;
 
     if (sollya_lib_is_true(sollya_lib_cmp_equal(obj_a, obj_a))) {
@@ -234,6 +247,8 @@ PyObject* python_sollyaObject_call(PyObject* self, PyObject* args, PyObject* kwa
 	PyArg_ParseTuple(args, "O", &py_arg);
 	sollya_obj_t sollya_arg = buildOperandFromPyObject(py_arg);
 
+    INVALID_OP(!sollya_arg)
+
 	sollya_obj_t result = NULL;
 
 	if (sollya_lib_obj_is_function(sollya_object)) {
@@ -273,6 +288,10 @@ int python_sollyaObject_compare(PyObject* a, PyObject* b) {
 	 */
 	 sollya_obj_t obj_a = buildOperandFromPyObject(a);
 	 sollya_obj_t obj_b = buildOperandFromPyObject(b);
+
+     if (!obj_a || !obj_b) {
+        return -1;
+    }
 
 	 int result;
 
@@ -469,6 +488,8 @@ PyTypeObject 	python_sollyaObject_type = (PyTypeObject) {
 	// building divisor
 	modulo = buildOperandFromPyObject(b);
 
+    INVALID_OP(!dividend || !modulo) 
+
 	python_sollyaObject* pso = (python_sollyaObject*)python_sollyaObject_new(&python_sollyaObject_type, NULL, NULL);
 	//attachSollyaObject(pso, sollya_lib_div(dividend, divisor));
     sollya_obj_t tmp = sollya_lib_mul(sollya_lib_floor(sollya_lib_div(dividend, modulo)), modulo);
@@ -486,6 +507,8 @@ PyTypeObject 	python_sollyaObject_type = (PyTypeObject) {
 
 	// building divisor
 	divisor = buildOperandFromPyObject(b);
+
+    INVALID_OP(!dividend || !divisor)
 
 	python_sollyaObject* pso = (python_sollyaObject*)python_sollyaObject_new(&python_sollyaObject_type, NULL, NULL);
 	//attachSollyaObject(pso, sollya_lib_div(dividend, divisor));
@@ -515,6 +538,8 @@ PyTypeObject 	python_sollyaObject_type = (PyTypeObject) {
 	// building second operand
 	op1 = buildOperandFromPyObject(b);
 
+    INVALID_OP(!op0 || !op1)
+
 	python_sollyaObject* pso = (python_sollyaObject*)python_sollyaObject_new(&python_sollyaObject_type, NULL, NULL);
 	//attachSollyaObject(pso, sollya_lib_add(op0, op1));
 	attachSollyaObject(pso,  sollya_lib_add(op0, op1));
@@ -530,6 +555,8 @@ PyTypeObject 	python_sollyaObject_type = (PyTypeObject) {
 
 	// building second operand
 	op1 = buildOperandFromPyObject(b);
+
+    INVALID_OP(!op0 || !op1)
 
 	python_sollyaObject* pso = (python_sollyaObject*)python_sollyaObject_new(&python_sollyaObject_type, NULL, NULL);
 	//attachSollyaObject(pso, sollya_lib_sub(op0, op1));
@@ -557,6 +584,8 @@ PyTypeObject 	python_sollyaObject_type = (PyTypeObject) {
         // building second operand
         op1 = buildOperandFromPyObject(b);
 
+        INVALID_OP(!op0 || !op1)
+
         python_sollyaObject* pso = (python_sollyaObject*)python_sollyaObject_new(&python_sollyaObject_type, NULL, NULL);
         attachSollyaObject(pso, sollya_lib_mul(op0, op1));
 
@@ -573,6 +602,8 @@ PyTypeObject 	python_sollyaObject_type = (PyTypeObject) {
 	// building second operand
 	op1 = buildOperandFromPyObject(b);
 
+    INVALID_OP(!op0 || !op1)
+
 	python_sollyaObject* pso = (python_sollyaObject*)python_sollyaObject_new(&python_sollyaObject_type, NULL, NULL);
 	attachSollyaObject(pso, sollya_lib_pow(op0, op1));
 
@@ -584,6 +615,8 @@ PyTypeObject 	python_sollyaObject_type = (PyTypeObject) {
 
 	// building first operand
 	op0 = buildOperandFromPyObject(a);
+
+    INVALID_OP(!op0)
 
 
 	python_sollyaObject* pso = (python_sollyaObject*)python_sollyaObject_new(&python_sollyaObject_type, NULL, NULL);
@@ -598,6 +631,7 @@ PyTypeObject 	python_sollyaObject_type = (PyTypeObject) {
 	// building first operand
 	op0 = buildOperandFromPyObject(a);
 
+    INVALID_OP(!op0)
 
 	python_sollyaObject* pso = (python_sollyaObject*)python_sollyaObject_new(&python_sollyaObject_type, NULL, NULL);
 	attachSollyaObject(pso, sollya_lib_neg(op0));
@@ -610,6 +644,9 @@ PyObject* python_sollyaObject_int(PyObject *a) {
 
 	// building first operand
 	op0 = buildOperandFromPyObject(a);
+
+    INVALID_OP(!op0)
+
 	int64_t int_value;
 	sollya_lib_get_constant_as_int64(&int_value, op0);
 
@@ -634,6 +671,8 @@ PyObject* python_sollyaObject_float(PyObject *a) {
 
 	// building first operand
 	op0 = buildOperandFromPyObject(a);
+    INVALID_OP(!op0)
+
 	double float_value;
 	sollya_lib_get_constant_as_double(&float_value, op0);
 
