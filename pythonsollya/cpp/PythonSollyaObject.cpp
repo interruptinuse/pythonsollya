@@ -445,13 +445,13 @@ PyTypeObject 	python_sollyaObject_type = (PyTypeObject) {
 		0,					/* tp_getattr */
 		0,					/* tp_setattr */
 		python_sollyaObject_compare,					/* tp_compare */
-		0,					/* tp_repr */
+		python_sollyaObject_str,	        /* tp_repr */
 		&sollyaObject_as_number,					/* tp_as_number */
 		0,					/* tp_as_sequence */
 		0,					/* tp_as_mapping */
 		python_sollyaObject_hash,	/* tp_hash */
 		python_sollyaObject_call,	/* tp_call */
-		python_sollyaObject_str,	/* tp_str */
+		0,	                                /* tp_str */
 		0,					/* tp_getattro */
 		0,					/* tp_setattro */
 		0,					/* tp_as_buffer */
