@@ -244,18 +244,21 @@ PyObject* python_sollyaObject_call(PyObject* self, PyObject* args, PyObject* kwa
 	python_sollyaObject* object = (python_sollyaObject*) self;
 	sollya_obj_t sollya_object = object->sollya_object;
 
-	PyObject* py_arg;
-	PyArg_ParseTuple(args, "O", &py_arg);
-	sollya_obj_t sollya_arg = buildOperandFromPyObject(py_arg);
-
-    INVALID_OP(!sollya_arg)
-
 	sollya_obj_t result = NULL;
 
 	if (sollya_lib_obj_is_function(sollya_object)) {
+        PyObject* py_arg;
+        PyArg_ParseTuple(args, "O", &py_arg);
+        sollya_obj_t sollya_arg = buildOperandFromPyObject(py_arg);
+
+        INVALID_OP(!sollya_arg)
+
 		result = sollya_lib_apply(sollya_object, sollya_arg, NULL);
+    } else if (sollya_lib_obj_is_procedure(sollya_object)) {
+        sollya_obj_t sollya_args = buildSollyaListFromPyObject(args);
+		result = sollya_lib_concat(sollya_object, sollya_args);
 	} else {
-		cerr << "only sollya function can be applied ! " << endl;
+		cerr << "only sollya functions and procedures can be applied! " << endl;
 	}
 	if (result) {
 		python_sollyaObject* pso = (python_sollyaObject*)python_sollyaObject_new(self->ob_type, NULL, NULL);
