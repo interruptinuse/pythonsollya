@@ -40,6 +40,7 @@ class List:      pass
 class Object:    pass
 class Range:     pass
 class Integer:   pass
+class String:    pass
 
 class Return: pass
 class IntToBool: pass
@@ -50,6 +51,7 @@ arg_dict = {
     Constant: "constant",
     List: "list", 
     Range: "range",
+    String: "string",
     Object: "object",
 }
 
@@ -180,6 +182,7 @@ type_check = {
     Constant : None,
     Function : None,
     Object : None,
+    String: None,
     List : lambda var: "PSI_checkSollyaListCompatibility(%s)" % var,
     Range : lambda var: "PSI_checkSollyaIntervalCompatibility(%s)" % var,
 }
@@ -191,6 +194,7 @@ operand_formation = {
     Object : lambda var: "buildOperandFromPyObject(%s)" % var,
     Range : lambda var: "buildIntervalFromPyObject(%s)" % var,
     List : lambda var: "buildSollyaListFromPyObject(%s)" % var,
+    String : lambda var: "buildSollyaStringFromPyObject(%s)" % var,
 }
 
 tab = "    "

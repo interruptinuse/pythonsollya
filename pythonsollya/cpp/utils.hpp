@@ -7,6 +7,7 @@
 sollya_obj_t buildOperandFromPyObject(PyObject* obj);
 sollya_obj_t buildSollyaListFromPyObject(PyObject* obj);
 sollya_obj_t buildIntervalFromPyObject(PyObject* obj);
+sollya_obj_t buildSollyaStringFromPyObject(PyObject* obj);
 
 bool PSI_checkSollyaIntervalCompatibility(PyObject* obj);
 bool PSI_checkSollyaListCompatibility(PyObject* obj);

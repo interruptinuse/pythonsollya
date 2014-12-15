@@ -42,6 +42,7 @@ sollya_obj_t buildOperandFromPyObject(PyObject* obj) {
 		double value = PyFloat_AsDouble(obj);
 		operand = sollya_lib_constant_from_double(value);
     } else if (PyString_Check(obj)) {
+        // Python strings where Sollya (non-string) objects are expected are interpreted as expressions in Sollya syntax
         char* sollya_cmd = PyString_AsString(obj);
         operand = sollya_lib_parse_string(sollya_cmd);
 	} else {
@@ -108,7 +109,21 @@ sollya_obj_t buildSollyaListFromPyObject(PyObject* obj) {
 	};
 }
 
-
+sollya_obj_t buildSollyaStringFromPyObject(PyObject* obj) {
+	sollya_obj_t operand;
+	if (PyObject_TypeCheck(obj, &python_sollyaObject_type)) {
+		operand = sollya_lib_copy_obj(((python_sollyaObject*) obj)->sollya_object);
+    } else if (PyString_Check(obj)) {
+        char* sollya_cmd = PyString_AsString(obj);
+        operand = sollya_lib_string(sollya_cmd);
+	} else {
+		cerr << "ERROR: unsupported type while converting PyObject to sollya object" << endl;
+		PyObject* PSI_missingArg = PyErr_NewException(PSI_StringConstants::PSI_Exception_UnsupportedArg_str, NULL, NULL);
+		PyErr_SetString(PSI_missingArg, "unsupported argument in conversion to string");;
+		return NULL;
+	}
+	return operand;
+}
 
 bool PSI_checkSollyaIntervalCompatibility(PyObject* obj) {
 	if (PyList_Check(obj) && PyList_Size(obj) == 2) return true;
