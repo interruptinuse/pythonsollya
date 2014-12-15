@@ -80,14 +80,14 @@ sollya_obj_t buildIntervalFromPyObject(PyObject* obj) {
 }
 
 sollya_obj_t buildSollyaListFromPyObject(PyObject* obj) {
-	if (PyList_Check(obj)) {
+	if (PySequence_Check(obj)) {
 		sollya_obj_t sollya_list;
 
-		int list_size = PyList_Size(obj);
+		int list_size = PySequence_Size(obj);
 		sollya_obj_t* list_elts = new sollya_obj_t[list_size];
 
 		for (int i = 0; i < list_size; i++) {
-            sollya_obj_t new_elt = buildOperandFromPyObject(PyList_GetItem(obj, i));
+            sollya_obj_t new_elt = buildOperandFromPyObject(PySequence_GetItem(obj, i));
 
             if (new_elt == NULL) {
                 cerr << "ERROR : while converting an element for insertion in sollya list " << endl;
@@ -102,9 +102,9 @@ sollya_obj_t buildSollyaListFromPyObject(PyObject* obj) {
 
 		return sollya_list;
 	} else {
-		cerr << "ERROR : trying to build sollya list from a non list python object" << endl;
+		cerr << "ERROR : trying to build sollya list from a non sequence python object" << endl;
 		PyObject* PSI_missingArg = PyErr_NewException(PSI_StringConstants::PSI_Exception_UnsupportedArg_str, NULL, NULL);
-		PyErr_SetString(PSI_missingArg, "unsupported argument in conversion to interval");
+		PyErr_SetString(PSI_missingArg, "unsupported argument in conversion to list");
 		return NULL;
 	};
 }
