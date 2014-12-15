@@ -127,6 +127,11 @@ general_function = {
     "evaluate": {   Args: [{Mandatory: [Function, [Range, Constant, Function]], Optionnal: []},],
         Name: "sollya_lib_evaluate",
     },
+    "execute": {
+        Args: [{Mandatory: [String], Optionnal: []},],
+        Name: "sollya_lib_execute",
+        Return: Void,
+    },
     "expand": { Args: [{Mandatory: [Function], Optionnal: []},],
         Name: "sollya_lib_expand",
     },
