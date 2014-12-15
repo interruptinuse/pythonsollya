@@ -104,13 +104,13 @@ PyObject* python_sollyaObject_coeff(python_sollyaObject* self, PyObject* args) {
 
  PyObject* python_sollyaObject_getConstantAsDouble(python_sollyaObject* self, PyObject* args) {
 	double result;
-	int status = sollya_lib_get_constant_as_double(&result, self->sollya_object);
+	sollya_lib_get_constant_as_double(&result, self->sollya_object);
 	return PyFloat_FromDouble(result);
 }
 
  PyObject* python_sollyaObject_getConstantAsInt(python_sollyaObject* self, PyObject* args) {
 	int64_t result;
-	int status = sollya_lib_get_constant_as_int64(&result, self->sollya_object);
+	sollya_lib_get_constant_as_int64(&result, self->sollya_object);
 	return PyInt_FromLong(result);
 }
 
@@ -217,8 +217,9 @@ int silent_callback(sollya_msg_t msg, void* _) {
 PyObject* python_sollyaObject_str(PyObject* self) {
 	// arg: sollya_obj_t foo
 	sollya_obj_t foo = ((python_sollyaObject*) self)->sollya_object;
-    sollya_obj_t a,b,c;
-    int n;
+    //sollya_obj_t a,b,c;
+    sollya_obj_t a,b;
+    // int n;
     char *s;
     //int (*)(sollya_msg_t, void*) current_callback;
 
@@ -293,17 +294,17 @@ int python_sollyaObject_compare(PyObject* a, PyObject* b) {
         return -1;
     }
 
-	 int result;
-
-	 if (sollya_lib_is_true(sollya_lib_cmp_less(obj_a, obj_b))) {
-	 	result = -1;
+	if (sollya_lib_is_true(sollya_lib_cmp_less(obj_a, obj_b))) {
+        return -1;
 	} else if (sollya_lib_is_true(sollya_lib_cmp_equal(obj_a, obj_b))) {
-		result = 0;
+		return 0;
 	} else if (sollya_lib_is_true(sollya_lib_cmp_greater(obj_a, obj_b))) {
-		result = 1;
-	} else cerr << "ERROR: could not compare two objects;" << endl;
-
-	return result;
+		return 1;
+	} else {
+        cerr << "ERROR: could not compare two objects;" << endl;
+        // FIXME: should set exn condition
+        return -1;
+    }
 }
 
 long python_sollyaObject_hash(PyObject* o) {
