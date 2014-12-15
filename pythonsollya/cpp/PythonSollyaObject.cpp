@@ -678,3 +678,6 @@ PyObject* python_sollyaObject_float(PyObject *a) {
 
 	return PyFloat_FromDouble(float_value);
 };
+
+
+// vim: ts=4

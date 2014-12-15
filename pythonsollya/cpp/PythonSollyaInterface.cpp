@@ -253,4 +253,4 @@ void PythonSollyaInterface::destroy() {
 	sollya_lib_close();
 }
 
-
+// vim: ts=4
