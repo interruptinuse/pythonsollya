@@ -44,6 +44,7 @@ class String:    pass
 
 class Return: pass
 class IntToBool: pass
+class Void: pass
 
 arg_dict = {
     Function: "function", 
@@ -334,18 +335,27 @@ def generateGenFunction(function_name):
         code += tab2 + "//pso->sollya_object = result;\n\n"
         code += tab2 + "attachSollyaObject(pso,  result);\n\n"
         code += tab2 + "return (PyObject*) pso;\n" 
-    else:
-        if function_desc[Return] == IntToBool:
-            code += tab + "// sollya function call\n"
-            code += tab + "int result;\n"
-            code += tab + "try {\n"
-            code += tab2 + "result = %s(" % sollya_name
-            code += "sollya_arg0" if arg_count > 0 else ""
-            for i in range(1, arg_count):
-                code += " ,sollya_arg%d" % i
-            code += ");\n"
-            code += tab2 + "if (result) Py_RETURN_TRUE;\n"
-            code += tab2 + "else Py_RETURN_FALSE;\n"
+    elif function_desc[Return] == IntToBool:
+        code += tab + "// sollya function call\n"
+        code += tab + "int result;\n"
+        code += tab + "try {\n"
+        code += tab2 + "result = %s(" % sollya_name
+        code += "sollya_arg0" if arg_count > 0 else ""
+        for i in range(1, arg_count):
+            code += " ,sollya_arg%d" % i
+        code += ");\n"
+        code += tab2 + "if (result) Py_RETURN_TRUE;\n"
+        code += tab2 + "else Py_RETURN_FALSE;\n"
+    elif function_desc[Return] == Void:
+        code += tab + "// sollya function call\n"
+        code += tab + "try {\n"
+        code += tab2 + "%s(" % sollya_name
+        code += "sollya_arg0" if arg_count > 0 else ""
+        for i in range(1, arg_count):
+            code += " ,sollya_arg%d" % i
+        code += ");\n"
+        code += tab2 + "Py_INCREF(Py_None);"
+        code += tab2 + "return Py_None;"
 
     code += tab + "} catch (int &excp) {\n"
     code += tab2 + "cout << \"Signal exception raised: \" << excp << endl;\n" 
