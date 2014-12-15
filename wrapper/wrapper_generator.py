@@ -24,10 +24,6 @@ function_template = lambda func, sollya_func: """PyObject* python_PSI_%s(PyObjec
 }""" % (func, sollya_func)
 header_template = lambda func: "PyObject* python_PSI_%s(PyObject* self, PyObject* args);\n" % func
 
-stdOperand_template = "sollya_obj_t %s = buildOperandFromPyObject(%s);"
-rangeOperand_template = "sollya_obj_t %s = buildIntervalFromPyObject(%s);"
-listOperand_template = "sollya_obj_t %s = buildSollyaListFromPyObject(%s);"
-
 class Args:      pass
 class Function:  pass
 class Integer:   pass
