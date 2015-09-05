@@ -104,13 +104,13 @@ PyObject* python_sollyaObject_coeff(python_sollyaObject* self, PyObject* args) {
 
  PyObject* python_sollyaObject_getConstantAsDouble(python_sollyaObject* self, PyObject* args) {
 	double result;
-	sollya_lib_get_constant_as_double(&result, self->sollya_object);
+	int status = sollya_lib_get_constant_as_double(&result, self->sollya_object);
 	return PyFloat_FromDouble(result);
 }
 
  PyObject* python_sollyaObject_getConstantAsInt(python_sollyaObject* self, PyObject* args) {
 	int64_t result;
-	sollya_lib_get_constant_as_int64(&result, self->sollya_object);
+	int status = sollya_lib_get_constant_as_int64(&result, self->sollya_object);
 	return PyInt_FromLong(result);
 }
 
@@ -217,9 +217,8 @@ int silent_callback(sollya_msg_t msg, void* _) {
 PyObject* python_sollyaObject_str(PyObject* self) {
 	// arg: sollya_obj_t foo
 	sollya_obj_t foo = ((python_sollyaObject*) self)->sollya_object;
-    //sollya_obj_t a,b,c;
     sollya_obj_t a,b;
-    // int n;
+
     char *s;
     //int (*)(sollya_msg_t, void*) current_callback;
 
@@ -254,9 +253,11 @@ PyObject* python_sollyaObject_call(PyObject* self, PyObject* args, PyObject* kwa
         INVALID_OP(!sollya_arg)
 
 		result = sollya_lib_apply(sollya_object, sollya_arg, NULL);
-    } else if (sollya_lib_obj_is_procedure(sollya_object)) {
-        sollya_obj_t sollya_args = buildSollyaListFromPyObject(args);
-		result = sollya_lib_concat(sollya_object, sollya_args);
+    /* NOT SUPPORTED YET in SOLLYA RELEASE
+     * } else if (sollya_lib_obj_is_procedure(sollya_object)) {
+     *   sollya_obj_t sollya_args = buildSollyaListFromPyObject(args);
+	 *	result = sollya_lib_concat(sollya_object, sollya_args);
+     */
 	} else {
 		cerr << "only sollya functions and procedures can be applied! " << endl;
 	}
@@ -449,13 +450,13 @@ PyTypeObject 	python_sollyaObject_type = (PyTypeObject) {
 		0,					/* tp_getattr */
 		0,					/* tp_setattr */
 		python_sollyaObject_compare,					/* tp_compare */
-		python_sollyaObject_str,	        /* tp_repr */
+		0,					/* tp_repr */
 		&sollyaObject_as_number,					/* tp_as_number */
 		0,					/* tp_as_sequence */
 		0,					/* tp_as_mapping */
 		python_sollyaObject_hash,	/* tp_hash */
 		python_sollyaObject_call,	/* tp_call */
-		0,	                                /* tp_str */
+		python_sollyaObject_str,	/* tp_str */
 		0,					/* tp_getattro */
 		0,					/* tp_setattro */
 		0,					/* tp_as_buffer */

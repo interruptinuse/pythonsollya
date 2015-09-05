@@ -24,6 +24,10 @@ function_template = lambda func, sollya_func: """PyObject* python_PSI_%s(PyObjec
 }""" % (func, sollya_func)
 header_template = lambda func: "PyObject* python_PSI_%s(PyObject* self, PyObject* args);\n" % func
 
+stdOperand_template = "sollya_obj_t %s = buildOperandFromPyObject(%s);"
+rangeOperand_template = "sollya_obj_t %s = buildIntervalFromPyObject(%s);"
+listOperand_template = "sollya_obj_t %s = buildSollyaListFromPyObject(%s);"
+
 class Args:      pass
 class Function:  pass
 class Integer:   pass
@@ -123,11 +127,11 @@ general_function = {
     "evaluate": {   Args: [{Mandatory: [Function, [Range, Constant, Function]], Optionnal: []},],
         Name: "sollya_lib_evaluate",
     },
-    "execute": {
-        Args: [{Mandatory: [String], Optionnal: []},],
-        Name: "sollya_lib_execute",
-        Return: Void,
-    },
+    #"execute": {
+    #    Args: [{Mandatory: [String], Optionnal: []},],
+    #    Name: "sollya_lib_execute",
+    #    Return: Void,
+    #},
     "expand": { Args: [{Mandatory: [Function], Optionnal: []},],
         Name: "sollya_lib_expand",
     },
@@ -136,6 +140,9 @@ general_function = {
     },
     "findzeros": {  Args: [{Mandatory: [Function, Range], Optionnal: []},],
         Name: "sollya_lib_findzeros",
+    },
+    "get_prec": { Args: [{Mandatory: [], Optionnal: []},],
+      Name: "sollya_lib_get_prec",
     },
     "guessdegree": {    Args: [{Mandatory: [Function, Range, Constant], Optionnal: [Function, Constant]},],
         Name: "sollya_lib_guessdegree",

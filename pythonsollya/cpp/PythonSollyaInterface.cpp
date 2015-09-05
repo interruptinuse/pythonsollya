@@ -59,14 +59,24 @@ static PyObject* python_PSI_display(PyObject* self, PyObject* args) {
 
 
 static PyObject* python_PSI_set_prec(PyObject* self, PyObject* args) {
-	PyObject* display_mode;
-	PyArg_ParseTuple(args, "O", &display_mode);
+	PyObject* py_sollya_precision;
+	PyArg_ParseTuple(args, "O", &py_sollya_precision);
 
-	sollya_obj_t sollya_new_precision = buildOperandFromPyObject(display_mode);
-	sollya_lib_set_prec(sollya_new_precision);
+    if (!py_sollya_precision) {
+		cerr << "ERROR: missing argument in call to PythonSollya prec(<precision>) function" << endl;
+		PyObject* PSI_missingArg = PyErr_NewException(PSI_StringConstants::PSI_Exception_UnsupportedArg_str, NULL, NULL);
+		PyErr_SetString(PSI_missingArg, "missing arg in call to pythonsollya's prec");;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+        return NULL;
+    } else {
+
+      sollya_obj_t sollya_new_precision = buildOperandFromPyObject(py_sollya_precision);
+      sollya_lib_set_prec(sollya_new_precision);
+    }
+
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject* python_PSI_verbosity(PyObject* self, PyObject* args) {
