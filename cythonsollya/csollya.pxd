@@ -23,6 +23,9 @@ cdef extern from "sollya.h":
   void sollya_lib_clear_obj(sollya_obj_t obj)
 
   int sollya_lib_sprintf(char *, const char *, ...)
+  int sollya_lib_snprintf(char *, size_t, const char *, ...)
+
+  sollya_obj_t sollya_lib_list(sollya_obj_t[], int)
 
   sollya_obj_t sollya_lib_dirtyfindzeros(sollya_obj_t, sollya_obj_t)
   sollya_obj_t sollya_lib_head(sollya_obj_t)

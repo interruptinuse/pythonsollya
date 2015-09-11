@@ -3,6 +3,7 @@
 from csollya cimport *
 cimport libc.stdint
 from cpython.int cimport PyInt_AsLong
+from libc.stdlib cimport malloc, free
 
 ## initialization of Sollya library
 sollya_lib_init()
@@ -77,9 +78,12 @@ cdef class SollyaObject:
     result._c_sollya_obj = sollya_lib_pow(sollya_op0, sollya_op1)
     return result
 
-  def __str__(self):
-    cdef char* result_str = NULL
-    sollya_lib_sprintf(result_str, <char*>"%b", <sollya_obj_t>self._c_sollya_obj)
+  def __repr__(SollyaObject self):
+    cdef int n = sollya_lib_snprintf(NULL, 0, <char*>"%b", <sollya_obj_t>self._c_sollya_obj)
+    cdef char* result_str
+    if n > 0:
+      result_str = <char*>malloc(n)
+      sollya_lib_sprintf(result_str, <char*>"%b", <sollya_obj_t>self._c_sollya_obj)
     return result_str
 
   cdef sollya_obj_t extract_c_sollya_obj(self):
@@ -95,6 +99,8 @@ cdef class SollyaObject:
 # @return 
 cdef sollya_obj_t convertPythonTo_sollya_obj_t(op):
   cdef sollya_obj_t sollya_op
+  cdef sollya_obj_t* sollya_list
+  cdef int n
   if isinstance(op, SollyaObject):
     sollya_op = (<SollyaObject>op)._c_sollya_obj
     return sollya_op
@@ -103,6 +109,13 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op):
     return sollya_op
   elif isinstance(op, int):
     sollya_op = sollya_lib_constant_from_int64(PyInt_AsLong(op))
+    return sollya_op
+  elif isinstance(op, list):
+    n = len(op) 
+    sollya_list = <sollya_obj_t*>malloc(sizeof(sollya_obj_t) * n)
+    for i in range(n):
+      sollya_list[i] = convertPythonTo_sollya_obj_t(op[i])
+    sollya_op = sollya_lib_list(sollya_list, n)
     return sollya_op
   else:
     print "conversion not supported to sollya object ", op, op.__class__
