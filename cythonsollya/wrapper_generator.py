@@ -3,7 +3,7 @@ class sollya_obj_t:
   python_class     = "SollyaObject"
   c_format         = "sollya_obj_t"
   convert_function = "convertPythonTo_sollya_obj_t" 
-  result_template  = "%s._c_sollya_obj = %s"
+  result_template  = "cdef SollyaObject %s = SollyaObject.__new__(SollyaObject)\n  %s._c_sollya_obj = %s"
 
 class SOT:
   def __init__(self, return_format, name, input_formats):
@@ -29,7 +29,7 @@ class SOT:
     declaration = "def %s(%s):" % (binding_name, ", ".join(binding_inputs))
 
     call_code = "%s(%s)" % (self.name, ", ".join(call_op_list))
-    result = self.return_format.result_template % ("result", call_code)
+    result = self.return_format.result_template % ("result", "result", call_code)
     return declaration + "\n" + code_op_decl + "  " + result + "\n  return result\n"
 
 

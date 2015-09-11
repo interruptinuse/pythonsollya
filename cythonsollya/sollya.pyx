@@ -122,11 +122,8 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op):
     raise Exception()
 
 
-def exp(op):
-  cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-  result._c_sollya_obj = sollya_lib_exp(convertPythonTo_sollya_obj_t(op))
-  return result
 
 def lib_init():
   sollya_lib_init()
 
+include "sollya_func.pxi"
