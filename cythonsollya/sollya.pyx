@@ -3,6 +3,7 @@
 from csollya cimport *
 cimport libc.stdint
 from cpython.int cimport PyInt_AsLong
+from cpython.string cimport PyString_AsString
 from libc.stdlib cimport malloc, free
 
 ## initialization of Sollya library
@@ -130,6 +131,9 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op):
     for i in range(n):
       sollya_list[i] = convertPythonTo_sollya_obj_t(op[i])
     sollya_op = sollya_lib_list(sollya_list, n)
+    return sollya_op
+  elif isinstance(op, str):
+    sollya_op = sollya_lib_string(PyString_AsString(op))
     return sollya_op
   else:
     print "conversion not supported to sollya object ", op, op.__class__

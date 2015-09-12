@@ -109,6 +109,8 @@ sollya_h_list = [
   SOT(sollya_obj_t, "sollya_lib_nearestint",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_length",(sollya_obj_t,)),
 
+  SOT(sollya_obj_t, "sollya_lib_parse",(sollya_obj_t,)),
+
   SOT(sollya_obj_t, "sollya_lib_inf",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_sup",(sollya_obj_t,)),
 
