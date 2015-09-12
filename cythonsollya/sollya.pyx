@@ -38,6 +38,20 @@ cdef class SollyaObject:
     i = sollya_lib_get_constant_as_double(result, self._c_sollya_obj)
     return result[0]
 
+  ## Negate operator (-self) for sollya object
+  def __neg__(self):
+    cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
+    cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
+    result._c_sollya_obj = sollya_lib_neg(sollya_op0)
+    return result
+
+  ## Not operator (!self) for sollya object
+  def __not__(self):
+    cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
+    cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
+    result._c_sollya_obj = sollya_lib_negate(sollya_op0)
+    return result
+
   ## addition operator for sollya objects
   def __add__(self, op):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
@@ -121,9 +135,55 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op):
     print "conversion not supported to sollya object ", op, op.__class__
     raise Exception()
 
+cdef SollyaObject convert_sollya_obj_t_to_PythonObject(sollya_obj_t sollya_op):
+  cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
+  result._c_sollya_obj = sollya_op
+  return result
 
+def Interval(inf, sup = None):
+  if sup is None:
+    return sollya_range(inf, inf)
+  else:
+    return sollya_range(inf, sup)
 
 def lib_init():
   sollya_lib_init()
 
 include "sollya_func.pxi"
+
+lib_init()
+
+binary32 = convert_sollya_obj_t_to_PythonObject(sollya_lib_single_obj())
+binary64 = convert_sollya_obj_t_to_PythonObject(sollya_lib_double_obj())
+binary80 = convert_sollya_obj_t_to_PythonObject(sollya_lib_doubleextended_obj())
+
+absolute = convert_sollya_obj_t_to_PythonObject(sollya_lib_absolute())
+relative = convert_sollya_obj_t_to_PythonObject(sollya_lib_relative())
+fixed    = convert_sollya_obj_t_to_PythonObject(sollya_lib_fixed())
+floating = convert_sollya_obj_t_to_PythonObject(sollya_lib_floating())
+error    = convert_sollya_obj_t_to_PythonObject(sollya_lib_error())
+
+RD       = convert_sollya_obj_t_to_PythonObject(sollya_lib_round_down())
+RU       = convert_sollya_obj_t_to_PythonObject(sollya_lib_round_up())
+RZ       = convert_sollya_obj_t_to_PythonObject(sollya_lib_round_towards_zero())
+RN       = convert_sollya_obj_t_to_PythonObject(sollya_lib_round_to_nearest())
+
+doubledouble = convert_sollya_obj_t_to_PythonObject(sollya_lib_double_double_obj())
+tripledouble = convert_sollya_obj_t_to_PythonObject(sollya_lib_triple_double_obj())
+
+pi = convert_sollya_obj_t_to_PythonObject(sollya_lib_pi())
+
+on = convert_sollya_obj_t_to_PythonObject(sollya_lib_off())
+off = convert_sollya_obj_t_to_PythonObject(sollya_lib_on())
+
+binary      = convert_sollya_obj_t_to_PythonObject(sollya_lib_binary())
+powers      = convert_sollya_obj_t_to_PythonObject(sollya_lib_powers())
+hexadecimal = convert_sollya_obj_t_to_PythonObject(sollya_lib_hexadecimal())
+dyadic      = convert_sollya_obj_t_to_PythonObject(sollya_lib_dyadic())
+decimal     = convert_sollya_obj_t_to_PythonObject(sollya_lib_decimal())
+
+def PSI_is_range(SollyaObject op):
+  return sollya_lib_obj_is_range(op._c_sollya_obj)
+
+S2 = SollyaObject(2)
+

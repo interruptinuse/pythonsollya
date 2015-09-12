@@ -4,8 +4,35 @@ class sollya_obj_t:
   c_format         = "sollya_obj_t"
   convert_function = "convertPythonTo_sollya_obj_t" 
   result_template  = "cdef SollyaObject %s = SollyaObject.__new__(SollyaObject)\n  %s._c_sollya_obj = %s"
+  @staticmethod
+  def result_gen(result_var, result_call):
+    return sollya_obj_t.result_template % (result_var, result_var, result_call)
+
+  @staticmethod
+  def return_gen(result_var):
+    return "return %s\n" % result_var
+
+class void: 
+  @staticmethod
+  def result_gen(result_var, result_call):
+    return "%s" % (result_call)
+
+  @staticmethod
+  def return_gen(result_var):
+    return ""
+
+class SSO:
+  """ Sollya Static Object """
+  def __init__(self, binding_name_list, sollya_lib_func):
+    self.binding_name_list = binding_name_list
+    self.sollya_lib_func = sollya_lib_func
+
+  def generate_binding(self):
+    pass
+    
 
 class SOT:
+  """ Sollya Object template """
   def __init__(self, return_format, name, input_formats, binding_name = None):
     self.return_format = return_format
     self.name = name
@@ -31,14 +58,15 @@ class SOT:
     declaration = "def %s(%s):" % (self.binding_name, ", ".join(binding_inputs))
 
     call_code = "%s(%s)" % (self.name, ", ".join(call_op_list))
-    result = self.return_format.result_template % ("result", "result", call_code)
-    return declaration + "\n" + code_op_decl + "  " + result + "\n  return result\n"
+    result = self.return_format.result_gen("result", call_code)
+    return declaration + "\n" + code_op_decl + "  " + result + "\n  " + self.return_format.return_gen("result")
 
 
 sollya_h_list = [
   SOT(sollya_obj_t, "sollya_lib_dirtyfindzeros",(sollya_obj_t, sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_head",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_roundcorrectly",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_round",(sollya_obj_t,sollya_obj_t,sollya_obj_t)),
   SOT(sollya_obj_t, "sollya_lib_revert",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_sort",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_mantissa",(sollya_obj_t,)),
@@ -80,6 +108,18 @@ sollya_h_list = [
   SOT(sollya_obj_t, "sollya_lib_floor",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_nearestint",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_length",(sollya_obj_t,)),
+
+  SOT(sollya_obj_t, "sollya_lib_inf",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_sup",(sollya_obj_t,)),
+
+  SOT(void, "sollya_lib_set_display",(sollya_obj_t,), binding_name = "display"),
+  SOT(void, "sollya_lib_set_prec",(sollya_obj_t,), binding_name = "prec"),
+  SOT(void, "sollya_lib_set_verbosity",(sollya_obj_t,), binding_name = "verbosity"),
+  SOT(void, "sollya_lib_set_roundingwarnings",(sollya_obj_t,), binding_name = "roundingwarnings"),
+]
+
+sollya_static_obj = [
+  SSO(["binary32"], "sollya_lib_single_obj"),
 ]
 
 if __name__ == "__main__":

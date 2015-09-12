@@ -30,6 +30,7 @@ cdef extern from "sollya.h":
   sollya_obj_t sollya_lib_dirtyfindzeros(sollya_obj_t, sollya_obj_t)
   sollya_obj_t sollya_lib_head(sollya_obj_t)
   sollya_obj_t sollya_lib_roundcorrectly(sollya_obj_t)
+  sollya_obj_t sollya_lib_round(sollya_obj_t, sollya_obj_t, sollya_obj_t)
   sollya_obj_t sollya_lib_revert(sollya_obj_t)
   sollya_obj_t sollya_lib_sort(sollya_obj_t)
   sollya_obj_t sollya_lib_mantissa(sollya_obj_t)
@@ -96,3 +97,50 @@ cdef extern from "sollya.h":
   sollya_obj_t sollya_lib_mid(sollya_obj_t)
   sollya_obj_t sollya_lib_inf(sollya_obj_t)
   sollya_obj_t sollya_lib_diff(sollya_obj_t)
+
+
+
+  sollya_obj_t sollya_lib_absolute()
+  sollya_obj_t sollya_lib_relative()
+  sollya_obj_t sollya_lib_fixed()
+  sollya_obj_t sollya_lib_floating()
+  sollya_obj_t sollya_lib_error()
+  sollya_obj_t sollya_lib_double_obj()
+  sollya_obj_t sollya_lib_single_obj()
+  sollya_obj_t sollya_lib_quad_obj()
+  sollya_obj_t sollya_lib_halfprecision_obj()
+  sollya_obj_t sollya_lib_doubleextended_obj()
+  sollya_obj_t sollya_lib_double_double_obj()
+  sollya_obj_t sollya_lib_triple_double_obj()
+
+  sollya_obj_t sollya_lib_round_down()
+  sollya_obj_t sollya_lib_round_up()
+  sollya_obj_t sollya_lib_round_towards_zero()
+  sollya_obj_t sollya_lib_round_to_nearest()
+
+
+  sollya_obj_t sollya_lib_pi()
+
+  sollya_obj_t sollya_lib_on()
+  sollya_obj_t sollya_lib_off()
+
+  sollya_obj_t sollya_lib_dyadic()
+  sollya_obj_t sollya_lib_powers()
+  sollya_obj_t sollya_lib_binary()
+  sollya_obj_t sollya_lib_hexadecimal()
+  sollya_obj_t sollya_lib_decimal()
+
+  bint sollya_lib_obj_is_function(sollya_obj_t)
+  bint sollya_lib_obj_is_list(sollya_obj_t)
+  bint sollya_lib_obj_is_end_elliptic_list(sollya_obj_t)
+  bint sollya_lib_obj_is_range(sollya_obj_t)
+  bint sollya_lib_obj_is_string(sollya_obj_t)
+  bint sollya_lib_obj_is_error(sollya_obj_t)
+  bint sollya_lib_obj_is_structure(sollya_obj_t)
+  bint sollya_lib_obj_is_procedure(sollya_obj_t)
+
+
+  void sollya_lib_set_roundingwarnings(sollya_obj_t)
+  void sollya_lib_set_display(sollya_obj_t)
+  void sollya_lib_set_prec(sollya_obj_t)
+  void sollya_lib_set_verbosity(sollya_obj_t)

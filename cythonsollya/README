@@ -1,3 +1,10 @@
+# generate automated part of the wrapper
 python ./wrapper_generator.py > ./sollya_func.pxi
-CFLAGS="-I/home/nicolas/MetalibmClean/local/include/" LDFLAGS="-L/home/nicolas/MetalibmClean/local/lib/" python setup.py build_ext -i
+
+# indicate sollya include and lib dir
+CFLAGS="-I/home/nicolas/MetalibmClean/local/include/" LDFLAGS="-L/home/nicolas/MetalibmClean/local/lib/" python setup.py build
+CFLAGS="-I/home/nicolas/MetalibmClean/local/include/" LDFLAGS="-L/home/nicolas/MetalibmClean/local/lib/" python setup.py build
+
+# export sollya lib dir into LD_LIBRARY_PATH
+python -c "import sollya"
 
