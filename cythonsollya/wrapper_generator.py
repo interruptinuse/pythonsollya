@@ -6,14 +6,17 @@ class sollya_obj_t:
   result_template  = "cdef SollyaObject %s = SollyaObject.__new__(SollyaObject)\n  %s._c_sollya_obj = %s"
 
 class SOT:
-  def __init__(self, return_format, name, input_formats):
+  def __init__(self, return_format, name, input_formats, binding_name = None):
     self.return_format = return_format
     self.name = name
     self.input_formats = input_formats
+    if binding_name is None:
+      self.binding_name = self.name.replace("sollya_lib_", "")
+    else:
+      self.binding_name = binding_name
 
   def generate_binding(self):
     # building binding name
-    binding_name = self.name.replace("sollya_lib_", "")
     # building binding inputs
     binding_inputs = []
     call_op_list = []
@@ -24,9 +27,8 @@ class SOT:
       call_op_list.append("sollya_op%d" % i)
       code_op_decl += "  cdef %s sollya_op%d = %s(op%d)\n" % (op_format.c_format, i, op_format.convert_function, i) 
 
-      
     # generating declaration
-    declaration = "def %s(%s):" % (binding_name, ", ".join(binding_inputs))
+    declaration = "def %s(%s):" % (self.binding_name, ", ".join(binding_inputs))
 
     call_code = "%s(%s)" % (self.name, ", ".join(call_op_list))
     result = self.return_format.result_template % ("result", "result", call_code)
@@ -43,7 +45,8 @@ sollya_h_list = [
   SOT(sollya_obj_t, "sollya_lib_exponent",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_precision",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_tail",(sollya_obj_t,)),
-  SOT(sollya_obj_t, "sollya_lib_range",(sollya_obj_t, sollya_obj_t,)),
+  # bound to sollya_range to avoid polluting python's range
+  SOT(sollya_obj_t, "sollya_lib_range",(sollya_obj_t, sollya_obj_t,), binding_name = "sollya_range"),
   SOT(sollya_obj_t, "sollya_lib_sqrt",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_exp",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_log",(sollya_obj_t,)),

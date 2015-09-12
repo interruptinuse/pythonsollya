@@ -1,0 +1,3 @@
+python ./wrapper_generator.py > ./sollya_func.pxi
+CFLAGS="-I/home/nicolas/MetalibmClean/local/include/" LDFLAGS="-L/home/nicolas/MetalibmClean/local/lib/" python setup.py build_ext -i
+
