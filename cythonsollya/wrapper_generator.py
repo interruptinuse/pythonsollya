@@ -3,10 +3,23 @@ class sollya_obj_t:
   python_class     = "SollyaObject"
   c_format         = "sollya_obj_t"
   convert_function = "convertPythonTo_sollya_obj_t" 
-  result_template  = "cdef SollyaObject %s = SollyaObject.__new__(SollyaObject)\n  %s._c_sollya_obj = %s"
+  result_decl_tplt= "cdef SollyaObject %s = SollyaObject.__new__(SollyaObject)\n"
+  result_asgn_tplt = "%s._c_sollya_obj = %s"
   @staticmethod
-  def result_gen(result_var, result_call):
-    return sollya_obj_t.result_template % (result_var, result_var, result_call)
+  def result_decl_gen(result_var, tab = 2):
+    indent = " " * tab 
+    result = indent + sollya_obj_t.result_decl_tplt % (result_var)
+    return result
+
+  @staticmethod
+  def result_asgn_gen(result_var, result_call, tab = 2):
+    indent = " " * tab 
+    result = indent + sollya_obj_t.result_asgn_tplt % (result_var, result_call)
+    return result
+
+  @staticmethod
+  def result_gen(result_var, result_call, tab = 2):
+    return sollya_obj_t.result_decl_gen(result_var, tab) + sollya_obj_t.result_asgn_gen(result_var, result_call, tab)
 
   @staticmethod
   def return_gen(result_var):
@@ -14,8 +27,16 @@ class sollya_obj_t:
 
 class void: 
   @staticmethod
-  def result_gen(result_var, result_call):
-    return "%s" % (result_call)
+  def result_decl_gen(result_var, tab = 2):
+    return ""
+
+  @staticmethod
+  def result_asgn_gen(result_var, result_call, tab = 2):
+    return "%s%s" % (" " * tab, result_call)
+
+  @staticmethod
+  def result_gen(result_var, result_call, tab = 2):
+    return void.result_decl_gen(result_var, tab) + void.result_asgn_gen(result_var, result_call, tab)
 
   @staticmethod
   def return_gen(result_var):
@@ -33,10 +54,11 @@ class SSO:
 
 class SOT:
   """ Sollya Object template """
-  def __init__(self, return_format, name, input_formats, binding_name = None):
+  def __init__(self, return_format, name, input_formats, optional_inputs = [], binding_name = None):
     self.return_format = return_format
     self.name = name
     self.input_formats = input_formats
+    self.optional_inputs = optional_inputs
     if binding_name is None:
       self.binding_name = self.name.replace("sollya_lib_", "")
     else:
@@ -48,18 +70,47 @@ class SOT:
     binding_inputs = []
     call_op_list = []
     code_op_decl = ""
+    num_opt_inputs = len(self.optional_inputs)
+    # building declaration and assignation of required arguments
     for i in xrange(len(self.input_formats)):
       op_format = self.input_formats[i]
       binding_inputs.append("op%d" % i)
       call_op_list.append("sollya_op%d" % i)
       code_op_decl += "  cdef %s sollya_op%d = %s(op%d)\n" % (op_format.c_format, i, op_format.convert_function, i) 
+    # building declaration of optional arguments
+    for i in xrange(len(self.optional_inputs)):
+      op_format = self.optional_inputs[i]
+      code_op_decl += "  cdef %s sollya_opt_op%d\n" % (op_format.c_format, i)
+    # building assignation of optional arguments
+    if len(self.optional_inputs) > 0:
+      code_op_decl += "  if len(opt_args) > %d:\n" % (num_opt_inputs)
+      code_op_decl += "    print \"Error in %s, too many positional argumens\"\n" % (self.binding_name)
+      code_op_decl += "    print \"%d expected, got %%d\" %% (len(opt_args))\n" % (num_opt_inputs)
+      code_op_decl += "    raise Exception()\n"
+
 
     # generating declaration
-    declaration = "def %s(%s):" % (self.binding_name, ", ".join(binding_inputs))
+    if num_opt_inputs == 0:
+      # no optinal arguments
+      declaration = "def %s(%s):" % (self.binding_name, ", ".join(binding_inputs))
+      call_code = "%s(%s)" % (self.name, ", ".join(call_op_list))
+      result = self.return_format.result_gen("result", call_code, tab = 2)
+      return declaration + "\n" + code_op_decl + result + "\n  " + self.return_format.return_gen("result")
+    else:
+      # optinal arguments
+      declaration = "def %s(%s, *opt_args):" % (self.binding_name, ", ".join(binding_inputs))
+      code_op_decl += self.return_format.result_decl_gen("result", tab = 2)
+      for i in xrange(num_opt_inputs+1):
+        call_op_list += ["sollya_opt_op%d" % j for j in xrange(i)]
+        call_code = "%s(%s)" % (self.name, ", ".join(call_op_list))
+        result = self.return_format.result_asgn_gen("result", call_code, tab = 4)
+        code_op_decl += "  if len(opt_args) == %d:\n" % i
+        for j in xrange(i):
+          op_format = self.optional_inputs[j]
+          code_op_decl += "    sollya_opt_op%d = %s(opt_args[%d])\n" % (j,op_format.convert_function,j)
+        code_op_decl += result + "\n"
+      return declaration + "\n" + code_op_decl + "  " + self.return_format.return_gen("result")
 
-    call_code = "%s(%s)" % (self.name, ", ".join(call_op_list))
-    result = self.return_format.result_gen("result", call_code)
-    return declaration + "\n" + code_op_decl + "  " + result + "\n  " + self.return_format.return_gen("result")
 
 
 sollya_h_list = [
@@ -118,6 +169,18 @@ sollya_h_list = [
   SOT(void, "sollya_lib_set_prec",(sollya_obj_t,), binding_name = "prec"),
   SOT(void, "sollya_lib_set_verbosity",(sollya_obj_t,), binding_name = "verbosity"),
   SOT(void, "sollya_lib_set_roundingwarnings",(sollya_obj_t,), binding_name = "roundingwarnings"),
+  SOT(sollya_obj_t, "sollya_lib_guessdegree", (sollya_obj_t,sollya_obj_t,sollya_obj_t), optional_inputs = [sollya_obj_t, sollya_obj_t]),
+
+  SOT(sollya_obj_t, "sollya_lib_fpminimax", (sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t,), optional_inputs = [sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t]),
+  SOT(sollya_obj_t, "sollya_lib_remez", (sollya_obj_t, sollya_obj_t, sollya_obj_t,), optional_inputs = [sollya_obj_t, sollya_obj_t, sollya_obj_t]),
+  SOT(sollya_obj_t, "sollya_lib_infnorm", (sollya_obj_t, sollya_obj_t), optional_inputs = [sollya_obj_t, sollya_obj_t]),
+  SOT(sollya_obj_t, "sollya_lib_supnorm", (sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t)),
+
+  SOT(sollya_obj_t, "sollya_lib_findzeros", (sollya_obj_t, sollya_obj_t)),
+  SOT(sollya_obj_t, "sollya_lib_dirtyinfnorm", (sollya_obj_t, sollya_obj_t)),
+  SOT(sollya_obj_t, "sollya_lib_numberroots", (sollya_obj_t, sollya_obj_t)),
+  SOT(sollya_obj_t, "sollya_lib_integral", (sollya_obj_t, sollya_obj_t)),
+  SOT(sollya_obj_t, "sollya_lib_dirtyintegral", (sollya_obj_t, sollya_obj_t)),
 ]
 
 sollya_static_obj = [

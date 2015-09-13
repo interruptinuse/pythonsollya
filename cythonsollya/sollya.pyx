@@ -58,8 +58,29 @@ cdef class SollyaObject:
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
     cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
     cdef sollya_obj_t sollya_op1 = convertPythonTo_sollya_obj_t(op)
-    result._c_sollya_obj = sollya_lib_add(sollya_op0, sollya_op1)
+    cdef int list_length
+    if isinstance(self, list) and sollya_lib_obj_is_list(sollya_op1):
+      list_length = sollya_lib_length(sollya_op2)
+      result_list = self
+      for i in range(list_length):
+        result_list.append(op[i])
+      return result_list
+    elif isinstance(op,   list) and sollya_lib_obj_is_list(sollya_op0):
+    else:
+      result._c_sollya_obj = sollya_lib_add(sollya_op0, sollya_op1)
     return result
+
+  def __getitem__(self, index):
+    cdef sollya_obj_t sollya_result
+    cdef sollya_obj_t sollya_op = convertPythonTo_sollya_obj_t(self)
+    cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
+    cdef int flag
+    if isinstance(self, list):
+      return self[int(index)]
+    else:
+      flag = sollya_lib_get_element_in_list(&sollya_result, sollya_op, PyInt_AsLong(int(index)))
+      result._c_sollya_obj = sollya_result
+      return result
 
   ## Subtraction operator for sollya objects
   def __sub__(self, op):
@@ -137,7 +158,7 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op):
     return sollya_op
   else:
     print "conversion not supported to sollya object ", op, op.__class__
-    raise Exception()
+    return sollya_lib_error()
 
 cdef SollyaObject convert_sollya_obj_t_to_PythonObject(sollya_obj_t sollya_op):
   cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
@@ -185,6 +206,11 @@ powers      = convert_sollya_obj_t_to_PythonObject(sollya_lib_powers())
 hexadecimal = convert_sollya_obj_t_to_PythonObject(sollya_lib_hexadecimal())
 dyadic      = convert_sollya_obj_t_to_PythonObject(sollya_lib_dyadic())
 decimal     = convert_sollya_obj_t_to_PythonObject(sollya_lib_decimal())
+
+x           = convert_sollya_obj_t_to_PythonObject(sollya_lib_free_variable())
+error       = convert_sollya_obj_t_to_PythonObject(sollya_lib_error())
+
+
 
 def PSI_is_range(SollyaObject op):
   return sollya_lib_obj_is_range(op._c_sollya_obj)

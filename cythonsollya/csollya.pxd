@@ -26,7 +26,10 @@ cdef extern from "sollya.h":
   int sollya_lib_snprintf(char *, size_t, const char *, ...)
 
   sollya_obj_t sollya_lib_list(sollya_obj_t[], int)
+  int sollya_lib_get_element_in_list(sollya_obj_t *, sollya_obj_t, int)
   sollya_obj_t sollya_lib_string(char *)
+
+  sollya_obj_t sollya_lib_length(sollya_obj_t)
 
   sollya_obj_t sollya_lib_dirtyfindzeros(sollya_obj_t, sollya_obj_t)
   sollya_obj_t sollya_lib_head(sollya_obj_t)
@@ -151,14 +154,17 @@ cdef extern from "sollya.h":
 
 
 
-  sollya_obj_t sollya_lib_guessdegree(sollya_obj_t, sollya_obj_t, sollya_obj_t, ...);
-  sollya_obj_t sollya_lib_fpminimax(sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t, ...);
-  sollya_obj_t sollya_lib_remez(sollya_obj_t, sollya_obj_t, sollya_obj_t, ...);
-  sollya_obj_t sollya_lib_infnorm(sollya_obj_t, sollya_obj_t, ...);
-  sollya_obj_t sollya_lib_supnorm(sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t);
+  sollya_obj_t sollya_lib_guessdegree(sollya_obj_t, sollya_obj_t, sollya_obj_t, ...)
+  sollya_obj_t sollya_lib_fpminimax(sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t, ...)
+  sollya_obj_t sollya_lib_remez(sollya_obj_t, sollya_obj_t, sollya_obj_t, ...)
+  sollya_obj_t sollya_lib_infnorm(sollya_obj_t, sollya_obj_t, ...)
+  sollya_obj_t sollya_lib_supnorm(sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t)
 
-  sollya_obj_t sollya_lib_findzeros(sollya_obj_t, sollya_obj_t);
-  sollya_obj_t sollya_lib_dirtyinfnorm(sollya_obj_t, sollya_obj_t);
-  sollya_obj_t sollya_lib_numberroots(sollya_obj_t, sollya_obj_t);
-  sollya_obj_t sollya_lib_integral(sollya_obj_t, sollya_obj_t);
-  sollya_obj_t sollya_lib_dirtyintegral(sollya_obj_t, sollya_obj_t);
+  sollya_obj_t sollya_lib_findzeros(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_dirtyinfnorm(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_numberroots(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_integral(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_dirtyintegral(sollya_obj_t, sollya_obj_t)
+  
+  sollya_obj_t sollya_lib_free_variable()
+  sollya_obj_t sollya_lib_error()
