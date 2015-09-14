@@ -7,10 +7,9 @@ export SOLLYA_INSTALL_DIR=/work1/hardware/users/nbrunie/CythonSollya/local/
 python ./wrapper_generator.py > ./sollya_func.pxi
 
 # indicate sollya include and lib dir
-CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python setup.py build
-CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python setup.py install
+CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python setup.py build_ext -i
 
 # export sollya lib dir into LD_LIBRARY_PATH and test build + install
 
-LD_LIBRARY_PATH=$SOLLYA_INSTALL_DIR/lib/:$LD_LIBRARY_PATH python ./tests/test_build.py
+PYTHONPATH=. LD_LIBRARY_PATH=$SOLLYA_INSTALL_DIR/lib/:$LD_LIBRARY_PATH python ./tests/test_build.py
 
