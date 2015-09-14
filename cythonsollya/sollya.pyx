@@ -59,15 +59,15 @@ cdef class SollyaObject:
     cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
     cdef sollya_obj_t sollya_op1 = convertPythonTo_sollya_obj_t(op)
     cdef int list_length
-    if isinstance(self, list) and sollya_lib_obj_is_list(sollya_op1):
-      list_length = sollya_lib_length(sollya_op2)
-      result_list = self
-      for i in range(list_length):
-        result_list.append(op[i])
-      return result_list
-    elif isinstance(op,   list) and sollya_lib_obj_is_list(sollya_op0):
-    else:
-      result._c_sollya_obj = sollya_lib_add(sollya_op0, sollya_op1)
+    #if isinstance(self, list) and sollya_lib_obj_is_list(sollya_op1):
+    #  list_length = sollya_lib_length(sollya_op2)
+    #  result_list = self
+    #  for i in range(list_length):
+    #    result_list.append(op[i])
+    #  return result_list
+    #elif isinstance(op,   list) and sollya_lib_obj_is_list(sollya_op0):
+    #else:
+    result._c_sollya_obj = sollya_lib_add(sollya_op0, sollya_op1)
     return result
 
   def __getitem__(self, index):

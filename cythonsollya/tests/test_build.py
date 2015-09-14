@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+# minimal test script for new python binding for sollya library
+# (a.k.a cythonsollya)
+
+import sys
 from pythonsollya import *
 
 print "initializing sollya library"
@@ -34,3 +39,5 @@ print "SollyaObject(\"hello world\")"
 print SollyaObject("hello world")
 print "End"
 
+
+sys.exit(0)
