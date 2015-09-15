@@ -101,8 +101,8 @@ class SOT:
       declaration = "def %s(%s, *opt_args):" % (self.binding_name, ", ".join(binding_inputs))
       code_op_decl += self.return_format.result_decl_gen("result", tab = 2)
       for i in xrange(num_opt_inputs+1):
-        call_op_list += ["sollya_opt_op%d" % j for j in xrange(i)]
-        call_code = "%s(%s)" % (self.name, ", ".join(call_op_list))
+        call_opt_list = call_op_list + ["sollya_opt_op%d" % j for j in xrange(i)] + ["NULL"]
+        call_code = "%s(%s)" % (self.name, ", ".join(call_opt_list))
         result = self.return_format.result_asgn_gen("result", call_code, tab = 4)
         code_op_decl += "  if len(opt_args) == %d:\n" % i
         for j in xrange(i):
@@ -117,6 +117,16 @@ sollya_h_list = [
   SOT(sollya_obj_t, "sollya_lib_dirtyfindzeros",(sollya_obj_t, sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_head",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_roundcorrectly",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_degree", (sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_numerator", (sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_denominator", (sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_substitute", (sollya_obj_t, sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_composepolynomials", (sollya_obj_t, sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_coeff", (sollya_obj_t, sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_subpoly", (sollya_obj_t, sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_roundcoefficients", (sollya_obj_t, sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_rationalapprox", (sollya_obj_t, sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_evaluate", (sollya_obj_t, sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_round",(sollya_obj_t,sollya_obj_t,sollya_obj_t)),
   SOT(sollya_obj_t, "sollya_lib_revert",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_sort",(sollya_obj_t,)),

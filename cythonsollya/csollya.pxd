@@ -22,6 +22,7 @@ cdef extern from "sollya.h":
 
   void sollya_lib_clear_obj(sollya_obj_t obj)
 
+  int sollya_lib_printf(const char *, ...)
   int sollya_lib_sprintf(char *, const char *, ...)
   int sollya_lib_snprintf(char *, size_t, const char *, ...)
 
@@ -31,9 +32,30 @@ cdef extern from "sollya.h":
 
   sollya_obj_t sollya_lib_length(sollya_obj_t)
 
+  sollya_obj_t sollya_lib_cmp_equal(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_cmp_in(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_cmp_less(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_cmp_greater(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_cmp_less_equal(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_cmp_greater_equal(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_cmp_not_equal(sollya_obj_t, sollya_obj_t)
+
+  int sollya_lib_is_true(sollya_obj_t)
+  int sollya_lib_is_false(sollya_obj_t)
+
   sollya_obj_t sollya_lib_dirtyfindzeros(sollya_obj_t, sollya_obj_t)
   sollya_obj_t sollya_lib_head(sollya_obj_t)
   sollya_obj_t sollya_lib_roundcorrectly(sollya_obj_t)
+  sollya_obj_t sollya_lib_degree(sollya_obj_t)
+  sollya_obj_t sollya_lib_numerator(sollya_obj_t)
+  sollya_obj_t sollya_lib_denominator(sollya_obj_t)
+  sollya_obj_t sollya_lib_substitute(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_composepolynomials(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_coeff(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_subpoly(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_roundcoefficients(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_rationalapprox(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_evaluate(sollya_obj_t, sollya_obj_t)
   sollya_obj_t sollya_lib_round(sollya_obj_t, sollya_obj_t, sollya_obj_t)
   sollya_obj_t sollya_lib_revert(sollya_obj_t)
   sollya_obj_t sollya_lib_sort(sollya_obj_t)
@@ -152,6 +174,7 @@ cdef extern from "sollya.h":
   sollya_obj_t sollya_lib_parse_string(const char *)
   sollya_obj_t sollya_lib_parse(sollya_obj_t)
 
+  sollya_obj_t sollya_lib_copy_obj(sollya_obj_t)
 
 
   sollya_obj_t sollya_lib_guessdegree(sollya_obj_t, sollya_obj_t, sollya_obj_t, ...)

@@ -44,6 +44,7 @@ cdef class SollyaObject:
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
     cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
     result._c_sollya_obj = sollya_lib_neg(sollya_op0)
+    sollya_lib_clear_obj(sollya_op0)
     return result
 
   ## Not operator (!self) for sollya object
@@ -51,6 +52,7 @@ cdef class SollyaObject:
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
     cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
     result._c_sollya_obj = sollya_lib_negate(sollya_op0)
+    sollya_lib_clear_obj(sollya_op0)
     return result
 
   ## addition operator for sollya objects
@@ -68,17 +70,21 @@ cdef class SollyaObject:
       sollya_op0 = convertPythonTo_sollya_obj_t(self)
       sollya_op1 = convertPythonTo_sollya_obj_t(op)
       result._c_sollya_obj = sollya_lib_add(sollya_op0, sollya_op1)
+      sollya_lib_clear_obj(sollya_op0)
+      sollya_lib_clear_obj(sollya_op1)
       return result
 
   def __getitem__(self, index):
     cdef sollya_obj_t sollya_result
-    cdef sollya_obj_t sollya_op = convertPythonTo_sollya_obj_t(self)
+    cdef sollya_obj_t sollya_op
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
     cdef int flag
     if isinstance(self, list):
       return self[int(index)]
     else:
+      sollya_op = convertPythonTo_sollya_obj_t(self)
       flag = sollya_lib_get_element_in_list(&sollya_result, sollya_op, PyInt_AsLong(int(index)))
+      sollya_lib_clear_obj(sollya_op)
       result._c_sollya_obj = sollya_result
       return result
 
@@ -88,6 +94,8 @@ cdef class SollyaObject:
     cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
     cdef sollya_obj_t sollya_op1 = convertPythonTo_sollya_obj_t(op)
     result._c_sollya_obj = sollya_lib_sub(sollya_op0, sollya_op1)
+    sollya_lib_clear_obj(sollya_op0)
+    sollya_lib_clear_obj(sollya_op1)
     return result
 
   ## Multiplication operator for sollya objects
@@ -103,13 +111,19 @@ cdef class SollyaObject:
     elif isinstance(self, SollyaObject):
       sollya_obj_is_list = sollya_lib_obj_is_list(sollya_op0)
       if sollya_obj_is_list:
+        sollya_lib_clear_obj(sollya_op0)
+        sollya_lib_clear_obj(sollya_op1)
         return convertSollyaObject_to_PythonList(self) * int(op)
     elif isinstance(self, SollyaObject):
       sollya_obj_is_list = sollya_lib_obj_is_list(sollya_op1)
       if sollya_obj_is_list:
+        sollya_lib_clear_obj(sollya_op0)
+        sollya_lib_clear_obj(sollya_op1)
         return int(self) * convertSollyaObject_to_PythonList(op) 
     # default case
     result._c_sollya_obj = sollya_lib_mul(sollya_op0, sollya_op1)
+    sollya_lib_clear_obj(sollya_op0)
+    sollya_lib_clear_obj(sollya_op1)
     return result
 
   ## Division operator for sollya objects
@@ -118,6 +132,9 @@ cdef class SollyaObject:
     cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
     cdef sollya_obj_t sollya_op1 = convertPythonTo_sollya_obj_t(op)
     result._c_sollya_obj = sollya_lib_div(sollya_op0, sollya_op1)
+
+    sollya_lib_clear_obj(sollya_op0)
+    sollya_lib_clear_obj(sollya_op1)
     return result
 
   ## Power operator for sollya objects
@@ -126,6 +143,9 @@ cdef class SollyaObject:
     cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
     cdef sollya_obj_t sollya_op1 = convertPythonTo_sollya_obj_t(op)
     result._c_sollya_obj = sollya_lib_pow(sollya_op0, sollya_op1)
+
+    sollya_lib_clear_obj(sollya_op0)
+    sollya_lib_clear_obj(sollya_op1)
     return result
 
   def __repr__(SollyaObject self):
@@ -141,7 +161,31 @@ cdef class SollyaObject:
     sollya_op_result = self._c_sollya_obj
     return sollya_op_result
 
-    
+  # Comparison operators
+  def __richcmp__(self, op, int cmp_var):
+    cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
+    cdef sollya_obj_t sollya_op1 = convertPythonTo_sollya_obj_t(op)
+    cdef sollya_obj_t result     
+    if cmp_var == 0:
+      result = sollya_lib_cmp_less(sollya_op0, sollya_op1)
+    elif cmp_var == 2:
+      result = sollya_lib_cmp_equal(sollya_op0, sollya_op1)
+    elif cmp_var == 4:
+      result = sollya_lib_cmp_greater(sollya_op0, sollya_op1)
+    elif cmp_var == 1:
+      result = sollya_lib_cmp_less_equal(sollya_op0, sollya_op1)
+    elif cmp_var == 3:
+      result = sollya_lib_cmp_not_equal(sollya_op0, sollya_op1)
+    elif cmp_var == 5:
+      result = sollya_lib_cmp_greater_equal(sollya_op0, sollya_op1)
+    cdef bint bool_result = sollya_lib_is_true(result)
+
+    sollya_lib_clear_obj(sollya_op0)
+    sollya_lib_clear_obj(sollya_op1)
+    sollya_lib_clear_obj(result)
+
+    return bool_result
+
 
 ## 
 # @brief convert a Python object to a sollya_obj_t
@@ -152,7 +196,7 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op):
   cdef sollya_obj_t* sollya_list
   cdef int n
   if isinstance(op, SollyaObject):
-    sollya_op = (<SollyaObject>op)._c_sollya_obj
+    sollya_op = sollya_lib_copy_obj((<SollyaObject>op)._c_sollya_obj)
     return sollya_op
   elif isinstance(op, float):
     sollya_op = sollya_lib_constant_from_double(<double>op)
@@ -166,6 +210,9 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op):
     for i in range(n):
       sollya_list[i] = convertPythonTo_sollya_obj_t(op[i])
     sollya_op = sollya_lib_list(sollya_list, n)
+    for i in range(n):
+      sollya_lib_clear_obj(sollya_list[i])
+    free(sollya_list)
     return sollya_op
   elif isinstance(op, str):
     sollya_op = sollya_lib_string(PyString_AsString(op))
@@ -182,10 +229,13 @@ cdef convert_sollya_obj_t_to_PythonList(sollya_obj_t sollya_op):
   cdef int sollya_list_length 
   cdef sollya_obj_t sollya_list_elt
   cdef bint extract_valid
+  cdef sollya_obj_t SO_list_length
 
 
   # TODO add check on (op is list)
-  extract_valid = sollya_lib_get_constant_as_int(&sollya_list_length, sollya_lib_length(sollya_op))
+  SO_list_length = sollya_lib_length(sollya_op)
+  extract_valid = sollya_lib_get_constant_as_int(&sollya_list_length, SO_list_length)
+  sollya_lib_clear_obj(SO_list_length)
 
   result_list = []
   for i in range(sollya_list_length):
@@ -193,7 +243,7 @@ cdef convert_sollya_obj_t_to_PythonList(sollya_obj_t sollya_op):
     if not extract_valid:
       print "Error in list element extraction"
       raise Exception()
-    result_list.append(convert_sollya_obj_t_to_PythonObject(sollya_list_elt))
+    result_list.append(convert_sollya_obj_t_to_PythonObject_no_copy(sollya_list_elt))
   return result_list
 
 
@@ -214,7 +264,7 @@ def convertSollyaObject_to_PythonList(SollyaObject op):
   return convert_sollya_obj_t_to_PythonList(sollya_op)
 
 
-cdef SollyaObject convert_sollya_obj_t_to_PythonObject(sollya_obj_t sollya_op):
+cdef SollyaObject convert_sollya_obj_t_to_PythonObject_no_copy(sollya_obj_t sollya_op):
   cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
   result._c_sollya_obj = sollya_op
   return result
@@ -232,37 +282,37 @@ include "sollya_func.pxi"
 
 lib_init()
 
-binary32 = convert_sollya_obj_t_to_PythonObject(sollya_lib_single_obj())
-binary64 = convert_sollya_obj_t_to_PythonObject(sollya_lib_double_obj())
-binary80 = convert_sollya_obj_t_to_PythonObject(sollya_lib_doubleextended_obj())
+binary32 = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_single_obj())
+binary64 = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_double_obj())
+binary80 = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_doubleextended_obj())
 
-absolute = convert_sollya_obj_t_to_PythonObject(sollya_lib_absolute())
-relative = convert_sollya_obj_t_to_PythonObject(sollya_lib_relative())
-fixed    = convert_sollya_obj_t_to_PythonObject(sollya_lib_fixed())
-floating = convert_sollya_obj_t_to_PythonObject(sollya_lib_floating())
-error    = convert_sollya_obj_t_to_PythonObject(sollya_lib_error())
+absolute = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_absolute())
+relative = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_relative())
+fixed    = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_fixed())
+floating = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_floating())
+error    = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_error())
 
-RD       = convert_sollya_obj_t_to_PythonObject(sollya_lib_round_down())
-RU       = convert_sollya_obj_t_to_PythonObject(sollya_lib_round_up())
-RZ       = convert_sollya_obj_t_to_PythonObject(sollya_lib_round_towards_zero())
-RN       = convert_sollya_obj_t_to_PythonObject(sollya_lib_round_to_nearest())
+RD       = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_round_down())
+RU       = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_round_up())
+RZ       = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_round_towards_zero())
+RN       = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_round_to_nearest())
 
-doubledouble = convert_sollya_obj_t_to_PythonObject(sollya_lib_double_double_obj())
-tripledouble = convert_sollya_obj_t_to_PythonObject(sollya_lib_triple_double_obj())
+doubledouble = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_double_double_obj())
+tripledouble = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_triple_double_obj())
 
-pi = convert_sollya_obj_t_to_PythonObject(sollya_lib_pi())
+pi = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_pi())
 
-on = convert_sollya_obj_t_to_PythonObject(sollya_lib_off())
-off = convert_sollya_obj_t_to_PythonObject(sollya_lib_on())
+on = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_off())
+off = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_on())
 
-binary      = convert_sollya_obj_t_to_PythonObject(sollya_lib_binary())
-powers      = convert_sollya_obj_t_to_PythonObject(sollya_lib_powers())
-hexadecimal = convert_sollya_obj_t_to_PythonObject(sollya_lib_hexadecimal())
-dyadic      = convert_sollya_obj_t_to_PythonObject(sollya_lib_dyadic())
-decimal     = convert_sollya_obj_t_to_PythonObject(sollya_lib_decimal())
+binary      = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_binary())
+powers      = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_powers())
+hexadecimal = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_hexadecimal())
+dyadic      = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_dyadic())
+decimal     = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_decimal())
 
-x           = convert_sollya_obj_t_to_PythonObject(sollya_lib_free_variable())
-error       = convert_sollya_obj_t_to_PythonObject(sollya_lib_error())
+x           = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_free_variable())
+error       = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_error())
 
 
 
