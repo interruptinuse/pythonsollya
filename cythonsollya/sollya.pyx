@@ -56,19 +56,19 @@ cdef class SollyaObject:
   ## addition operator for sollya objects
   def __add__(self, op):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
-    cdef sollya_obj_t sollya_op1 = convertPythonTo_sollya_obj_t(op)
+    cdef sollya_obj_t sollya_op0 # = convertPythonTo_sollya_obj_t(self)
+    cdef sollya_obj_t sollya_op1 # = convertPythonTo_sollya_obj_t(op)
     cdef int list_length
-    #if isinstance(self, list) and sollya_lib_obj_is_list(sollya_op1):
-    #  list_length = sollya_lib_length(sollya_op2)
-    #  result_list = self
-    #  for i in range(list_length):
-    #    result_list.append(op[i])
-    #  return result_list
-    #elif isinstance(op,   list) and sollya_lib_obj_is_list(sollya_op0):
-    #else:
-    result._c_sollya_obj = sollya_lib_add(sollya_op0, sollya_op1)
-    return result
+
+    if isinstance(self, list) and isinstance(op, SollyaObject):
+      return self + convertSollyaObject_to_PythonList(op)
+    elif isinstance(self, SollyaObject) and isinstance(op, list):
+      return convertSollyaObject_to_PythonList(self) + op
+    else:
+      sollya_op0 = convertPythonTo_sollya_obj_t(self)
+      sollya_op1 = convertPythonTo_sollya_obj_t(op)
+      result._c_sollya_obj = sollya_lib_add(sollya_op0, sollya_op1)
+      return result
 
   def __getitem__(self, index):
     cdef sollya_obj_t sollya_result
@@ -95,6 +95,20 @@ cdef class SollyaObject:
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
     cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
     cdef sollya_obj_t sollya_op1 = convertPythonTo_sollya_obj_t(op)
+    cdef bint sollya_obj_is_list
+    if isinstance(self, list):
+      return self * int(op)
+    elif isinstance(op, list):
+      return int(self) * op
+    elif isinstance(self, SollyaObject):
+      sollya_obj_is_list = sollya_lib_obj_is_list(sollya_op0)
+      if sollya_obj_is_list:
+        return convertSollyaObject_to_PythonList(self) * int(op)
+    elif isinstance(self, SollyaObject):
+      sollya_obj_is_list = sollya_lib_obj_is_list(sollya_op1)
+      if sollya_obj_is_list:
+        return int(self) * convertSollyaObject_to_PythonList(op) 
+    # default case
     result._c_sollya_obj = sollya_lib_mul(sollya_op0, sollya_op1)
     return result
 
@@ -159,6 +173,46 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op):
   else:
     print "conversion not supported to sollya object ", op, op.__class__
     return sollya_lib_error()
+
+
+## convert a sollya_obj_t to a PythonList
+#  @param op is a  sollya_obj_t pointing towards a sollya_list_t objt
+#  @return a python list containing the same elt as <op> in the same order
+cdef convert_sollya_obj_t_to_PythonList(sollya_obj_t sollya_op):
+  cdef int sollya_list_length 
+  cdef sollya_obj_t sollya_list_elt
+  cdef bint extract_valid
+
+
+  # TODO add check on (op is list)
+  extract_valid = sollya_lib_get_constant_as_int(&sollya_list_length, sollya_lib_length(sollya_op))
+
+  result_list = []
+  for i in range(sollya_list_length):
+    extract_valid = sollya_lib_get_element_in_list(&sollya_list_elt, sollya_op, i)
+    if not extract_valid:
+      print "Error in list element extraction"
+      raise Exception()
+    result_list.append(convert_sollya_obj_t_to_PythonObject(sollya_list_elt))
+  return result_list
+
+
+## convert a SollyaObject wrapping a sollya_list_t
+#  to a Python list
+#  @param op is a SollyaObject whose _c_sollya_obj field is a sollya list
+#  @return a python list containing the same elt as <op> in the same order
+def convertSollyaObject_to_PythonList(SollyaObject op):
+  cdef sollya_obj_t sollya_op 
+  cdef int sollya_list_length 
+  cdef sollya_obj_t sollya_list_elt
+  cdef bint extract_valid
+
+  # TODO add check on (op is list)
+  sollya_op = op._c_sollya_obj
+  extract_valid = sollya_lib_get_constant_as_int(&sollya_list_length, sollya_lib_length(sollya_op))
+
+  return convert_sollya_obj_t_to_PythonList(sollya_op)
+
 
 cdef SollyaObject convert_sollya_obj_t_to_PythonObject(sollya_obj_t sollya_op):
   cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
