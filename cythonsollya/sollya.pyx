@@ -9,6 +9,15 @@ from libc.stdlib cimport malloc, free
 ## initialization of Sollya library
 sollya_lib_init()
 
+cdef int SOW_CLEAN = 0
+cdef int SOW_ALIAS = 1
+
+ctypedef struct sollya_obj_wrapper_t:
+  sollya_obj_t _c_sollya_obj
+  # 0 = CLEAN COPY
+  # 1 = COPIED FROM ELSEWHERE
+  int status
+
 cdef class SollyaObject:
   cdef sollya_obj_t _c_sollya_obj
 
@@ -220,6 +229,48 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op):
   else:
     print "conversion not supported to sollya object ", op, op.__class__
     return sollya_lib_error()
+
+cdef sollya_obj_wrapper_t convertPythonTo_sollya_obj_wrapper_t(op):
+  cdef sollya_obj_wrapper_t sollya_wrapper, sollya_wrapper_tmp
+  cdef sollya_obj_t* sollya_list
+  cdef int* sollya_list_elt_status
+  cdef int n
+  if isinstance(op, SollyaObject):
+    sollya_wrapper._c_sollya_obj = (<SollyaObject>op)._c_sollya_obj
+    sollya_wrapper.status = SOW_ALIAS 
+    return sollya_wrapper
+  elif isinstance(op, float):
+    sollya_wrapper._c_sollya_obj = sollya_lib_constant_from_double(<double>op)
+    sollya_wrapper.status = SOW_CLEAN
+    return sollya_wrapper
+  elif isinstance(op, int):
+    sollya_wrapper._c_sollya_obj = sollya_lib_constant_from_int64(PyInt_AsLong(op))
+    sollya_wrapper.status = SOW_CLEAN
+    return sollya_wrapper
+  elif isinstance(op, list):
+    n = len(op) 
+    sollya_list = <sollya_obj_t*>malloc(sizeof(sollya_obj_t) * n)
+    sollya_list_elt_status = <int*>malloc(sizeof(int) * n)
+    for i in range(n):
+      sollya_wrapper_tmp = convertPythonTo_sollya_obj_wrapper_t(op[i])
+      sollya_list[i] = sollya_wrapper_tmp._c_sollya_obj
+      sollya_list_elt_status[i] = sollya_wrapper_tmp.status
+    sollya_wrapper._c_sollya_obj = sollya_lib_list(sollya_list, n)
+    sollya_wrapper.status = SOW_CLEAN
+    for i in range(n):
+      if sollya_list_elt_status[i] == SOW_CLEAN:
+        sollya_lib_clear_obj(sollya_list[i])
+    free(sollya_list)
+    return sollya_wrapper
+  elif isinstance(op, str):
+    sollya_wrapper._c_sollya_obj = sollya_lib_string(PyString_AsString(op))
+    sollya_wrapper.status = SOW_CLEAN
+    return sollya_wrapper
+  else:
+    print "conversion not supported to sollya object ", op, op.__class__
+    sollya_wrapper._c_sollya_obj = sollya_lib_error()
+    sollya_wrapper.status = SOW_CLEAN
+    return sollya_wrapper
 
 
 ## convert a sollya_obj_t to a PythonList
