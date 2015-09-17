@@ -13,6 +13,8 @@ test_expressions = [
   "absolute == relative",
   "absolute == absolute",
   "2 == SollyaObject(2)",
+  "[binary32] * 4",
+  "Interval(-0.5, 0.5)",
   "fpminimax(exp(x), 3, [binary32] * 4, Interval(-0.5, 0.5), absolute)",
 ]
 

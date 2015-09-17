@@ -9,8 +9,9 @@ from libc.stdlib cimport malloc, free
 ## initialization of Sollya library
 sollya_lib_init()
 
-cdef int SOW_CLEAN = 0
+cdef int SOW_NULL  = 0
 cdef int SOW_ALIAS = 1
+cdef int SOW_CLEAN = 2
 
 ctypedef struct sollya_obj_wrapper_t:
   sollya_obj_t _c_sollya_obj
@@ -51,24 +52,24 @@ cdef class SollyaObject:
   ## Negate operator (-self) for sollya object
   def __neg__(self):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
-    result._c_sollya_obj = sollya_lib_neg(sollya_op0)
-    sollya_lib_clear_obj(sollya_op0)
+    cdef sollya_obj_wrapper_t sollya_op0 = convertPythonTo_sollya_obj_wrapper_t(self)
+    result._c_sollya_obj = sollya_lib_neg(sollya_op0._c_sollya_obj)
+    clear_clean_sollya_wrapper(sollya_op0)
     return result
 
   ## Not operator (!self) for sollya object
   def __not__(self):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
-    result._c_sollya_obj = sollya_lib_negate(sollya_op0)
-    sollya_lib_clear_obj(sollya_op0)
+    cdef sollya_obj_wrapper_t sollya_op0 = convertPythonTo_sollya_obj_wrapper_t(self)
+    result._c_sollya_obj = sollya_lib_negate(sollya_op0._c_sollya_obj)
+    clear_clean_sollya_wrapper(sollya_op0)
     return result
 
   ## addition operator for sollya objects
   def __add__(self, op):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef sollya_obj_t sollya_op0 # = convertPythonTo_sollya_obj_t(self)
-    cdef sollya_obj_t sollya_op1 # = convertPythonTo_sollya_obj_t(op)
+    cdef sollya_obj_wrapper_t sollya_op0 # = convertPythonTo_sollya_obj_t(self)
+    cdef sollya_obj_wrapper_t sollya_op1 # = convertPythonTo_sollya_obj_t(op)
     cdef int list_length
 
     if isinstance(self, list) and isinstance(op, SollyaObject):
@@ -76,85 +77,91 @@ cdef class SollyaObject:
     elif isinstance(self, SollyaObject) and isinstance(op, list):
       return convertSollyaObject_to_PythonList(self) + op
     else:
-      sollya_op0 = convertPythonTo_sollya_obj_t(self)
-      sollya_op1 = convertPythonTo_sollya_obj_t(op)
-      result._c_sollya_obj = sollya_lib_add(sollya_op0, sollya_op1)
-      sollya_lib_clear_obj(sollya_op0)
-      sollya_lib_clear_obj(sollya_op1)
+      sollya_op0 = convertPythonTo_sollya_obj_wrapper_t(self)
+      sollya_op1 = convertPythonTo_sollya_obj_wrapper_t(op)
+      result._c_sollya_obj = sollya_lib_add(sollya_op0._c_sollya_obj, sollya_op1._c_sollya_obj)
+      clear_clean_sollya_wrapper(sollya_op0)
+      clear_clean_sollya_wrapper(sollya_op1)
       return result
 
   def __getitem__(self, index):
     cdef sollya_obj_t sollya_result
-    cdef sollya_obj_t sollya_op
+    cdef sollya_obj_wrapper_t sollya_op
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
     cdef int flag
     if isinstance(self, list):
       return self[int(index)]
     else:
-      sollya_op = convertPythonTo_sollya_obj_t(self)
-      flag = sollya_lib_get_element_in_list(&sollya_result, sollya_op, PyInt_AsLong(int(index)))
-      sollya_lib_clear_obj(sollya_op)
+      sollya_op = convertPythonTo_sollya_obj_wrapper_t(self)
+      flag = sollya_lib_get_element_in_list(&sollya_result, sollya_op._c_sollya_obj, PyInt_AsLong(int(index)))
+      clear_clean_sollya_wrapper(sollya_op)
       result._c_sollya_obj = sollya_result
       return result
 
   ## Subtraction operator for sollya objects
   def __sub__(self, op):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
-    cdef sollya_obj_t sollya_op1 = convertPythonTo_sollya_obj_t(op)
-    result._c_sollya_obj = sollya_lib_sub(sollya_op0, sollya_op1)
-    sollya_lib_clear_obj(sollya_op0)
-    sollya_lib_clear_obj(sollya_op1)
+    cdef sollya_obj_wrapper_t sollya_op0 = convertPythonTo_sollya_obj_wrapper_t(self)
+    cdef sollya_obj_wrapper_t sollya_op1 = convertPythonTo_sollya_obj_wrapper_t(op)
+    result._c_sollya_obj = sollya_lib_sub(sollya_op0._c_sollya_obj, sollya_op1._c_sollya_obj)
+    clear_clean_sollya_wrapper(sollya_op0)
+    clear_clean_sollya_wrapper(sollya_op1)
     return result
 
   ## Multiplication operator for sollya objects
   def __mul__(self, op):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
-    cdef sollya_obj_t sollya_op1 = convertPythonTo_sollya_obj_t(op)
+    cdef sollya_obj_wrapper_t sollya_op0 # = convertPythonTo_sollya_obj_t(self)
+    cdef sollya_obj_wrapper_t sollya_op1 #= convertPythonTo_sollya_obj_t(op)
     cdef bint sollya_obj_is_list
     if isinstance(self, list):
       return self * int(op)
     elif isinstance(op, list):
       return int(self) * op
     elif isinstance(self, SollyaObject):
-      sollya_obj_is_list = sollya_lib_obj_is_list(sollya_op0)
+      sollya_op0 = convertPythonTo_sollya_obj_wrapper_t(self)
+      sollya_obj_is_list = sollya_lib_obj_is_list(sollya_op0._c_sollya_obj)
       if sollya_obj_is_list:
-        sollya_lib_clear_obj(sollya_op0)
-        sollya_lib_clear_obj(sollya_op1)
+        clear_clean_sollya_wrapper(sollya_op0)
         return convertSollyaObject_to_PythonList(self) * int(op)
-    elif isinstance(self, SollyaObject):
-      sollya_obj_is_list = sollya_lib_obj_is_list(sollya_op1)
+    elif isinstance(op, SollyaObject):
+      sollya_op1 = convertPythonTo_sollya_obj_wrapper_t(op) 
+      sollya_obj_is_list = sollya_lib_obj_is_list(sollya_op1._c_sollya_obj)
       if sollya_obj_is_list:
-        sollya_lib_clear_obj(sollya_op0)
-        sollya_lib_clear_obj(sollya_op1)
+        clear_clean_sollya_wrapper(sollya_op1)
         return int(self) * convertSollyaObject_to_PythonList(op) 
     # default case
-    result._c_sollya_obj = sollya_lib_mul(sollya_op0, sollya_op1)
-    sollya_lib_clear_obj(sollya_op0)
-    sollya_lib_clear_obj(sollya_op1)
+    sollya_op0 = convertPythonTo_sollya_obj_wrapper_t(self) 
+    sollya_op1 = convertPythonTo_sollya_obj_wrapper_t(op) 
+    result._c_sollya_obj = sollya_lib_mul(sollya_op0._c_sollya_obj, sollya_op1._c_sollya_obj)
+    clear_clean_sollya_wrapper(sollya_op0)
+    clear_clean_sollya_wrapper(sollya_op1)
     return result
 
   ## Division operator for sollya objects
   def __div__(self, op):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
-    cdef sollya_obj_t sollya_op1 = convertPythonTo_sollya_obj_t(op)
-    result._c_sollya_obj = sollya_lib_div(sollya_op0, sollya_op1)
+    cdef sollya_obj_wrapper_t sollya_op0 
+    cdef sollya_obj_wrapper_t sollya_op1 
+    sollya_op0 = convertPythonTo_sollya_obj_wrapper_t(self) 
+    sollya_op1 = convertPythonTo_sollya_obj_wrapper_t(op) 
+    result._c_sollya_obj = sollya_lib_div(sollya_op0._c_sollya_obj, sollya_op1._c_sollya_obj)
 
-    sollya_lib_clear_obj(sollya_op0)
-    sollya_lib_clear_obj(sollya_op1)
+    clear_clean_sollya_wrapper(sollya_op0)
+    clear_clean_sollya_wrapper(sollya_op1)
     return result
 
   ## Power operator for sollya objects
   def __pow__(self, op, modulo):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
-    cdef sollya_obj_t sollya_op1 = convertPythonTo_sollya_obj_t(op)
-    result._c_sollya_obj = sollya_lib_pow(sollya_op0, sollya_op1)
+    cdef sollya_obj_wrapper_t sollya_op0 
+    cdef sollya_obj_wrapper_t sollya_op1 
+    sollya_op0 = convertPythonTo_sollya_obj_wrapper_t(self) 
+    sollya_op1 = convertPythonTo_sollya_obj_wrapper_t(op) 
+    result._c_sollya_obj = sollya_lib_pow(sollya_op0._c_sollya_obj, sollya_op1._c_sollya_obj)
 
-    sollya_lib_clear_obj(sollya_op0)
-    sollya_lib_clear_obj(sollya_op1)
+    clear_clean_sollya_wrapper(sollya_op0)
+    clear_clean_sollya_wrapper(sollya_op1)
     return result
 
   def __repr__(SollyaObject self):
@@ -165,15 +172,13 @@ cdef class SollyaObject:
       sollya_lib_sprintf(result_str, <char*>"%b", <sollya_obj_t>self._c_sollya_obj)
     return result_str
 
-  cdef sollya_obj_t extract_c_sollya_obj(self):
-    cdef sollya_obj_t sollya_op_result
-    sollya_op_result = self._c_sollya_obj
-    return sollya_op_result
 
   # Comparison operators
   def __richcmp__(self, op, int cmp_var):
-    cdef sollya_obj_t sollya_op0 = convertPythonTo_sollya_obj_t(self)
-    cdef sollya_obj_t sollya_op1 = convertPythonTo_sollya_obj_t(op)
+    cdef sollya_obj_wrapper_t sollya_op0_wrapper = convertPythonTo_sollya_obj_wrapper_t(self)
+    cdef sollya_obj_wrapper_t sollya_op1_wrapper = convertPythonTo_sollya_obj_wrapper_t(op)
+    cdef sollya_obj_t sollya_op0 = sollya_op0_wrapper._c_sollya_obj
+    cdef sollya_obj_t sollya_op1 = sollya_op1_wrapper._c_sollya_obj
     cdef sollya_obj_t result     
     if cmp_var == 0:
       result = sollya_lib_cmp_less(sollya_op0, sollya_op1)
@@ -189,12 +194,18 @@ cdef class SollyaObject:
       result = sollya_lib_cmp_greater_equal(sollya_op0, sollya_op1)
     cdef bint bool_result = sollya_lib_is_true(result)
 
-    sollya_lib_clear_obj(sollya_op0)
-    sollya_lib_clear_obj(sollya_op1)
+    clear_clean_sollya_wrapper(sollya_op0_wrapper)
+    clear_clean_sollya_wrapper(sollya_op1_wrapper)
     sollya_lib_clear_obj(result)
 
     return bool_result
 
+# test if a sollya_obj_wrapper_t contains a clean copied (not aliased 
+# or referenced elsewhere), if it is the case, clears it
+cdef void clear_clean_sollya_wrapper(sollya_obj_wrapper_t sollya_obj):
+  if sollya_obj.status == SOW_CLEAN:
+    sollya_lib_clear_obj(sollya_obj._c_sollya_obj)
+    sollya_obj.status = SOW_NULL
 
 ## 
 # @brief convert a Python object to a sollya_obj_t
