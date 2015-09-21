@@ -40,4 +40,10 @@ print SollyaObject("hello world")
 print "End"
 
 
+a = parse("0xb.17217f7d2p0")
+print a
+display(hexadecimal)
+print str(a)
+
+
 sys.exit(0)

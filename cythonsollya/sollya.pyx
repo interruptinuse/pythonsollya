@@ -159,11 +159,14 @@ cdef class SollyaObject:
 
   def __repr__(SollyaObject self):
     cdef int n = sollya_lib_snprintf(NULL, 0, <char*>"%b", <sollya_obj_t>self._c_sollya_obj)
+    cdef sollya_obj_t sollya_op = self._c_sollya_obj
     cdef char* result_str
     if n > 0:
-      result_str = <char*>malloc(n)
-      sollya_lib_sprintf(result_str, <char*>"%b", <sollya_obj_t>self._c_sollya_obj)
-    return result_str
+      result_str = <char*>malloc(n+1)
+      sollya_lib_snprintf(result_str, n+1, <char*>"%b", <sollya_obj_t>self._c_sollya_obj)
+      return result_str
+    else:
+      return ""
 
   cdef sollya_obj_t extract_c_sollya_obj(self):
     cdef sollya_obj_t sollya_op_result
@@ -206,6 +209,8 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op):
   cdef int n
   if isinstance(op, SollyaObject):
     sollya_op = sollya_lib_copy_obj((<SollyaObject>op)._c_sollya_obj)
+    if sollya_op is NULL:
+      print "sollya_op is NULL in convertPythonTo_sollya_obj_t"
     return sollya_op
   elif isinstance(op, float):
     sollya_op = sollya_lib_constant_from_double(<double>op)
@@ -238,6 +243,8 @@ cdef sollya_obj_wrapper_t convertPythonTo_sollya_obj_wrapper_t(op):
   if isinstance(op, SollyaObject):
     sollya_wrapper._c_sollya_obj = (<SollyaObject>op)._c_sollya_obj
     sollya_wrapper.status = SOW_ALIAS 
+    if sollya_wrapper._c_sollya_obj is NULL:
+      print "sollya_op is NULL in convertPythonTo_sollya_obj_wrapper_t"
     return sollya_wrapper
   elif isinstance(op, float):
     sollya_wrapper._c_sollya_obj = sollya_lib_constant_from_double(<double>op)
