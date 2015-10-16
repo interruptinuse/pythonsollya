@@ -3,18 +3,8 @@
 # Sollya (tested with git repo > 4.1)
 
 export SOLLYA_INSTALL_DIR=/work1/hardware/users/nbrunie/CythonSollya/local/
-# generate automated part of the wrapper
+
 python ./wrapper_generator.py > ./sollya_func.pxi
 
-# indicate sollya include and lib dir
-CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python setup.py build_ext -i
-
-# export sollya lib dir into LD_LIBRARY_PATH and test build + install
-
-PYTHONPATH=. LD_LIBRARY_PATH=$SOLLYA_INSTALL_DIR/lib/:$LD_LIBRARY_PATH python ./tests/test_build.py
-
-CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python setup.py install --prefix /work1/hardware/users/nbrunie/new_tmp_ml/local/
-PYTHONPATH=. LD_LIBRARY_PATH=$SOLLYA_INSTALL_DIR/lib/:$LD_LIBRARY_PATH python ./tests/test_list.py 
-/work1/hardware/users/nbrunie/CythonSollya/local/
-CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python setup.py install --prefix /work1/hardware/users/nbrunie/new_tmp_ml/local/
+CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python setup.py build
 CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python setup.py install --prefix /work1/hardware/users/nbrunie/new_tmp_ml/local/

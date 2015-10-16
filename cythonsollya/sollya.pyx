@@ -38,14 +38,48 @@ cdef class SollyaObject:
   ## converting sollya object to python Integer
   def __int__(SollyaObject self):
     cdef int i 
-    cdef int result[1]
-    i = sollya_lib_get_constant_as_int(result, self._c_sollya_obj)
+    cdef int64_t result[1]
+    i = sollya_lib_get_constant_as_int64(result, self._c_sollya_obj)
     return result[0]
 
+  def getConstantAsInt(SollyaObject self):
+    cdef sollya_obj_t tmp, c64, divr, divr_, prod, rem, c0
+    cdef int64_t result[1]
+    cdef int status
+    tmp = sollya_lib_copy_obj(self._c_sollya_obj) #sollya_lib_nearestint(self._c_sollya_obj)
+    c64 = sollya_lib_constant_from_int64(1 << 32)
+    c0  = sollya_lib_constant_from_int64(0)
+    weight = 0
+    value = 0
+    wd = 0
+    while sollya_lib_cmp_not_equal(tmp, c0):
+      divr_ = sollya_lib_div(tmp, c64)
+      divr = sollya_lib_nearestint(divr_)
+      prod = sollya_lib_mul(divr, c64)
+      rem = sollya_lib_sub(tmp, prod)
+      status = sollya_lib_get_constant_as_int64(result, rem)
+      value += result[0] * 2**weight
+      weight += 32
+      tmp = sollya_lib_copy_obj(divr)
+      sollya_lib_clear_obj(divr)
+      sollya_lib_clear_obj(rem)
+      sollya_lib_clear_obj(prod)
+      wd += 1
+      if wd > 10: break
+    sollya_lib_clear_obj(tmp)
+    sollya_lib_clear_obj(c64)
+    sollya_lib_clear_obj(c0)
+    return value
 
   ## wrapper for constant as int
-  def getConstantAsInt(SollyaObject self):
+  def getConstantAsIntLegacy(SollyaObject self):
     return int(self)
+
+  def getConstantAsUInt(SollyaObject self):
+    cdef int i 
+    cdef uint64_t result[1]
+    i = sollya_lib_get_constant_as_uint64(result, self._c_sollya_obj)
+    return result[0]
 
   ## converting sollya object to python Float
   def __float__(SollyaObject self):
