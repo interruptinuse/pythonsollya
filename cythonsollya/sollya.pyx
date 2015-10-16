@@ -42,6 +42,11 @@ cdef class SollyaObject:
     i = sollya_lib_get_constant_as_int(result, self._c_sollya_obj)
     return result[0]
 
+
+  ## wrapper for constant as int
+  def getConstantAsInt(SollyaObject self):
+    return int(self)
+
   ## converting sollya object to python Float
   def __float__(SollyaObject self):
     cdef int i 
@@ -111,8 +116,8 @@ cdef class SollyaObject:
   ## Multiplication operator for sollya objects
   def __mul__(self, op):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef sollya_obj_wrapper_t sollya_op0 # = convertPythonTo_sollya_obj_t(self)
-    cdef sollya_obj_wrapper_t sollya_op1 #= convertPythonTo_sollya_obj_t(op)
+    cdef sollya_obj_wrapper_t sollya_op0 
+    cdef sollya_obj_wrapper_t sollya_op1 
     cdef bint sollya_obj_is_list
     if isinstance(self, list):
       return self * int(op)

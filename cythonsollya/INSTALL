@@ -13,3 +13,8 @@ CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" pyt
 
 PYTHONPATH=. LD_LIBRARY_PATH=$SOLLYA_INSTALL_DIR/lib/:$LD_LIBRARY_PATH python ./tests/test_build.py
 
+CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python setup.py install --prefix /work1/hardware/users/nbrunie/new_tmp_ml/local/
+PYTHONPATH=. LD_LIBRARY_PATH=$SOLLYA_INSTALL_DIR/lib/:$LD_LIBRARY_PATH python ./tests/test_list.py 
+/work1/hardware/users/nbrunie/CythonSollya/local/
+CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python setup.py install --prefix /work1/hardware/users/nbrunie/new_tmp_ml/local/
+CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python setup.py install --prefix /work1/hardware/users/nbrunie/new_tmp_ml/local/

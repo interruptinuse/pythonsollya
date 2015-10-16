@@ -2,6 +2,9 @@
 
 from pythonsollya import *
 
+class A:
+  pass
+
 test_expressions = [
   "[exp(2), exp(1)]",
   "[round(v, binary32, RN) for v in acc]",
@@ -16,6 +19,10 @@ test_expressions = [
   "[binary32] * 4",
   "Interval(-0.5, 0.5)",
   "fpminimax(exp(x), 3, [binary32] * 4, Interval(-0.5, 0.5), absolute)",
+  "[A()] * (SollyaObject(11))",
+  "(SollyaObject(11)) * [A()]",
+  "(SollyaObject(11)) * [binary32]",
+  "[binary32] * (SollyaObject(11))",
 ]
 
 for expr in test_expressions:
