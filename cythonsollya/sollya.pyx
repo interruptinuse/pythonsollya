@@ -124,18 +124,13 @@ cdef class SollyaObject:
       return result
 
   def __getitem__(self, index):
-    cdef sollya_obj_t sollya_result
-    cdef sollya_obj_wrapper_t sollya_op
+    if not sollya_lib_obj_is_list(self._c_sollya_obj):
+      raise ValueError("not a Sollya list")
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef int flag
-    if isinstance(self, list):
-      return self[int(index)]
-    else:
-      sollya_op = convertPythonTo_sollya_obj_wrapper_t(self)
-      flag = sollya_lib_get_element_in_list(&sollya_result, sollya_op._c_sollya_obj, PyInt_AsLong(int(index)))
-      clear_clean_sollya_wrapper(sollya_op)
-      result._c_sollya_obj = sollya_result
+    if sollya_lib_get_element_in_list(&result._c_sollya_obj, self._c_sollya_obj, PyInt_AsLong(int(index))):
       return result
+    else:
+      raise IndexError("index out of range")
 
   ## Subtraction operator for sollya objects
   def __sub__(self, op):
