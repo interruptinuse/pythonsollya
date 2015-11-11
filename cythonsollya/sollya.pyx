@@ -21,7 +21,6 @@ ctypedef struct sollya_obj_wrapper_t:
   int status
 
 cdef class SollyaObject:
-  cdef sollya_obj_t _c_sollya_obj
 
   def __cinit__(self):
     self._c_sollya_obj = NULL
