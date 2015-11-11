@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*- vim:sw=2
 
 from pythonsollya import *
 

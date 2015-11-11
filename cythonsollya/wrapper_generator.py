@@ -1,3 +1,4 @@
+# vim:sw=2
 
 class sollya_obj_t: 
   python_class     = "SollyaObject"

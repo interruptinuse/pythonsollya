@@ -1,4 +1,4 @@
-# file: sollya.pyx
+# -*- coding: utf-8 -*- vim: sw=2
 
 from csollya cimport *
 cimport libc.stdint

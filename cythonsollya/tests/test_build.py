@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*- vim: sw=2
 # minimal test script for new python binding for sollya library
 # (a.k.a cythonsollya)
 

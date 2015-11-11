@@ -1,3 +1,4 @@
+# vim: sw=2
 from libc.stdint cimport int64_t, uint64_t
 
 
@@ -191,3 +192,5 @@ cdef extern from "sollya.h":
   
   sollya_obj_t sollya_lib_free_variable()
   sollya_obj_t sollya_lib_error()
+
+# vim: sw=2
