@@ -5,7 +5,7 @@ class sollya_obj_t:
   c_format         = "sollya_obj_t"
   convert_function = "convertPythonTo_sollya_obj_t" 
   result_decl_tplt= "cdef SollyaObject %s = SollyaObject.__new__(SollyaObject)\n"
-  result_asgn_tplt = "%s._c_sollya_obj = %s"
+  result_asgn_tplt = "%s.value = %s"
   @staticmethod
   def result_decl_gen(result_var, tab = 2):
     indent = " " * tab 
