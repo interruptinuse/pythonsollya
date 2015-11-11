@@ -3,6 +3,7 @@
 from csollya cimport *
 cimport libc.stdint
 from cpython.int cimport PyInt_AsLong
+from cpython.object cimport Py_LT, Py_LE, Py_EQ, Py_NE, Py_GT, Py_GE
 from cpython.string cimport PyString_AsString
 from libc.stdlib cimport malloc, free
 
@@ -216,23 +217,23 @@ cdef class SollyaObject:
 
 
   # Comparison operators
-  def __richcmp__(self, op, int cmp_var):
+  def __richcmp__(self, other, int cmp_op):
     cdef sollya_obj_wrapper_t sollya_op0_wrapper = convertPythonTo_sollya_obj_wrapper_t(self)
-    cdef sollya_obj_wrapper_t sollya_op1_wrapper = convertPythonTo_sollya_obj_wrapper_t(op)
+    cdef sollya_obj_wrapper_t sollya_op1_wrapper = convertPythonTo_sollya_obj_wrapper_t(other)
     cdef sollya_obj_t sollya_op0 = sollya_op0_wrapper._c_sollya_obj
     cdef sollya_obj_t sollya_op1 = sollya_op1_wrapper._c_sollya_obj
-    cdef sollya_obj_t result     
-    if cmp_var == 0:
+    cdef sollya_obj_t result = NULL
+    if cmp_op == Py_LT:
       result = sollya_lib_cmp_less(sollya_op0, sollya_op1)
-    elif cmp_var == 2:
+    elif cmp_op == Py_EQ:
       result = sollya_lib_cmp_equal(sollya_op0, sollya_op1)
-    elif cmp_var == 4:
+    elif cmp_op == Py_GT:
       result = sollya_lib_cmp_greater(sollya_op0, sollya_op1)
-    elif cmp_var == 1:
+    elif cmp_op == Py_LE:
       result = sollya_lib_cmp_less_equal(sollya_op0, sollya_op1)
-    elif cmp_var == 3:
+    elif cmp_op == Py_NE:
       result = sollya_lib_cmp_not_equal(sollya_op0, sollya_op1)
-    elif cmp_var == 5:
+    elif cmp_op == Py_GE:
       result = sollya_lib_cmp_greater_equal(sollya_op0, sollya_op1)
     cdef bint bool_result = sollya_lib_is_true(result)
 
