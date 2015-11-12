@@ -55,7 +55,8 @@ class SSO:
 
 class SOT:
   """ Sollya Object template """
-  def __init__(self, return_format, name, input_formats, optional_inputs = [], binding_name = None):
+  def __init__(self, return_format, name, input_formats,
+      optional_inputs=[], binding_name=None, interactive_name=None):
     self.return_format = return_format
     self.name = name
     self.input_formats = input_formats
@@ -64,6 +65,18 @@ class SOT:
       self.binding_name = self.name.replace("sollya_lib_", "")
     else:
       self.binding_name = binding_name
+    if interactive_name is None:
+      self.interactive_name = self.name.replace("sollya_lib_", "")
+    else:
+      self.interactive_name = interactive_name
+
+  def docstring(self):
+    from subprocess import Popen, PIPE
+    interpreter = Popen(['sollya'], stdin=PIPE, stdout=PIPE)
+    command = "help {};".format(self.interactive_name)
+    help_text = interpreter.communicate(command)[0]
+    lines = ['r"""'] + help_text.split('\n') + ['"""\n']
+    return '\n'.join('  ' + line for line in lines)
 
   def generate_binding(self):
     # building binding name
@@ -96,7 +109,7 @@ class SOT:
       declaration = "def %s(%s):" % (self.binding_name, ", ".join(binding_inputs))
       call_code = "%s(%s)" % (self.name, ", ".join(call_op_list))
       result = self.return_format.result_gen("result", call_code, tab = 2)
-      return declaration + "\n" + code_op_decl + result + "\n  " + self.return_format.return_gen("result")
+      return declaration + "\n" + self.docstring() + code_op_decl + result + "\n  " + self.return_format.return_gen("result")
     else:
       # optinal arguments
       declaration = "def %s(%s, *opt_args):" % (self.binding_name, ", ".join(binding_inputs))
