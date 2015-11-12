@@ -244,27 +244,18 @@ cdef void clear_clean_sollya_wrapper(sollya_obj_wrapper_t sollya_obj):
     sollya_lib_clear_obj(sollya_obj.value)
     sollya_obj.status = SOW_NULL
 
-## 
-# @brief convert a Python object to a sollya_obj_t
-# @params op is Python object
-# @return 
-cdef sollya_obj_t convertPythonTo_sollya_obj_t(op):
+cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
   cdef sollya_obj_t sollya_op
   cdef sollya_obj_t* sollya_list
   cdef int n
   if isinstance(op, SollyaObject):
-    sollya_op = sollya_lib_copy_obj((<SollyaObject>op).value)
-    if sollya_op is NULL:
-      print "sollya_op is NULL in convertPythonTo_sollya_obj_t"
-    return sollya_op
+    return sollya_lib_copy_obj((<SollyaObject>op).value)
   elif isinstance(op, float):
-    sollya_op = sollya_lib_constant_from_double(<double>op)
-    return sollya_op
+    return sollya_lib_constant_from_double(<double>op)
   elif isinstance(op, int):
-    sollya_op = sollya_lib_constant_from_int64(PyInt_AsLong(op))
-    return sollya_op
+    return sollya_lib_constant_from_int64(PyInt_AsLong(op))
   elif isinstance(op, list):
-    n = len(op) 
+    n = len(op)
     sollya_list = <sollya_obj_t*>malloc(sizeof(sollya_obj_t) * n)
     for i in range(n):
       sollya_list[i] = convertPythonTo_sollya_obj_t(op[i])
@@ -274,11 +265,9 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op):
     free(sollya_list)
     return sollya_op
   elif isinstance(op, str):
-    sollya_op = sollya_lib_string(PyString_AsString(op))
-    return sollya_op
+    return sollya_lib_string(PyString_AsString(op))
   else:
-    print "conversion not supported to sollya object ", op, op.__class__
-    return sollya_lib_error()
+    raise TypeError("unsupported conversion to sollya object", op, op.__class__)
 
 cdef sollya_obj_wrapper_t convertPythonTo_sollya_obj_wrapper_t(op):
   cdef sollya_obj_wrapper_t sollya_wrapper, sollya_wrapper_tmp
