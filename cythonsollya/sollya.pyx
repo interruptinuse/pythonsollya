@@ -10,6 +10,20 @@ from libc.stdlib cimport malloc, free
 ## initialization of Sollya library
 sollya_lib_init()
 
+
+# Create a new SollyaObject wrapping sollya_val, taking ownership of sollya_val
+# (which will thus be cleared when the SollyaObject gets garbage-collected)
+cdef SollyaObject wrap(sollya_obj_t sollya_val):
+  cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
+  result.value = sollya_val
+  return result
+
+cdef SollyaObject as_SollyaObject(op):
+  if isinstance(op, SollyaObject):
+    return op
+  else:
+    return SollyaObject(op)
+
 cdef class SollyaObject:
 
   def __cinit__(self):
@@ -244,17 +258,6 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
   else:
     raise TypeError("unsupported conversion to sollya object", op, op.__class__)
 
-cdef SollyaObject as_SollyaObject(op):
-  if isinstance(op, SollyaObject):
-    return op
-  else:
-    return SollyaObject(op)
-
-cdef SollyaObject convert_sollya_obj_t_to_PythonObject_no_copy(sollya_obj_t sollya_op):
-  cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-  result.value = sollya_op
-  return result
-
 def Interval(inf, sup = None):
   if sup is None:
     return sollya_range(inf, inf)
@@ -270,36 +273,36 @@ lib_init()
 
 # Global constants
 
-binary16 = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_halfprecision_obj())
-binary32 = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_single_obj())
-binary64 = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_double_obj())
-binary80 = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_doubleextended_obj())
-binary128 = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_quad_obj())
-doubledouble = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_double_double_obj())
-tripledouble = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_triple_double_obj())
+binary16 = wrap(sollya_lib_halfprecision_obj())
+binary32 = wrap(sollya_lib_single_obj())
+binary64 = wrap(sollya_lib_double_obj())
+binary80 = wrap(sollya_lib_doubleextended_obj())
+binary128 = wrap(sollya_lib_quad_obj())
+doubledouble = wrap(sollya_lib_double_double_obj())
+tripledouble = wrap(sollya_lib_triple_double_obj())
 
-RD       = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_round_down())
-RU       = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_round_up())
-RZ       = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_round_towards_zero())
-RN       = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_round_to_nearest())
+RD       = wrap(sollya_lib_round_down())
+RU       = wrap(sollya_lib_round_up())
+RZ       = wrap(sollya_lib_round_towards_zero())
+RN       = wrap(sollya_lib_round_to_nearest())
 
-absolute = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_absolute())
-relative = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_relative())
-fixed    = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_fixed())
-floating = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_floating())
+absolute = wrap(sollya_lib_absolute())
+relative = wrap(sollya_lib_relative())
+fixed    = wrap(sollya_lib_fixed())
+floating = wrap(sollya_lib_floating())
 
-on = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_off())
-off = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_on())
+on = wrap(sollya_lib_off())
+off = wrap(sollya_lib_on())
 
-binary      = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_binary())
-powers      = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_powers())
-hexadecimal = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_hexadecimal())
-dyadic      = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_dyadic())
-decimal     = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_decimal())
+binary      = wrap(sollya_lib_binary())
+powers      = wrap(sollya_lib_powers())
+hexadecimal = wrap(sollya_lib_hexadecimal())
+dyadic      = wrap(sollya_lib_dyadic())
+decimal     = wrap(sollya_lib_decimal())
 
-pi          = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_pi())
-x           = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_free_variable())
-error       = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_error())
+pi          = wrap(sollya_lib_pi())
+x           = wrap(sollya_lib_free_variable())
+error       = wrap(sollya_lib_error())
 
 
 
