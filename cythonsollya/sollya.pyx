@@ -268,25 +268,25 @@ include "sollya_func.pxi"
 
 lib_init()
 
+# Global constants
+
+binary16 = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_halfprecision_obj())
 binary32 = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_single_obj())
 binary64 = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_double_obj())
 binary80 = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_doubleextended_obj())
-
-absolute = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_absolute())
-relative = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_relative())
-fixed    = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_fixed())
-floating = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_floating())
-error    = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_error())
+binary128 = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_quad_obj())
+doubledouble = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_double_double_obj())
+tripledouble = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_triple_double_obj())
 
 RD       = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_round_down())
 RU       = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_round_up())
 RZ       = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_round_towards_zero())
 RN       = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_round_to_nearest())
 
-doubledouble = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_double_double_obj())
-tripledouble = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_triple_double_obj())
-
-pi = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_pi())
+absolute = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_absolute())
+relative = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_relative())
+fixed    = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_fixed())
+floating = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_floating())
 
 on = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_off())
 off = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_on())
@@ -297,6 +297,7 @@ hexadecimal = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_hexadecima
 dyadic      = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_dyadic())
 decimal     = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_decimal())
 
+pi          = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_pi())
 x           = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_free_variable())
 error       = convert_sollya_obj_t_to_PythonObject_no_copy(sollya_lib_error())
 
