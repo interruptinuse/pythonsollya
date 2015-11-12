@@ -91,6 +91,19 @@ cdef class SollyaObject:
 
   # Container methods
 
+  def __len__(self):
+    cdef sollya_obj_t sollya_len
+    cdef int64_t int_len = -1
+    try:
+      sollya_len = sollya_lib_length(self.value)
+      if sollya_lib_obj_is_error(sollya_len):
+        raise ValueError("this Sollya object has no length")
+      if not sollya_lib_get_constant_as_int64(&int_len, sollya_len):
+        raise ValueError("unable to convert the length to an integer")
+      return int_len
+    finally:
+      sollya_lib_clear_obj(sollya_len)
+
   def __getitem__(self, index):
     if not sollya_lib_obj_is_list(self.value):
       raise ValueError("not a Sollya list")
@@ -121,9 +134,9 @@ cdef class SollyaObject:
     cdef SollyaObject op0, op1
     cdef int list_length
     if isinstance(left, list) and isinstance(right, SollyaObject):
-      return left + convertSollyaObject_to_PythonList(right)
+      return left + list(right)
     elif isinstance(left, SollyaObject) and isinstance(right, list):
-      return convertSollyaObject_to_PythonList(left) + right
+      return list(left) + right
     else:
       op0 = as_SollyaObject(left)
       op1 = as_SollyaObject(right)
@@ -147,10 +160,10 @@ cdef class SollyaObject:
       return int(left) * right
     elif (isinstance(left, SollyaObject)
         and sollya_lib_obj_is_list((<SollyaObject>left).value)):
-      return convertSollyaObject_to_PythonList(left) * int(right)
+      return list(left) * int(right)
     elif (isinstance(right, SollyaObject)
         and sollya_lib_obj_is_list((<SollyaObject>right).value)):
-      return int(left) * convertSollyaObject_to_PythonList(right)
+      return int(left) * list(right)
     else:
       op0 = as_SollyaObject(left)
       op1 = as_SollyaObject(right)
@@ -222,49 +235,6 @@ cdef SollyaObject as_SollyaObject(op):
     return op
   else:
     return SollyaObject(op)
-
-
-## convert a sollya_obj_t to a PythonList
-#  @param op is a  sollya_obj_t pointing towards a sollya_list_t objt
-#  @return a python list containing the same elt as <op> in the same order
-cdef convert_sollya_obj_t_to_PythonList(sollya_obj_t sollya_op):
-  cdef int sollya_list_length 
-  cdef sollya_obj_t sollya_list_elt
-  cdef bint extract_valid
-  cdef sollya_obj_t SO_list_length
-
-
-  # TODO add check on (op is list)
-  SO_list_length = sollya_lib_length(sollya_op)
-  extract_valid = sollya_lib_get_constant_as_int(&sollya_list_length, SO_list_length)
-  sollya_lib_clear_obj(SO_list_length)
-
-  result_list = []
-  for i in range(sollya_list_length):
-    extract_valid = sollya_lib_get_element_in_list(&sollya_list_elt, sollya_op, i)
-    if not extract_valid:
-      print "Error in list element extraction"
-      raise Exception()
-    result_list.append(convert_sollya_obj_t_to_PythonObject_no_copy(sollya_list_elt))
-  return result_list
-
-
-## convert a SollyaObject wrapping a sollya_list_t
-#  to a Python list
-#  @param op is a SollyaObject whose value field is a sollya list
-#  @return a python list containing the same elt as <op> in the same order
-def convertSollyaObject_to_PythonList(SollyaObject op):
-  cdef sollya_obj_t sollya_op 
-  cdef int sollya_list_length 
-  cdef sollya_obj_t sollya_list_elt
-  cdef bint extract_valid
-
-  # TODO add check on (op is list)
-  sollya_op = op.value
-  extract_valid = sollya_lib_get_constant_as_int(&sollya_list_length, sollya_lib_length(sollya_op))
-
-  return convert_sollya_obj_t_to_PythonList(sollya_op)
-
 
 cdef SollyaObject convert_sollya_obj_t_to_PythonObject_no_copy(sollya_obj_t sollya_op):
   cdef SollyaObject result = SollyaObject.__new__(SollyaObject)

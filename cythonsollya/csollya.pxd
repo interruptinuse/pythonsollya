@@ -13,11 +13,11 @@ cdef extern from "sollya.h":
 
   sollya_obj_t sollya_lib_constant_from_double(double v)
   sollya_obj_t sollya_lib_constant_from_int64(int64_t v)
-  
-  int sollya_lib_get_constant_as_double(double *, sollya_obj_t)
-  int sollya_lib_get_constant_as_int(int *, sollya_obj_t)
-  int sollya_lib_get_constant_as_int64(int64_t *, sollya_obj_t)
-  int sollya_lib_get_constant_as_uint64(uint64_t *, sollya_obj_t)
+
+  bint sollya_lib_get_constant_as_double(double *, sollya_obj_t)
+  bint sollya_lib_get_constant_as_int(int *, sollya_obj_t)
+  bint sollya_lib_get_constant_as_int64(int64_t *, sollya_obj_t)
+  bint sollya_lib_get_constant_as_uint64(uint64_t *, sollya_obj_t)
 
   void sollya_lib_autoprint(sollya_obj_t, ...)
 
