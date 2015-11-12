@@ -196,4 +196,6 @@ cdef extern from "sollya.h":
   sollya_obj_t sollya_lib_free_variable()
   sollya_obj_t sollya_lib_error()
 
+  uint64_t sollya_lib_hash(sollya_obj_t)
+
 # vim: sw=2

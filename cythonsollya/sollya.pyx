@@ -22,6 +22,9 @@ cdef class SollyaObject:
     if self.value is not NULL:
       sollya_lib_clear_obj(self.value)
 
+  def __hash__(self):
+    return sollya_lib_hash(self.value)
+
   def __repr__(SollyaObject self):
     cdef int n = sollya_lib_snprintf(NULL, 0, <char*>"%b", <sollya_obj_t>self.value)
     cdef sollya_obj_t sollya_op = self.value
