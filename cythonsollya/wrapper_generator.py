@@ -177,12 +177,6 @@ sollya_h_list = [
   SOT(sollya_obj_t, "sollya_lib_inf",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_sup",(sollya_obj_t,)),
 
-  SOT(void, "sollya_lib_set_display",(sollya_obj_t,), binding_name = "display"),
-  SOT(void, "sollya_lib_set_prec",(sollya_obj_t,), binding_name = "prec"),
-  SOT(void, "sollya_lib_set_verbosity",(sollya_obj_t,), binding_name = "verbosity"),
-  SOT(void, "sollya_lib_set_roundingwarnings",(sollya_obj_t,), binding_name = "roundingwarnings"),
-  SOT(sollya_obj_t, "sollya_lib_guessdegree", (sollya_obj_t,sollya_obj_t,sollya_obj_t), optional_inputs = [sollya_obj_t, sollya_obj_t]),
-
   SOT(sollya_obj_t, "sollya_lib_fpminimax", (sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t,), optional_inputs = [sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t]),
   SOT(sollya_obj_t, "sollya_lib_remez", (sollya_obj_t, sollya_obj_t, sollya_obj_t,), optional_inputs = [sollya_obj_t, sollya_obj_t, sollya_obj_t]),
   SOT(sollya_obj_t, "sollya_lib_infnorm", (sollya_obj_t, sollya_obj_t), optional_inputs = [sollya_obj_t, sollya_obj_t]),

@@ -258,6 +258,8 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
   else:
     raise TypeError("unsupported conversion to sollya object", op, op.__class__)
 
+include "sollya_settings.pxi"
+
 def Interval(inf, sup = None):
   if sup is None:
     return sollya_range(inf, inf)
@@ -291,8 +293,8 @@ relative = wrap(sollya_lib_relative())
 fixed    = wrap(sollya_lib_fixed())
 floating = wrap(sollya_lib_floating())
 
-on = wrap(sollya_lib_off())
-off = wrap(sollya_lib_on())
+on = wrap(sollya_lib_on())
+off = wrap(sollya_lib_off())
 
 binary      = wrap(sollya_lib_binary())
 powers      = wrap(sollya_lib_powers())
