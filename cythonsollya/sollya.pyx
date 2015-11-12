@@ -138,21 +138,13 @@ cdef class SollyaObject:
     else:
       raise IndexError("index out of range")
 
-  # Unary operators
+  # Arithmetic operators
 
   def __neg__(self):  # -self
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
     cdef SollyaObject op0 = as_SollyaObject(self)
     result.value = sollya_lib_neg(op0.value)
     return result
-
-  def __not__(self):  # !self
-    cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef SollyaObject op0 = as_SollyaObject(self)
-    result.value = sollya_lib_negate(op0.value)
-    return result
-
-  # Binary arithmetic operators
 
   def __add__(left, right):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
