@@ -18,5 +18,4 @@ setup(
       )
     ]
   ),
-  packages = ["pythonsollya"],
 )
