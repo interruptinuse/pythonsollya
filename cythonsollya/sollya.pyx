@@ -138,6 +138,10 @@ cdef class SollyaObject:
     else:
       raise IndexError("index out of range")
 
+  def __contains__(self, elt):
+    res = sollya_lib_cmp_in(as_SollyaObject(elt).value, self.value)
+    return sollya_lib_is_true(res)
+
   # Arithmetic operators
 
   def __neg__(self):  # -self
@@ -224,6 +228,9 @@ cdef class SollyaObject:
 
   def identical(self, SollyaObject other):
     return sollya_lib_cmp_objs_structurally(self.value, other.value)
+
+  def approx(self):
+    return wrap(sollya_lib_approx(self.value))
 
 cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
   cdef sollya_obj_t sollya_op

@@ -210,6 +210,13 @@ cdef extern from "sollya.h":
 
   sollya_obj_t sollya_lib_copy_obj(sollya_obj_t)
 
+  sollya_obj_t sollya_lib_approx(sollya_obj_t)
+  sollya_obj_t sollya_lib_horner(sollya_obj_t)
+  sollya_obj_t sollya_lib_canonical(sollya_obj_t)
+  sollya_obj_t sollya_lib_expand(sollya_obj_t)
+  sollya_obj_t sollya_lib_dirtysimplify(sollya_obj_t)
+  sollya_obj_t sollya_lib_simplify(sollya_obj_t)
+  sollya_obj_t sollya_lib_simplifysafe(sollya_obj_t)
 
   sollya_obj_t sollya_lib_guessdegree(sollya_obj_t, sollya_obj_t, sollya_obj_t, ...)
   sollya_obj_t sollya_lib_fpminimax(sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t, ...)

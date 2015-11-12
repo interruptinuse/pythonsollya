@@ -188,7 +188,16 @@ sollya_h_list = [
   SOT(sollya_obj_t, "sollya_lib_parse",(sollya_obj_t,)),
 
   SOT(sollya_obj_t, "sollya_lib_inf",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_mid",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_sup",(sollya_obj_t,)),
+
+  SOT(sollya_obj_t, "sollya_lib_horner",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_diff",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_canonical",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_expand",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_dirtysimplify",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_simplify",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_simplifysafe",(sollya_obj_t,)),
 
   SOT(sollya_obj_t, "sollya_lib_fpminimax", (sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t,), optional_inputs = [sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t]),
   SOT(sollya_obj_t, "sollya_lib_remez", (sollya_obj_t, sollya_obj_t, sollya_obj_t,), optional_inputs = [sollya_obj_t, sollya_obj_t, sollya_obj_t]),
