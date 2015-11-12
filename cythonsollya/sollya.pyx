@@ -52,6 +52,32 @@ cdef class SollyaObject:
   def myprint(self):
     sollya_lib_autoprint(self.value)
 
+  # Typechecking
+
+  def is_function(self):
+    return sollya_lib_obj_is_function(self.value)
+
+  def is_list(self):
+    return sollya_lib_obj_is_list(self.value)
+
+  def is_end_elliptic_list(self):
+    return sollya_lib_obj_is_end_elliptic_list(self.value)
+
+  def is_range(self):
+    return sollya_lib_obj_is_range(self.value)
+
+  def is_string(self):
+    return sollya_lib_obj_is_string(self.value)
+
+  def is_error(self):
+    return sollya_lib_obj_is_error(self.value)
+
+  def is_structure(self):
+    return sollya_lib_obj_is_structure(self.value)
+
+  def is_procedure(self):
+    return sollya_lib_obj_is_procedure(self.value)
+
   # Conversions
 
   def __nonzero__(self):
