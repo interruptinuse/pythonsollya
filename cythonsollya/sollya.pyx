@@ -22,12 +22,24 @@ cdef class SollyaObject:
     if self.value is not NULL:
       sollya_lib_clear_obj(self.value)
 
+  def __repr__(SollyaObject self):
+    cdef int n = sollya_lib_snprintf(NULL, 0, <char*>"%b", <sollya_obj_t>self.value)
+    cdef sollya_obj_t sollya_op = self.value
+    cdef char* result_str
+    if n > 0:
+      result_str = <char*>malloc(n+1)
+      sollya_lib_snprintf(result_str, n+1, <char*>"%b", <sollya_obj_t>self.value)
+      return result_str
+    else:
+      return ""
+
   def myprint(self):
     sollya_lib_autoprint(self.value)
 
-  ## converting sollya object to python Integer
+  # Conversions
+
   def __int__(SollyaObject self):
-    cdef int i 
+    cdef int i
     cdef int64_t result[1]
     i = sollya_lib_get_constant_as_int64(result, self.value)
     return result[0]
@@ -71,42 +83,13 @@ cdef class SollyaObject:
     i = sollya_lib_get_constant_as_uint64(result, self.value)
     return result[0]
 
-  ## converting sollya object to python Float
   def __float__(SollyaObject self):
-    cdef int i 
+    cdef int i
     cdef double result[1]
     i = sollya_lib_get_constant_as_double(result, self.value)
     return result[0]
 
-  ## Negate operator (-self) for sollya object
-  def __neg__(self):
-    cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef SollyaObject op0 = as_SollyaObject(self)
-    result.value = sollya_lib_neg(op0.value)
-    return result
-
-  ## Not operator (!self) for sollya object
-  def __not__(self):
-    cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef SollyaObject op0 = as_SollyaObject(self)
-    result.value = sollya_lib_negate(op0.value)
-    return result
-
-  ## addition operator for sollya objects
-  def __add__(left, right):
-    cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef SollyaObject op0, op1
-    cdef int list_length
-
-    if isinstance(left, list) and isinstance(right, SollyaObject):
-      return left + convertSollyaObject_to_PythonList(right)
-    elif isinstance(left, SollyaObject) and isinstance(right, list):
-      return convertSollyaObject_to_PythonList(left) + right
-    else:
-      op0 = as_SollyaObject(left)
-      op1 = as_SollyaObject(right)
-      result.value = sollya_lib_add(op0.value, op1.value)
-      return result
+  # Container methods
 
   def __getitem__(self, index):
     if not sollya_lib_obj_is_list(self.value):
@@ -117,7 +100,36 @@ cdef class SollyaObject:
     else:
       raise IndexError("index out of range")
 
-  ## Subtraction operator for sollya objects
+  # Unary operators
+
+  def __neg__(self):  # -self
+    cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
+    cdef SollyaObject op0 = as_SollyaObject(self)
+    result.value = sollya_lib_neg(op0.value)
+    return result
+
+  def __not__(self):  # !self
+    cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
+    cdef SollyaObject op0 = as_SollyaObject(self)
+    result.value = sollya_lib_negate(op0.value)
+    return result
+
+  # Binary arithmetic operators
+
+  def __add__(left, right):
+    cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
+    cdef SollyaObject op0, op1
+    cdef int list_length
+    if isinstance(left, list) and isinstance(right, SollyaObject):
+      return left + convertSollyaObject_to_PythonList(right)
+    elif isinstance(left, SollyaObject) and isinstance(right, list):
+      return convertSollyaObject_to_PythonList(left) + right
+    else:
+      op0 = as_SollyaObject(left)
+      op1 = as_SollyaObject(right)
+      result.value = sollya_lib_add(op0.value, op1.value)
+      return result
+
   def __sub__(left, right):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
     cdef SollyaObject op0 = as_SollyaObject(left)
@@ -125,7 +137,6 @@ cdef class SollyaObject:
     result.value = sollya_lib_sub(op0.value, op1.value)
     return result
 
-  ## Multiplication operator for sollya objects
   def __mul__(left, right):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
     cdef SollyaObject op0, op1
@@ -146,7 +157,6 @@ cdef class SollyaObject:
       result.value = sollya_lib_mul(op0.value, op1.value)
       return result
 
-  ## Division operator for sollya objects
   def __div__(left, right):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
     cdef SollyaObject op0 = as_SollyaObject(left)
@@ -154,7 +164,6 @@ cdef class SollyaObject:
     result.value = sollya_lib_div(op0.value, op1.value)
     return result
 
-  ## Power operator for sollya objects
   def __pow__(self, op, modulo):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
     cdef SollyaObject op0 = as_SollyaObject(self)
@@ -162,19 +171,8 @@ cdef class SollyaObject:
     result.value = sollya_lib_pow(op0.value, op1.value)
     return result
 
-  def __repr__(SollyaObject self):
-    cdef int n = sollya_lib_snprintf(NULL, 0, <char*>"%b", <sollya_obj_t>self.value)
-    cdef sollya_obj_t sollya_op = self.value
-    cdef char* result_str
-    if n > 0:
-      result_str = <char*>malloc(n+1)
-      sollya_lib_snprintf(result_str, n+1, <char*>"%b", <sollya_obj_t>self.value)
-      return result_str
-    else:
-      return ""
-
-
   # Comparison operators
+
   def __richcmp__(SollyaObject self, py_other, int cmp_op):
     cdef SollyaObject other = as_SollyaObject(py_other)
     cdef sollya_obj_t result = NULL
