@@ -28,7 +28,7 @@ cdef extern from "sollya.h":
   int sollya_lib_snprintf(char *, size_t, const char *, ...)
 
   sollya_obj_t sollya_lib_list(sollya_obj_t[], int)
-  int sollya_lib_get_element_in_list(sollya_obj_t *, sollya_obj_t, int)
+  bint sollya_lib_get_element_in_list(sollya_obj_t *, sollya_obj_t, int)
   sollya_obj_t sollya_lib_string(char *)
 
   sollya_obj_t sollya_lib_length(sollya_obj_t)
