@@ -38,6 +38,15 @@ cdef class SollyaObject:
 
   # Conversions
 
+  def __nonzero__(self):
+    if sollya_lib_is_true(self.value):
+      return True
+    elif sollya_lib_is_false(self.value):
+      return False
+    else:
+      # XXX: is this what we want?
+      raise ValueError("not a boolean")
+
   def __int__(SollyaObject self):
     cdef int i
     cdef int64_t result[1]
@@ -213,6 +222,8 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
     return sollya_lib_copy_obj((<SollyaObject>op).value)
   elif isinstance(op, float):
     return sollya_lib_constant_from_double(<double>op)
+  elif isinstance(op, bool): # must come before int
+    return sollya_lib_true() if op else sollya_lib_false()
   elif isinstance(op, int):
     return sollya_lib_constant_from_int64(PyInt_AsLong(op))
   elif isinstance(op, list):

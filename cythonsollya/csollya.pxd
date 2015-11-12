@@ -41,8 +41,8 @@ cdef extern from "sollya.h":
   sollya_obj_t sollya_lib_cmp_greater_equal(sollya_obj_t, sollya_obj_t)
   sollya_obj_t sollya_lib_cmp_not_equal(sollya_obj_t, sollya_obj_t)
 
-  int sollya_lib_is_true(sollya_obj_t)
-  int sollya_lib_is_false(sollya_obj_t)
+  bint sollya_lib_is_true(sollya_obj_t)
+  bint sollya_lib_is_false(sollya_obj_t)
 
   sollya_obj_t sollya_lib_dirtyfindzeros(sollya_obj_t, sollya_obj_t)
   sollya_obj_t sollya_lib_head(sollya_obj_t)
@@ -150,6 +150,9 @@ cdef extern from "sollya.h":
 
   sollya_obj_t sollya_lib_on()
   sollya_obj_t sollya_lib_off()
+
+  sollya_obj_t sollya_lib_true()
+  sollya_obj_t sollya_lib_false()
 
   sollya_obj_t sollya_lib_dyadic()
   sollya_obj_t sollya_lib_powers()
