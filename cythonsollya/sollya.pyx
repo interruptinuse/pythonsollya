@@ -187,28 +187,23 @@ cdef class SollyaObject:
 
 
   # Comparison operators
-  def __richcmp__(self, other, int cmp_op):
-    cdef SollyaObject sollya_op0_wrapper = as_SollyaObject(self)
-    cdef SollyaObject sollya_op1_wrapper = as_SollyaObject(other)
-    cdef sollya_obj_t sollya_op0 = sollya_op0_wrapper.value
-    cdef sollya_obj_t sollya_op1 = sollya_op1_wrapper.value
+  def __richcmp__(SollyaObject self, py_other, int cmp_op):
+    cdef SollyaObject other = as_SollyaObject(py_other)
     cdef sollya_obj_t result = NULL
     if cmp_op == Py_LT:
-      result = sollya_lib_cmp_less(sollya_op0, sollya_op1)
+      result = sollya_lib_cmp_less(self.value, other.value)
     elif cmp_op == Py_EQ:
-      result = sollya_lib_cmp_equal(sollya_op0, sollya_op1)
+      result = sollya_lib_cmp_equal(self.value, other.value)
     elif cmp_op == Py_GT:
-      result = sollya_lib_cmp_greater(sollya_op0, sollya_op1)
+      result = sollya_lib_cmp_greater(self.value, other.value)
     elif cmp_op == Py_LE:
-      result = sollya_lib_cmp_less_equal(sollya_op0, sollya_op1)
+      result = sollya_lib_cmp_less_equal(self.value, other.value)
     elif cmp_op == Py_NE:
-      result = sollya_lib_cmp_not_equal(sollya_op0, sollya_op1)
+      result = sollya_lib_cmp_not_equal(self.value, other.value)
     elif cmp_op == Py_GE:
-      result = sollya_lib_cmp_greater_equal(sollya_op0, sollya_op1)
+      result = sollya_lib_cmp_greater_equal(self.value, other.value)
     cdef bint bool_result = sollya_lib_is_true(result)
-
     sollya_lib_clear_obj(result)
-
     return bool_result
 
 cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
