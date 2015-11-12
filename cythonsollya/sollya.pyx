@@ -10,7 +10,6 @@ from libc.stdlib cimport malloc, free
 ## initialization of Sollya library
 sollya_lib_init()
 
-
 # Create a new SollyaObject wrapping sollya_val, taking ownership of sollya_val
 # (which will thus be cleared when the SollyaObject gets garbage-collected)
 cdef SollyaObject wrap(sollya_obj_t sollya_val):
@@ -259,19 +258,7 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
     raise TypeError("unsupported conversion to sollya object", op, op.__class__)
 
 include "sollya_settings.pxi"
-
-def Interval(inf, sup = None):
-  if sup is None:
-    return sollya_range(inf, inf)
-  else:
-    return sollya_range(inf, sup)
-
-def lib_init():
-  sollya_lib_init()
-
 include "sollya_func.pxi"
-
-lib_init()
 
 # Global constants
 
@@ -307,6 +294,11 @@ x           = wrap(sollya_lib_free_variable())
 error       = wrap(sollya_lib_error())
 
 
+def Interval(inf, sup = None):
+  if sup is None:
+    return sollya_range(inf, inf)
+  else:
+    return sollya_range(inf, sup)
 
 def PSI_is_range(SollyaObject op):
   return sollya_lib_obj_is_range(op.value)
