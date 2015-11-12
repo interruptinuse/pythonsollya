@@ -4,7 +4,5 @@
 
 export SOLLYA_INSTALL_DIR=/work1/hardware/users/nbrunie/CythonSollya/local/
 
-python ./wrapper_generator.py > ./sollya_func.pxi
-
-CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python setup.py build
+CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" make
 CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python setup.py install --prefix /work1/hardware/users/nbrunie/new_tmp_ml/local/
