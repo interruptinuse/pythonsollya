@@ -230,6 +230,9 @@ cdef class SollyaObject:
     sollya_lib_clear_obj(result)
     return bool_result
 
+  def identical(self, SollyaObject other):
+    return sollya_lib_cmp_objs_structurally(self.value, other.value)
+
 cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
   cdef sollya_obj_t sollya_op
   cdef sollya_obj_t* sollya_list

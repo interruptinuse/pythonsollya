@@ -23,6 +23,8 @@ cdef extern from "sollya.h":
 
   void sollya_lib_clear_obj(sollya_obj_t obj)
 
+  bint sollya_lib_cmp_objs_structurally(sollya_obj_t, sollya_obj_t)
+
   int sollya_lib_printf(const char *, ...)
   int sollya_lib_sprintf(char *, const char *, ...)
   int sollya_lib_snprintf(char *, size_t, const char *, ...)
