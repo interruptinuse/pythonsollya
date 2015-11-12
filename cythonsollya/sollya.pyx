@@ -81,32 +81,31 @@ cdef class SollyaObject:
   ## Negate operator (-self) for sollya object
   def __neg__(self):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef SollyaObject sollya_op0 = as_SollyaObject(self)
-    result.value = sollya_lib_neg(sollya_op0.value)
+    cdef SollyaObject op0 = as_SollyaObject(self)
+    result.value = sollya_lib_neg(op0.value)
     return result
 
   ## Not operator (!self) for sollya object
   def __not__(self):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef SollyaObject sollya_op0 = as_SollyaObject(self)
-    result.value = sollya_lib_negate(sollya_op0.value)
+    cdef SollyaObject op0 = as_SollyaObject(self)
+    result.value = sollya_lib_negate(op0.value)
     return result
 
   ## addition operator for sollya objects
-  def __add__(self, op):
+  def __add__(left, right):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef SollyaObject sollya_op0 # = convertPythonTo_sollya_obj_t(self)
-    cdef SollyaObject sollya_op1 # = convertPythonTo_sollya_obj_t(op)
+    cdef SollyaObject op0, op1
     cdef int list_length
 
-    if isinstance(self, list) and isinstance(op, SollyaObject):
-      return self + convertSollyaObject_to_PythonList(op)
-    elif isinstance(self, SollyaObject) and isinstance(op, list):
-      return convertSollyaObject_to_PythonList(self) + op
+    if isinstance(left, list) and isinstance(right, SollyaObject):
+      return left + convertSollyaObject_to_PythonList(right)
+    elif isinstance(left, SollyaObject) and isinstance(right, list):
+      return convertSollyaObject_to_PythonList(left) + right
     else:
-      sollya_op0 = as_SollyaObject(self)
-      sollya_op1 = as_SollyaObject(op)
-      result.value = sollya_lib_add(sollya_op0.value, sollya_op1.value)
+      op0 = as_SollyaObject(left)
+      op1 = as_SollyaObject(right)
+      result.value = sollya_lib_add(op0.value, op1.value)
       return result
 
   def __getitem__(self, index):
@@ -119,59 +118,48 @@ cdef class SollyaObject:
       raise IndexError("index out of range")
 
   ## Subtraction operator for sollya objects
-  def __sub__(self, op):
+  def __sub__(left, right):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef SollyaObject sollya_op0 = as_SollyaObject(self)
-    cdef SollyaObject sollya_op1 = as_SollyaObject(op)
-    result.value = sollya_lib_sub(sollya_op0.value, sollya_op1.value)
+    cdef SollyaObject op0 = as_SollyaObject(left)
+    cdef SollyaObject op1 = as_SollyaObject(right)
+    result.value = sollya_lib_sub(op0.value, op1.value)
     return result
 
   ## Multiplication operator for sollya objects
-  def __mul__(self, op):
+  def __mul__(left, right):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef SollyaObject sollya_op0 
-    cdef SollyaObject sollya_op1 
+    cdef SollyaObject op0, op1
     cdef bint sollya_obj_is_list
-    if isinstance(self, list):
-      return self * int(op)
-    elif isinstance(op, list):
-      return int(self) * op
-    elif isinstance(self, SollyaObject):
-      sollya_op0 = as_SollyaObject(self)
-      sollya_obj_is_list = sollya_lib_obj_is_list(sollya_op0.value)
-      if sollya_obj_is_list:
-        return convertSollyaObject_to_PythonList(self) * int(op)
-    elif isinstance(op, SollyaObject):
-      sollya_op1 = as_SollyaObject(op) 
-      sollya_obj_is_list = sollya_lib_obj_is_list(sollya_op1.value)
-      if sollya_obj_is_list:
-        return int(self) * convertSollyaObject_to_PythonList(op) 
-    # default case
-    sollya_op0 = as_SollyaObject(self) 
-    sollya_op1 = as_SollyaObject(op) 
-    result.value = sollya_lib_mul(sollya_op0.value, sollya_op1.value)
-    return result
+    if isinstance(left, list):
+      return left * int(right)
+    elif isinstance(right, list):
+      return int(left) * right
+    elif (isinstance(left, SollyaObject)
+        and sollya_lib_obj_is_list((<SollyaObject>left).value)):
+      return convertSollyaObject_to_PythonList(left) * int(right)
+    elif (isinstance(right, SollyaObject)
+        and sollya_lib_obj_is_list((<SollyaObject>right).value)):
+      return int(left) * convertSollyaObject_to_PythonList(right)
+    else:
+      op0 = as_SollyaObject(left)
+      op1 = as_SollyaObject(right)
+      result.value = sollya_lib_mul(op0.value, op1.value)
+      return result
 
   ## Division operator for sollya objects
-  def __div__(self, op):
+  def __div__(left, right):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef SollyaObject sollya_op0 
-    cdef SollyaObject sollya_op1 
-    sollya_op0 = as_SollyaObject(self) 
-    sollya_op1 = as_SollyaObject(op) 
-    result.value = sollya_lib_div(sollya_op0.value, sollya_op1.value)
-
+    cdef SollyaObject op0 = as_SollyaObject(left)
+    cdef SollyaObject op1 = as_SollyaObject(right)
+    result.value = sollya_lib_div(op0.value, op1.value)
     return result
 
   ## Power operator for sollya objects
   def __pow__(self, op, modulo):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    cdef SollyaObject sollya_op0 
-    cdef SollyaObject sollya_op1 
-    sollya_op0 = as_SollyaObject(self) 
-    sollya_op1 = as_SollyaObject(op) 
-    result.value = sollya_lib_pow(sollya_op0.value, sollya_op1.value)
-
+    cdef SollyaObject op0 = as_SollyaObject(self)
+    cdef SollyaObject op1 = as_SollyaObject(op)
+    result.value = sollya_lib_pow(op0.value, op1.value)
     return result
 
   def __repr__(SollyaObject self):
