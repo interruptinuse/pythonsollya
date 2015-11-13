@@ -90,10 +90,11 @@ cdef class SollyaObject:
       raise ValueError("not a boolean")
 
   def __int__(SollyaObject self):
-    cdef int i
-    cdef int64_t result[1]
-    i = sollya_lib_get_constant_as_int64(result, self.value)
-    return result[0]
+    cdef int64_t result
+    if sollya_lib_get_constant_as_int64(&result, self.value):
+      return result
+    else:
+      raise ValueError("no conversion of this Sollya object to int")
 
   def getConstantAsInt(SollyaObject self):
     cdef sollya_obj_t tmp, c64, divr, divr_, prod, rem, c0
