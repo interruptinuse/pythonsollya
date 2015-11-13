@@ -170,6 +170,12 @@ cdef class SollyaObject:
     else:
       raise ValueError("this Sollya object doesn't have operands")
 
+  # Access to fields (read-only for now)
+
+  property struct:
+    def __get__(self):
+      return SollyaStructureWrapper(self)
+
   # Container methods
 
   def __len__(self):
@@ -343,6 +349,26 @@ cdef class SollyaOperator:
       return self.value != other.value
     else:
       raise TypeError("Sollya operators are not ordered")
+
+# Access to fields of Sollya structures
+
+cdef class SollyaStructureWrapper:
+
+  def __init__(self, SollyaObject obj):
+    if not sollya_lib_obj_is_structure(obj.value):
+      raise ValueError("expected a Sollya structure")
+    self.obj = obj
+
+  def __getattribute__(self, name):
+    cdef SollyaObject res = SollyaObject.__new__(SollyaObject)
+    if not sollya_lib_get_element_in_structure(&res.value, PyString_AsString(name),
+        self.obj.value):
+      raise AttributeError(name) # ?
+    else:
+      return res
+
+  def __setattr__(self, name, value):
+    raise NotImplementedError("setting fields of Sollya structures is not supported (yet?)")
 
 # Global constants
 

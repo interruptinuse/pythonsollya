@@ -176,6 +176,10 @@ cdef extern from "sollya.h":
   bint sollya_lib_get_head_function(sollya_base_function_t *, sollya_obj_t)
   bint sollya_lib_get_subfunctions(sollya_obj_t, int *, ...);
 
+  bint sollya_lib_get_structure_elements(char ***, sollya_obj_t **, int *, sollya_obj_t);
+  bint sollya_lib_get_element_in_structure(sollya_obj_t *, char *, sollya_obj_t);
+  bint sollya_lib_create_structure(sollya_obj_t *, sollya_obj_t, char *, sollya_obj_t);
+
   void sollya_lib_set_prec(sollya_obj_t)
   void sollya_lib_set_points(sollya_obj_t)
   void sollya_lib_set_diam(sollya_obj_t)
