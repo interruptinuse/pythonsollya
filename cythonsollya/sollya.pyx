@@ -336,6 +336,14 @@ cdef class SollyaOperator:
   def __repr__(self):
     return __operator_names[self.value]
 
+  def __richcmp__(SollyaOperator self, SollyaOperator other, cmp_op):
+    if cmp_op == Py_EQ:
+      return self.value == other.value
+    elif cmp_op == Py_NE:
+      return self.value != other.value
+    else:
+      raise TypeError("Sollya operators are not ordered")
+
 # Global constants
 
 binary16 = wrap(sollya_lib_halfprecision_obj())
