@@ -1,3 +1,4 @@
 sollya_*.pxi
+csollya_*.pxd
 build
 sollya.c

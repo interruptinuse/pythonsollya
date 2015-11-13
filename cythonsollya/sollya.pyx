@@ -288,6 +288,24 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
 include "sollya_settings.pxi"
 include "sollya_func.pxi"
 
+# Sollya operators (aka base functions)
+
+include "sollya_ops.pxi"
+
+cdef class SollyaOperator:
+
+  def __init__(self, name):
+    # make it possible to convert things like operator.add someday?
+    name = name.upper()
+    vals = [k for (k, v) in __operator_names.iteritems() if v == name]
+    try:
+      self.value = vals[0]
+    except IndexError:
+      raise ValueError("unknown Sollya operator")
+
+  def __repr__(self):
+    return __operator_names[self.value]
+
 # Global constants
 
 binary16 = wrap(sollya_lib_halfprecision_obj())

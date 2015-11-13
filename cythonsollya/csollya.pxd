@@ -1,6 +1,7 @@
 # vim: sw=2
 from libc.stdint cimport int64_t, uint64_t
 
+from csollya_ops cimport *
 
 cdef extern from "sollya.h":
   ctypedef struct __sollya_internal_type_object_base:
