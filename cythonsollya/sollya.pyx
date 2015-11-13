@@ -124,7 +124,6 @@ cdef class SollyaObject:
     sollya_lib_clear_obj(c0)
     return value
 
-  ## wrapper for constant as int
   def getConstantAsIntLegacy(SollyaObject self):
     return int(self)
 
@@ -139,6 +138,36 @@ cdef class SollyaObject:
     cdef double result[1]
     i = sollya_lib_get_constant_as_double(result, self.value)
     return result[0]
+
+  # Destructuring
+
+  def arity(self):
+    cdef int res
+    if sollya_lib_get_function_arity(&res, self.value):
+      return res
+    else:
+      raise ValueError("this Sollya object doesn't have operands")
+
+  def operator(self):
+    cdef SollyaOperator res = SollyaOperator.__new__(SollyaOperator)
+    if sollya_lib_get_head_function(&res.value, self.value):
+      return res
+    else:
+      raise ValueError("this Sollya object doesn't have operands")
+
+  def operand(self, n):
+    cdef sollya_obj_t obj[4]
+    cdef int num
+    if n >= 4:
+      raise NotImplementedError # TBI?
+    if sollya_lib_get_subfunctions(self.value, &num, &obj, &(obj[1]),
+                                   &(obj[2]), &(obj[3]), NULL):
+      if num >= n:
+        return wrap(obj[n])
+      else:
+        raise IndexError
+    else:
+      raise ValueError("this Sollya object doesn't have operands")
 
   # Container methods
 
