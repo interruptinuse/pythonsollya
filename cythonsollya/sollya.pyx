@@ -4,7 +4,7 @@ from csollya cimport *
 cimport libc.stdint
 from cpython.int cimport PyInt_AsLong
 from cpython.object cimport Py_LT, Py_LE, Py_EQ, Py_NE, Py_GT, Py_GE
-from cpython.string cimport PyString_AsString
+from cpython.string cimport PyString_AsString, PyString_FromString
 from libc.stdlib cimport malloc, free
 
 ## initialization of Sollya library
@@ -181,6 +181,14 @@ cdef class SollyaObject:
   def __len__(self):
     cdef sollya_obj_t sollya_len
     cdef int64_t int_len = -1
+    cdef char **names = NULL
+    cdef sollya_obj_t *objs = NULL
+    cdef int struct_len = -1
+    if sollya_lib_obj_is_structure(self.value):
+      sollya_lib_get_structure_elements(&names, &objs, &struct_len, self.value)
+      sollya_lib_free(objs)
+      sollya_lib_free(names)
+      return struct_len
     try:
       sollya_len = sollya_lib_length(self.value)
       if sollya_lib_obj_is_error(sollya_len):
@@ -203,6 +211,28 @@ cdef class SollyaObject:
   def __contains__(self, elt):
     res = sollya_lib_cmp_in(as_SollyaObject(elt).value, self.value)
     return sollya_lib_is_true(res)
+
+  def __iter__(self):
+    cdef char **names = NULL
+    cdef sollya_obj_t *objs = NULL
+    cdef int n = 0
+    cdef SollyaObject val
+    if sollya_lib_obj_is_list(self.value):
+      for i in range(len(self)):
+        yield self[i]
+    elif sollya_lib_obj_is_structure(self.value):
+      try:
+        success = sollya_lib_get_structure_elements(&names, &objs, &n, self.value)
+        assert success
+        for i in range(n):
+          val = SollyaObject.__new__(SollyaObject)
+          val.value = sollya_lib_copy_obj(objs[i])
+          yield PyString_FromString(names[i]), val
+      finally:
+        sollya_lib_free(objs)
+        sollya_lib_free(names)
+    else:
+      raise ValueError("not iterable")
 
   # Arithmetic operators
 

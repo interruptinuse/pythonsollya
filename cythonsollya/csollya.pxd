@@ -23,6 +23,7 @@ cdef extern from "sollya.h":
   void sollya_lib_autoprint(sollya_obj_t, ...)
 
   void sollya_lib_clear_obj(sollya_obj_t obj)
+  void sollya_lib_free(void *)
 
   bint sollya_lib_cmp_objs_structurally(sollya_obj_t, sollya_obj_t)
 
