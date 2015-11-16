@@ -118,6 +118,7 @@ cdef extern from "sollya.h":
   sollya_obj_t sollya_lib_concat(sollya_obj_t, sollya_obj_t)
   sollya_obj_t sollya_lib_append(sollya_obj_t, sollya_obj_t)
   sollya_obj_t sollya_lib_prepend(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_apply(sollya_obj_t, sollya_obj_t, ...)
 
   sollya_obj_t sollya_lib_approx(sollya_obj_t)
   sollya_obj_t sollya_lib_mul(sollya_obj_t, sollya_obj_t)

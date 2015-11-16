@@ -54,6 +54,17 @@ cdef class SollyaObject:
   def myprint(self):
     sollya_lib_autoprint(self.value)
 
+  def __call__(self, *args):
+    cdef sollya_obj_t res
+    if sollya_lib_obj_is_procedure(self.value):
+      res = sollya_lib_concat(self.value, as_SollyaObject(args).value)
+      return wrap(res)
+    elif len(args) == 1:
+      res = sollya_lib_apply(self.value, as_SollyaObject(args[0]).value, NULL)
+      return wrap(res)
+    else:
+      raise TypeError("expected exactly one argument")
+
   # Typechecking
 
   def is_function(self):
