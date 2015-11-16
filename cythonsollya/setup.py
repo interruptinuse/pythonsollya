@@ -6,7 +6,7 @@ setup(
   name = "sollya",
   version = "0.1",
   description = "Python wrapper to sollya library",
-  author = "Nicolas Brunie, Marc Mezzaroba",
+  author = "Nicolas Brunie, Marc Mezzarobba",
   author_email = "nicolas.brunie@kalray.eu",
   ext_modules = 
     cythonize(
