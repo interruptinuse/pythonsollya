@@ -7,6 +7,8 @@ from cpython.object cimport Py_LT, Py_LE, Py_EQ, Py_NE, Py_GT, Py_GE
 from cpython.string cimport PyString_AsString, PyString_FromString
 from libc.stdlib cimport malloc, free
 
+import collections
+
 ## initialization of Sollya library
 sollya_lib_init()
 
@@ -328,15 +330,18 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
   cdef sollya_obj_t sollya_op
   cdef sollya_obj_t* sollya_list
   cdef int n
+  # order matters!
   if isinstance(op, SollyaObject):
     return sollya_lib_copy_obj((<SollyaObject>op).value)
   elif isinstance(op, float):
     return sollya_lib_constant_from_double(<double>op)
-  elif isinstance(op, bool): # must come before int
+  elif isinstance(op, bool):
     return sollya_lib_true() if op else sollya_lib_false()
   elif isinstance(op, int):
     return sollya_lib_constant_from_int64(PyInt_AsLong(op))
-  elif isinstance(op, list):
+  elif isinstance(op, basestring):
+    return sollya_lib_string(PyString_AsString(op))
+  elif isinstance(op, collections.Sequence):
     n = len(op)
     sollya_list = <sollya_obj_t*>malloc(sizeof(sollya_obj_t) * n)
     for i in range(n):
@@ -346,8 +351,6 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
       sollya_lib_clear_obj(sollya_list[i])
     free(sollya_list)
     return sollya_op
-  elif isinstance(op, str):
-    return sollya_lib_string(PyString_AsString(op))
   else:
     raise TypeError("unsupported conversion to sollya object", op, op.__class__)
 
