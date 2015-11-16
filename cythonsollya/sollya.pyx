@@ -480,7 +480,7 @@ dyadic      = wrap(sollya_lib_dyadic())
 decimal     = wrap(sollya_lib_decimal())
 
 pi          = wrap(sollya_lib_pi())
-x           = wrap(sollya_lib_free_variable())
+x = _x_     = wrap(sollya_lib_free_variable())
 error       = wrap(sollya_lib_error())
 
 
