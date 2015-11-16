@@ -148,9 +148,6 @@ sollya_h_list = [
   SOT(sollya_obj_t, "sollya_lib_exponent",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_precision",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_tail",(sollya_obj_t,)),
-  # bound to sollya_range to avoid polluting python's range
-  # XXX: why not just exclude it from __all__?
-  SOT(sollya_obj_t, "sollya_lib_range",(sollya_obj_t, sollya_obj_t,), binding_name = "sollya_range"),
   SOT(sollya_obj_t, "sollya_lib_sqrt",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_exp",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_log",(sollya_obj_t,)),

@@ -451,14 +451,12 @@ x           = wrap(sollya_lib_free_variable())
 error       = wrap(sollya_lib_error())
 
 
-def Interval(inf, sup = None):
-  if sup is None:
-    return sollya_range(inf, inf)
-  else:
-    return sollya_range(inf, sup)
-
-def PSI_is_range(SollyaObject op):
-  return sollya_lib_obj_is_range(op.value)
+def Interval(left, right=None):
+  if right is None:
+    right = left
+  return wrap(sollya_lib_range(
+    as_SollyaObject(left).value,
+    as_SollyaObject(right).value))
 
 S2 = SollyaObject(2)
 
