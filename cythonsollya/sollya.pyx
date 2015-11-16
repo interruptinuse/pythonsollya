@@ -156,6 +156,14 @@ cdef class SollyaObject:
   # Destructuring
 
   def arity(self):
+    r"""
+    Return the arity of a Sollya function (expression).
+
+    WARNING: In some cases (e.g., library functions), self.operand() accepts
+    arguments >= self.arity(), and the corresponding "operand" is necessary to
+    reconstruct the function from its operator() and operands(). See the Sollya
+    manual for details.
+    """
     cdef int res
     if sollya_lib_get_function_arity(&res, self.value):
       return res
