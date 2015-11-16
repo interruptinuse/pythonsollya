@@ -7,7 +7,7 @@ from cpython.object cimport Py_LT, Py_LE, Py_EQ, Py_NE, Py_GT, Py_GE
 from cpython.string cimport PyString_AsString, PyString_FromString
 from libc.stdlib cimport malloc, free
 
-import collections
+import collections, itertools
 
 ## initialization of Sollya library
 sollya_lib_init()
@@ -216,39 +216,64 @@ cdef class SollyaObject:
       sollya_lib_clear_obj(sollya_len)
 
   def __getitem__(self, index):
-    if not sollya_lib_obj_is_list(self.value):
-      raise ValueError("not a Sollya list")
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    if sollya_lib_get_element_in_list(&result.value, self.value, PyInt_AsLong(int(index))):
-      return result
+    if (sollya_lib_obj_is_list(self.value)
+        or sollya_lib_obj_is_end_elliptic_list(self.value)):
+      result = SollyaObject.__new__(SollyaObject)
+      if sollya_lib_get_element_in_list(&result.value, self.value,
+                                        PyInt_AsLong(int(index))):
+        return result
+      else:
+        raise IndexError("index out of range")
     else:
-      raise IndexError("index out of range")
+      raise ValueError("not a Sollya list")
 
   def __contains__(self, elt):
     res = sollya_lib_cmp_in(as_SollyaObject(elt).value, self.value)
     return sollya_lib_is_true(res)
 
-  def __iter__(self):
+  def list(self):
     cdef char **names = NULL
     cdef sollya_obj_t *objs = NULL
-    cdef int struct_len = 0
+    cdef int length = 0
+    cdef int is_end_elliptic
     cdef SollyaObject val
-    if sollya_lib_obj_is_list(self.value):
-      for i in range(len(self)):
-        yield self[i]
+    if (sollya_lib_obj_is_list(self.value)
+        or sollya_lib_obj_is_end_elliptic_list(self.value)):
+      if not sollya_lib_get_list_elements(&objs, &length, &is_end_elliptic,
+                                          self.value):
+        raise RuntimeError("conversion of Sollya list failed")
+      py_objs = [wrap(objs[i]) for i in range(length)]
+      sollya_lib_free(objs)
+      if is_end_elliptic:
+        py_objs.append(Ellipsis)
+      return py_objs
     elif sollya_lib_obj_is_structure(self.value):
-      try:
-        success = sollya_lib_get_structure_elements(&names, &objs, &struct_len, self.value)
-        assert success
-        for i in range(struct_len):
-          yield PyString_FromString(names[i]), wrap(objs[i])
-      finally:
-        for i in range(struct_len):
-          sollya_lib_free(names[i])
-        sollya_lib_free(objs)
-        sollya_lib_free(names)
+      if not sollya_lib_get_structure_elements(&names, &objs, &length,
+                                               self.value):
+        raise RuntimeError("conversion of Sollya structure failed")
+      pairs = [(PyString_FromString(names[i]), wrap(objs[i]))
+               for i in range(length)]
+      for i in range(length):
+        sollya_lib_free(names[i])
+      sollya_lib_free(objs)
+      sollya_lib_free(names)
+      return pairs
     else:
       raise ValueError("not iterable")
+
+  def __iter__(self):
+    cdef bint is_end_elliptic = sollya_lib_obj_is_end_elliptic_list(self.value)
+    # wrap all elements first to avoid leaking memory if interrupted
+    items = self.list()
+    if is_end_elliptic:
+      last = items.pop(-1)
+      assert last is Ellipsis
+    for item in items:
+      yield item
+    if is_end_elliptic: # may be slow if the initial part is long
+      for i in itertools.count(len(items)):
+        yield self[i]
 
   # Arithmetic operators
 
@@ -357,10 +382,18 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
     return sollya_lib_string(PyString_AsString(op))
   elif isinstance(op, collections.Sequence):
     n = len(op)
+    if n > 0 and op[-1] is Ellipsis:
+      n -= 1
+      end_elliptic = True
+    else:
+      end_elliptic = False
     sollya_list = <sollya_obj_t*>malloc(sizeof(sollya_obj_t) * n)
     for i in range(n):
       sollya_list[i] = convertPythonTo_sollya_obj_t(op[i])
-    sollya_op = sollya_lib_list(sollya_list, n)
+    if end_elliptic:
+      sollya_op = sollya_lib_end_elliptic_list(sollya_list, n)
+    else:
+      sollya_op = sollya_lib_list(sollya_list, n)
     for i in range(n):
       sollya_lib_clear_obj(sollya_list[i])
     free(sollya_list)
