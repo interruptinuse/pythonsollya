@@ -366,7 +366,7 @@ cdef class SollyaObject:
     return wrap(sollya_lib_approx(self.value))
 
 cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
-  cdef sollya_obj_t sollya_op
+  cdef sollya_obj_t sollya_obj, old_sollya_obj
   cdef sollya_obj_t* sollya_list
   cdef int n
   # order matters!
@@ -391,13 +391,24 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
     for i in range(n):
       sollya_list[i] = convertPythonTo_sollya_obj_t(op[i])
     if end_elliptic:
-      sollya_op = sollya_lib_end_elliptic_list(sollya_list, n)
+      sollya_obj = sollya_lib_end_elliptic_list(sollya_list, n)
     else:
-      sollya_op = sollya_lib_list(sollya_list, n)
+      sollya_obj = sollya_lib_list(sollya_list, n)
     for i in range(n):
       sollya_lib_clear_obj(sollya_list[i])
     free(sollya_list)
-    return sollya_op
+    return sollya_obj
+  elif isinstance(op, collections.Mapping):
+    if not op:
+      raise ValueError("empty structures are not supported by Sollya")
+    sollya_obj = NULL
+    for name in op.keys():
+      old_sollya_obj = sollya_obj
+      if not sollya_lib_create_structure(&sollya_obj, sollya_obj,
+          PyString_AsString(name), as_SollyaObject(op[name]).value):
+        raise RuntimeError("creation of Sollya structure failed")
+      sollya_lib_clear_obj(old_sollya_obj)
+    return sollya_obj
   else:
     raise TypeError("unsupported conversion to sollya object", op, op.__class__)
 
@@ -447,8 +458,12 @@ cdef class SollyaStructureWrapper:
     else:
       return res
 
-  def __setattr__(self, name, value):
-    raise NotImplementedError("setting fields of Sollya structures is not supported (yet?)")
+  def __setattr__(self, name, val):
+    cdef sollya_obj_t old_struct = self.obj.value
+    if not sollya_lib_create_structure(&self.obj.value, self.obj.value,
+        PyString_AsString(name), as_SollyaObject(val).value):
+      raise RuntimeError("update of Sollya srstructure failed")
+    sollya_lib_clear_obj(old_struct)
 
 # Global constants
 
