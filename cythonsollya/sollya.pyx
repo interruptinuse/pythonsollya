@@ -199,6 +199,9 @@ cdef class SollyaObject:
     cdef int struct_len = -1
     if sollya_lib_obj_is_structure(self.value):
       sollya_lib_get_structure_elements(&names, &objs, &struct_len, self.value)
+      for i in range(struct_len):
+        sollya_lib_clear_obj(objs[i])
+        sollya_lib_free(names[i])
       sollya_lib_free(objs)
       sollya_lib_free(names)
       return struct_len
@@ -228,20 +231,20 @@ cdef class SollyaObject:
   def __iter__(self):
     cdef char **names = NULL
     cdef sollya_obj_t *objs = NULL
-    cdef int n = 0
+    cdef int struct_len = 0
     cdef SollyaObject val
     if sollya_lib_obj_is_list(self.value):
       for i in range(len(self)):
         yield self[i]
     elif sollya_lib_obj_is_structure(self.value):
       try:
-        success = sollya_lib_get_structure_elements(&names, &objs, &n, self.value)
+        success = sollya_lib_get_structure_elements(&names, &objs, &struct_len, self.value)
         assert success
-        for i in range(n):
-          val = SollyaObject.__new__(SollyaObject)
-          val.value = sollya_lib_copy_obj(objs[i])
-          yield PyString_FromString(names[i]), val
+        for i in range(struct_len):
+          yield PyString_FromString(names[i]), wrap(objs[i])
       finally:
+        for i in range(struct_len):
+          sollya_lib_free(names[i])
         sollya_lib_free(objs)
         sollya_lib_free(names)
     else:
