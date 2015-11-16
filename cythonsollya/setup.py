@@ -16,6 +16,7 @@ setup(
         ["sollya.pyx"],
         libraries = ["sollya"]
       )
-    ]
+    ],
+    gdb_debug=True
   ),
 )
