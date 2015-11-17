@@ -480,6 +480,38 @@ cdef class SollyaStructureWrapper:
 
 # Global constants
 
+on = wrap(sollya_lib_on())
+off = wrap(sollya_lib_off())
+
+dyadic      = wrap(sollya_lib_dyadic())
+powers      = wrap(sollya_lib_powers())
+binary      = wrap(sollya_lib_binary())
+hexadecimal = wrap(sollya_lib_hexadecimal())
+decimal     = wrap(sollya_lib_decimal())
+
+file = wrap(sollya_lib_file())
+postscript = wrap(sollya_lib_postscript())
+postscriptfile = wrap(sollya_lib_postscriptfile())
+perturb = wrap(sollya_lib_perturb())
+
+RD       = wrap(sollya_lib_round_down())
+RU       = wrap(sollya_lib_round_up())
+RZ       = wrap(sollya_lib_round_towards_zero())
+RN       = wrap(sollya_lib_round_to_nearest())
+
+# omitted: true, false (use, e.g., SollyaObject(True), bool(obj))
+
+VOID = wrap(sollya_lib_void())
+default = wrap(sollya_lib_default())
+
+# moved up: decimal
+absolute = wrap(sollya_lib_absolute())
+relative = wrap(sollya_lib_relative())
+fixed    = wrap(sollya_lib_fixed())
+floating = wrap(sollya_lib_floating())
+
+error       = wrap(sollya_lib_error())
+
 binary16 = wrap(sollya_lib_halfprecision_obj())
 binary32 = wrap(sollya_lib_single_obj())
 binary64 = wrap(sollya_lib_double_obj())
@@ -488,28 +520,8 @@ binary128 = wrap(sollya_lib_quad_obj())
 doubledouble = wrap(sollya_lib_double_double_obj())
 tripledouble = wrap(sollya_lib_triple_double_obj())
 
-RD       = wrap(sollya_lib_round_down())
-RU       = wrap(sollya_lib_round_up())
-RZ       = wrap(sollya_lib_round_towards_zero())
-RN       = wrap(sollya_lib_round_to_nearest())
-
-absolute = wrap(sollya_lib_absolute())
-relative = wrap(sollya_lib_relative())
-fixed    = wrap(sollya_lib_fixed())
-floating = wrap(sollya_lib_floating())
-
-on = wrap(sollya_lib_on())
-off = wrap(sollya_lib_off())
-
-binary      = wrap(sollya_lib_binary())
-powers      = wrap(sollya_lib_powers())
-hexadecimal = wrap(sollya_lib_hexadecimal())
-dyadic      = wrap(sollya_lib_dyadic())
-decimal     = wrap(sollya_lib_decimal())
-
 pi          = wrap(sollya_lib_pi())
 x = _x_     = wrap(sollya_lib_free_variable())
-error       = wrap(sollya_lib_error())
 
 
 def Interval(left, right=None):
