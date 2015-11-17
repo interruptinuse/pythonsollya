@@ -487,9 +487,10 @@ cdef class SollyaStructureWrapper:
 # Calling Python functions from Sollya
 
 cdef sollya_obj_t function_to_sollya_obj_t(fun) except NULL:
+  cdef void *callback = <void *> __externalproc_callback
   arity = fun.__code__.co_argcount
-  if arity < 1:
-    raise NotImplementedError
+  if arity == 0:
+    callback = <void *> __externalproc_callback_no_args
   cdef size_t size = arity*sizeof(sollya_externalprocedure_type_t)
   cdef sollya_externalprocedure_type_t *sollya_argspec = (
     <sollya_externalprocedure_type_t *>malloc(size))
@@ -498,12 +499,12 @@ cdef sollya_obj_t function_to_sollya_obj_t(fun) except NULL:
   Py_INCREF(fun) # leaks memory - freeing external procedures is not supported
   cdef sollya_obj_t sollya_obj = sollya_lib_externalprocedure_with_data(
       SOLLYA_EXTERNALPROC_TYPE_OBJECT, sollya_argspec, arity,
-      fun.__name__, <void *>__externalproc_callback_with_args, <void *>fun)
+      fun.__name__, callback , <void *>fun)
   free(sollya_argspec)
   return sollya_obj
 
-cdef bint __externalproc_callback_with_args(sollya_obj_t *c_res,
-                                            void **c_args, void *c_fun):
+cdef bint __externalproc_callback(sollya_obj_t *c_res,
+                                  void **c_args, void *c_fun):
   try:
     fun = <object> c_fun
     args = [wrap(sollya_lib_copy_obj(<sollya_obj_t>(c_args[i])))
@@ -516,8 +517,10 @@ cdef bint __externalproc_callback_with_args(sollya_obj_t *c_res,
     traceback.print_exc() # TBI?
     return False
 
+# sollya requires a different prototype to call external procedures that don't
+# take any argument
 cdef bint __externalproc_callback_no_args(sollya_obj_t *c_res, void *c_fun):
-  pass
+  return __externalproc_callback(c_res, NULL, c_fun)
 
 # Global constants
 
