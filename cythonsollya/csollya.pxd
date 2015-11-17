@@ -11,7 +11,10 @@ cdef extern from "sollya.h":
 
   ctypedef sollya_msg_t
   ctypedef sollya_fp_result_t
-  #ctypedef sollya_externalprocedure_type_t
+
+  ctypedef enum sollya_externalprocedure_type_t:
+    SOLLYA_EXTERNALPROC_TYPE_VOID
+    SOLLYA_EXTERNALPROC_TYPE_OBJECT
 
   bint sollya_lib_init()
   # int sollya_lib_init_with_arguments(int, char **)
@@ -252,7 +255,7 @@ cdef extern from "sollya.h":
   #sollya_obj_t sollya_lib_externalprocedure(sollya_externalprocedure_type_t, sollya_externalprocedure_type_t *, int, char *, void *)
   #sollya_obj_t sollya_lib_libraryconstant_with_data(char *, void (*)(mpfr_t, mp_prec_t, void *), void *)
   #sollya_obj_t sollya_lib_libraryfunction_with_data(sollya_obj_t, char *, int (*)(mpfi_t, mpfi_t, int, void *), void *)
-  #sollya_obj_t sollya_lib_externalprocedure_with_data(sollya_externalprocedure_type_t, sollya_externalprocedure_type_t *, int, char *, void *, void *)
+  sollya_obj_t sollya_lib_externalprocedure_with_data(sollya_externalprocedure_type_t, sollya_externalprocedure_type_t *, int, char *, void *, void *)
   sollya_obj_t sollya_lib_procedurefunction(sollya_obj_t, sollya_obj_t)
   sollya_obj_t sollya_lib_parse_string(const char *)
   sollya_obj_t sollya_lib_execute_procedure(sollya_obj_t, ...)

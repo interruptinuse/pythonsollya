@@ -4,10 +4,11 @@ from csollya cimport *
 cimport libc.stdint
 from cpython.int cimport PyInt_AsLong
 from cpython.object cimport Py_LT, Py_LE, Py_EQ, Py_NE, Py_GT, Py_GE
+from cpython.ref cimport Py_INCREF
 from cpython.string cimport PyString_AsString, PyString_FromString
 from libc.stdlib cimport malloc, free
 
-import collections, itertools
+import collections, inspect, itertools, traceback, types
 
 ## initialization of Sollya library
 sollya_lib_init()
@@ -61,7 +62,8 @@ cdef class SollyaObject:
       return wrap(res)
     elif len(args) == 1:
       res = sollya_lib_apply(self.value, as_SollyaObject(args[0]).value, NULL)
-      return wrap(res)
+      foo = wrap(res)
+      return foo
     else:
       raise TypeError("expected exactly one argument")
 
@@ -391,6 +393,8 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
     return sollya_lib_true() if op else sollya_lib_false()
   elif isinstance(op, int):
     return sollya_lib_constant_from_int64(PyInt_AsLong(op))
+  elif op is None:
+    return sollya_lib_void()
   elif isinstance(op, basestring):
     return sollya_lib_string(PyString_AsString(op))
   elif isinstance(op, collections.Sequence):
@@ -422,6 +426,8 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
         raise RuntimeError("creation of Sollya structure failed")
       sollya_lib_clear_obj(old_sollya_obj)
     return sollya_obj
+  elif isinstance(op, types.FunctionType):
+    return function_to_sollya_obj_t(op)
   else:
     raise TypeError("unsupported conversion to sollya object", op, op.__class__)
 
@@ -478,6 +484,41 @@ cdef class SollyaStructureWrapper:
       raise RuntimeError("update of Sollya srstructure failed")
     sollya_lib_clear_obj(old_struct)
 
+# Calling Python functions from Sollya
+
+cdef sollya_obj_t function_to_sollya_obj_t(fun) except NULL:
+  arity = fun.__code__.co_argcount
+  if arity < 1:
+    raise NotImplementedError
+  cdef size_t size = arity*sizeof(sollya_externalprocedure_type_t)
+  cdef sollya_externalprocedure_type_t *sollya_argspec = (
+    <sollya_externalprocedure_type_t *>malloc(size))
+  for i in range(arity):
+    sollya_argspec[i] = SOLLYA_EXTERNALPROC_TYPE_OBJECT
+  Py_INCREF(fun) # leaks memory - freeing external procedures is not supported
+  cdef sollya_obj_t sollya_obj = sollya_lib_externalprocedure_with_data(
+      SOLLYA_EXTERNALPROC_TYPE_OBJECT, sollya_argspec, arity,
+      fun.__name__, <void *>__externalproc_callback_with_args, <void *>fun)
+  free(sollya_argspec)
+  return sollya_obj
+
+cdef bint __externalproc_callback_with_args(sollya_obj_t *c_res,
+                                            void **c_args, void *c_fun):
+  try:
+    fun = <object> c_fun
+    args = [wrap(sollya_lib_copy_obj(<sollya_obj_t>(c_args[i])))
+            for i in range(fun.__code__.co_argcount)]
+    res0 = fun(*args)
+    res = as_SollyaObject(res0)
+    c_res[0] = sollya_lib_copy_obj(res.value)
+    return True
+  except:
+    traceback.print_exc() # TBI?
+    return False
+
+cdef bint __externalproc_callback_no_args(sollya_obj_t *c_res, void *c_fun):
+  pass
+
 # Global constants
 
 on = wrap(sollya_lib_on())
@@ -499,9 +540,9 @@ RU       = wrap(sollya_lib_round_up())
 RZ       = wrap(sollya_lib_round_towards_zero())
 RN       = wrap(sollya_lib_round_to_nearest())
 
-# omitted: true, false (use, e.g., SollyaObject(True), bool(obj))
+# omitted: true, false (use, e.g., SollyaObject(True), bool(obj)), void (use
+# SollyaObject(None))
 
-VOID = wrap(sollya_lib_void())
 default = wrap(sollya_lib_default())
 
 # moved up: decimal
