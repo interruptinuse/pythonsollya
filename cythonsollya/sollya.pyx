@@ -180,18 +180,20 @@ cdef class SollyaObject:
       raise ValueError("this Sollya object doesn't have operands")
 
   def operand(self, n):
-    cdef sollya_obj_t obj[4]
-    cdef int num
-    if n >= 4:
-      raise NotImplementedError # TBI?
-    if sollya_lib_get_subfunctions(self.value, &num, &obj, &(obj[1]),
-                                   &(obj[2]), &(obj[3]), NULL):
-      if num >= n:
-        return wrap(obj[n])
-      else:
-        raise IndexError
-    else:
-      raise ValueError("this Sollya object doesn't have operands")
+    cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
+    if not sollya_lib_get_subfunction(&result.value, self.value, n):
+      raise IndexError("operand index out of range or object without operands")
+    return result
+
+  def operands(self, extended=True):
+    arity = self.arity()
+    ops = [self.operand(n) for n in range(arity)]
+    if extended: # include the additional pseudo-operand that some objs provide
+      try:
+        ops.append(self.operand(arity))
+      except IndexError:
+        pass
+    return ops
 
   # Access to fields (read-only for now)
 

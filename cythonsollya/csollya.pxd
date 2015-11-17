@@ -297,6 +297,7 @@ cdef extern from "sollya.h":
   bint sollya_lib_get_function_arity(int *, sollya_obj_t)
   bint sollya_lib_get_head_function(sollya_base_function_t *, sollya_obj_t)
   bint sollya_lib_get_subfunctions(sollya_obj_t, int *, ...)
+  bint sollya_lib_get_subfunction(sollya_obj_t *, sollya_obj_t, int)
   bint sollya_lib_decompose_function(sollya_obj_t, sollya_base_function_t *, int *, ...)
   #bint sollya_lib_decompose_libraryfunction(int (**)(mpfi_t, mpfi_t, int), int *, sollya_obj_t *, sollya_obj_t)
   #bint sollya_lib_decompose_libraryconstant(void (**)(mpfr_t, mp_prec_t), sollya_obj_t)
