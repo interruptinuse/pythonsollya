@@ -302,7 +302,12 @@ cdef class SollyaObject:
     else:
       op0 = as_SollyaObject(left)
       op1 = as_SollyaObject(right)
-      result.value = sollya_lib_add(op0.value, op1.value)
+      if (sollya_lib_obj_is_list(op0.value)
+        and (sollya_lib_obj_is_list(op1.value)
+          or sollya_lib_obj_is_end_elliptic_list(op1.value))):
+        result.value = sollya_lib_concat(op0.value, op1.value)
+      else:
+        result.value = sollya_lib_add(op0.value, op1.value)
       return result
 
   def __sub__(left, right):
