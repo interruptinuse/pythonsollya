@@ -462,6 +462,22 @@ cdef class SollyaOperator:
     else:
       raise TypeError("Sollya operators are not ordered")
 
+  def __call__(self, *args):
+    cdef sollya_obj_t[4] padded
+    n = len(args)
+    if n > 4:
+      raise NotImplementedError
+    for i in range(n):
+      padded[i] = as_SollyaObject(args[i]).value
+    for i in range(n, 4):
+      padded[i] = NULL
+    cdef SollyaObject res = SollyaObject.__new__(SollyaObject)
+    # variadic, but all operators actually have arity <= 2
+    if not sollya_lib_construct_function(&res.value, self.value,
+        padded[0], padded[1], padded[2], padded[3]):
+      raise ValueError("invalid number of operands for " + str(self))
+    return res
+
 # Access to fields of Sollya structures
 
 cdef class SollyaStructureWrapper:
