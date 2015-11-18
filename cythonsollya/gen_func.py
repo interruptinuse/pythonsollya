@@ -51,16 +51,23 @@ class SSO:
 
   def generate_binding(self):
     pass
-    
+
+class LIST: pass
 
 class SOT:
   """ Sollya Object template """
   def __init__(self, return_format, name, input_formats,
-      optional_inputs=[], binding_name=None, interactive_name=None):
+      optional_inputs=[], binding_name=None, interactive_name=None, variadic=None):
     self.return_format = return_format
     self.name = name
     self.input_formats = input_formats
-    self.optional_inputs = optional_inputs
+    self.optional_inputs = []
+    if optional_inputs == LIST:
+      self.pass_remaining_args = True
+    else:
+      self.optional_inputs = optional_inputs
+      self.pass_remaining_args = False
+    self.variadic = variadic if variadic is not None else (optional_inputs != [])
     if binding_name is None:
       self.binding_name = self.name.replace("sollya_lib_", "")
     else:
@@ -90,32 +97,41 @@ class SOT:
       op_format = self.input_formats[i]
       binding_inputs.append("op%d" % i)
       call_op_list.append("sollya_op%d" % i)
+      # XXX: won't this leak memory?
       code_op_decl += "  cdef %s sollya_op%d = %s(op%d)\n" % (op_format.c_format, i, op_format.convert_function, i) 
+    if self.pass_remaining_args:
+      binding_inputs.append("*args")
+      call_op_list.append("sollya_args")
+      code_op_decl +=  "  cdef sollya_obj_t sollya_args = %s(args)\n" % (sollya_obj_t.convert_function)
     # building declaration of optional arguments
-    for i in xrange(len(self.optional_inputs)):
+    for i in xrange(num_opt_inputs):
       op_format = self.optional_inputs[i]
       code_op_decl += "  cdef %s sollya_opt_op%d\n" % (op_format.c_format, i)
     # building assignation of optional arguments
     if len(self.optional_inputs) > 0:
+      binding_inputs.append("*opt_args")
+      # FIXME: raise a TypeError instead
       code_op_decl += "  if len(opt_args) > %d:\n" % (num_opt_inputs)
       code_op_decl += "    print \"Error in %s, too many positional argumens\"\n" % (self.binding_name)
       code_op_decl += "    print \"%d expected, got %%d\" %% (len(opt_args))\n" % (num_opt_inputs)
       code_op_decl += "    raise Exception()\n"
 
-
     # generating declaration
+    declaration = "def %s(%s):" % (self.binding_name, ", ".join(binding_inputs))
     if num_opt_inputs == 0:
-      # no optinal arguments
-      declaration = "def %s(%s):" % (self.binding_name, ", ".join(binding_inputs))
+      # no optional arguments
+      if self.variadic:
+        call_op_list.append("NULL")
       call_code = "%s(%s)" % (self.name, ", ".join(call_op_list))
       result = self.return_format.result_gen("result", call_code, tab = 2)
       return declaration + "\n" + self.docstring() + code_op_decl + result + "\n  " + self.return_format.return_gen("result")
     else:
-      # optinal arguments
-      declaration = "def %s(%s, *opt_args):" % (self.binding_name, ", ".join(binding_inputs))
+      # optional arguments
       code_op_decl += self.return_format.result_decl_gen("result", tab = 2)
       for i in xrange(num_opt_inputs+1):
-        call_opt_list = call_op_list + ["sollya_opt_op%d" % j for j in xrange(i)] + ["NULL"]
+        call_opt_list = call_op_list + ["sollya_opt_op%d" % j for j in xrange(i)]
+        if self.variadic:
+          call_opt_list.append("NULL")
         call_code = "%s(%s)" % (self.name, ", ".join(call_opt_list))
         result = self.return_format.result_asgn_gen("result", call_code, tab = 4)
         code_op_decl += "  if len(opt_args) == %d:\n" % i
@@ -123,7 +139,7 @@ class SOT:
           op_format = self.optional_inputs[j]
           code_op_decl += "    sollya_opt_op%d = %s(opt_args[%d])\n" % (j,op_format.convert_function,j)
         code_op_decl += result + "\n"
-      return declaration + "\n" + code_op_decl + "  " + self.return_format.return_gen("result")
+      return declaration + "\n" +  self.docstring() + code_op_decl + "  " + self.return_format.return_gen("result")
 
 
 
