@@ -452,27 +452,30 @@ include "sollya_func.pxi"
 def plot(*args, **kwds):
   if len(args) < 2:
     raise TypeError("plot() expects at least two arguments")
-  funs, range = args[:-1], args[-1]
   if len(kwds) == 0:
-    sollya_lib_plot(as_SollyaObject(funs).value,
-        as_SollyaObject(range).value, NULL)
-  elif len(kwds) == 1:
-    kwd, filename = kwds.items()[0]
-    if kwd == "file":
-      sollya_lib_plot(as_SollyaObject(funs).value,
-          as_SollyaObject(range).value,
-          file.value, as_SollyaObject(filename).value, NULL)
-    elif kwd == "postscript":
-      sollya_lib_plot(as_SollyaObject(funs).value,
-          as_SollyaObject(range).value,
-          postscript.value, as_SollyaObject(filename).value, NULL)
-    elif kwd == "postscriptfile":
-      sollya_lib_plot(as_SollyaObject(funs).value,
-          as_SollyaObject(range).value,
-          postscriptfile.value, as_SollyaObject(filename).value, NULL)
+    if args[-2] in [file, postscript, postscriptfile]:
+      funs = args[:-3]
+      range, output, filename = args[-3:]
+      sollya_lib_plot(
+          as_SollyaObject(funs).value, as_SollyaObject(range).value,
+          as_SollyaObject(output).value, as_SollyaObject(filename).value, NULL)
     else:
+      funs, range = args[:-1], args[-1]
+      sollya_lib_plot(
+          as_SollyaObject(funs).value, as_SollyaObject(range).value, NULL)
+  elif len(kwds) == 1:
+    funs, range = args[:-1], args[-1]
+    kwd, filename = kwds.items()[0]
+    try:
+      output = {
+        "file": file, "postscript": postscript, "postscriptfile": postscriptfile
+      }[kwd]
+    except KeyError:
       msg = "plot() got an unexpected keyword argument '{}'"
       raise TypeError(msg.format(kwd))
+    sollya_lib_plot(
+        as_SollyaObject(funs).value, as_SollyaObject(range).value,
+        as_SollyaObject(output).value, as_SollyaObject(filename).value, NULL)
   else:
     raise TypeError("plot() takes at most one keyword argument")
 
@@ -596,11 +599,9 @@ binary      = wrap(sollya_lib_binary())
 hexadecimal = wrap(sollya_lib_hexadecimal())
 decimal     = wrap(sollya_lib_decimal())
 
-# no need for those in the public namespace as long as we don't accept the
-# sollya syntax for plot()
-cdef SollyaObject file = wrap(sollya_lib_file())
-cdef SollyaObject postscript = wrap(sollya_lib_postscript())
-cdef SollyaObject postscriptfile = wrap(sollya_lib_postscriptfile())
+file = wrap(sollya_lib_file())
+postscript = wrap(sollya_lib_postscript())
+postscriptfile = wrap(sollya_lib_postscriptfile())
 
 perturb = wrap(sollya_lib_perturb())
 
