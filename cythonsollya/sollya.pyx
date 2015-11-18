@@ -8,7 +8,7 @@ from cpython.ref cimport Py_INCREF, Py_DECREF
 from cpython.string cimport PyString_AsString, PyString_FromString
 from libc.stdlib cimport malloc, free
 
-import atexit, collections, inspect, itertools, traceback, types
+import __builtin__, atexit, collections, inspect, itertools, traceback, types, sys
 
 # Initialization of Sollya library
 sollya_lib_init()
@@ -47,6 +47,18 @@ cdef class SollyaObject:
     return sollya_lib_hash(self.value)
 
   def __repr__(SollyaObject self):
+    r"""
+    Return the string representation of this Sollya object.
+
+    NOTES:
+    - The resulting string s is valid Sollya input; use sollya.parse(s + ';')
+      to evaluate it.
+    - Sollya expressions ("functions") such as sin(1) are not evaluated: e.g.,
+      repr(sin(1)) returns "sin(1)", not "0.8414...". In interactive usage, set
+      Python's sys.displayhook to sollya.autoprint in order for Sollya objects
+      returned by the evaluation of a command line to be displayed in evaluated
+      form, similar to what interactive Sollya does.
+    """
     cdef int n = sollya_lib_snprintf(NULL, 0, <char*>"%b", <sollya_obj_t>self.value)
     cdef sollya_obj_t sollya_op = self.value
     cdef char* result_str
@@ -56,9 +68,6 @@ cdef class SollyaObject:
       return result_str
     else:
       return ""
-
-  def myprint(self):
-    sollya_lib_autoprint(self.value)
 
   def __call__(self, *args):
     cdef sollya_obj_t res
@@ -479,6 +488,19 @@ def plot(*args, **kwds):
         as_SollyaObject(output).value, as_SollyaObject(filename).value, NULL)
   else:
     raise TypeError("plot() takes at most one keyword argument")
+
+__displayhook = sys.displayhook
+def autoprint(obj):
+  r"""
+  Evaluate and print Sollya objects like the interactive Sollya interpreter
+  does, print other Python objects as usual. This is intended to be usable as a
+  Python display hook (see sys.displayhook).
+  """
+  if isinstance(obj, SollyaObject):
+    sollya_lib_autoprint((<SollyaObject> obj).value, NULL)
+    __builtin__._ = obj
+  else:
+    __displayhook(obj)
 
 # Sollya operators (aka base functions)
 
