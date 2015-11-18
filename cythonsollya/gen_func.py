@@ -182,7 +182,7 @@ sollya_h_list = [ # should match the order of declarations in sollya.h
   SOT(sollya_obj_t, "sollya_lib_simplify",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_simplifysafe",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_taylor",(sollya_obj_t,)*3),
-  SOT(sollya_obj_t, "sollya_lib_taylorform",(sollya_obj_t,)*3, [sollya_obj_t]*2),
+  SOT(sollya_obj_t, "sollya_lib_taylorform",(sollya_obj_t,)*3, optional_inputs=[sollya_obj_t]*2),
   SOT(sollya_obj_t, "sollya_lib_chebyshevform",(sollya_obj_t,)*3),
   SOT(sollya_obj_t, "sollya_lib_autodiff",(sollya_obj_t,)*3),
   SOT(sollya_obj_t, "sollya_lib_degree", (sollya_obj_t,)),

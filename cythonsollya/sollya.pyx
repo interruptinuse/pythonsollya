@@ -542,7 +542,7 @@ cdef class SollyaOperator:
     cdef SollyaObject res = SollyaObject.__new__(SollyaObject)
     # variadic, but all operators actually have arity <= 2
     if not sollya_lib_construct_function(&res.value, self.value,
-        padded[0], padded[1], padded[2], padded[3]):
+        padded[0], padded[1], padded[2], padded[3], NULL):
       raise ValueError("invalid number of operands for " + str(self))
     return res
 
