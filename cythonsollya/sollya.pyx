@@ -447,6 +447,35 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
 include "sollya_settings.pxi"
 include "sollya_func.pxi"
 
+# Commands and built-in procedures requiring special handling
+
+def plot(*args, **kwds):
+  if len(args) < 2:
+    raise TypeError("plot() expects at least two arguments")
+  funs, range = args[:-1], args[-1]
+  if len(kwds) == 0:
+    sollya_lib_plot(as_SollyaObject(funs).value,
+        as_SollyaObject(range).value, NULL)
+  elif len(kwds) == 1:
+    kwd, filename = kwds.items()[0]
+    if kwd == "file":
+      sollya_lib_plot(as_SollyaObject(funs).value,
+          as_SollyaObject(range).value,
+          file.value, as_SollyaObject(filename).value, NULL)
+    elif kwd == "postscript":
+      sollya_lib_plot(as_SollyaObject(funs).value,
+          as_SollyaObject(range).value,
+          postscript.value, as_SollyaObject(filename).value, NULL)
+    elif kwd == "postscriptfile":
+      sollya_lib_plot(as_SollyaObject(funs).value,
+          as_SollyaObject(range).value,
+          postscriptfile.value, as_SollyaObject(filename).value, NULL)
+    else:
+      msg = "plot() got an unexpected keyword argument '{}'"
+      raise TypeError(msg.format(kwd))
+  else:
+    raise TypeError("plot() takes at most one keyword argument")
+
 # Sollya operators (aka base functions)
 
 include "sollya_ops.pxi"
@@ -567,9 +596,12 @@ binary      = wrap(sollya_lib_binary())
 hexadecimal = wrap(sollya_lib_hexadecimal())
 decimal     = wrap(sollya_lib_decimal())
 
-file = wrap(sollya_lib_file())
-postscript = wrap(sollya_lib_postscript())
-postscriptfile = wrap(sollya_lib_postscriptfile())
+# no need for those in the public namespace as long as we don't accept the
+# sollya syntax for plot()
+cdef SollyaObject file = wrap(sollya_lib_file())
+cdef SollyaObject postscript = wrap(sollya_lib_postscript())
+cdef SollyaObject postscriptfile = wrap(sollya_lib_postscriptfile())
+
 perturb = wrap(sollya_lib_perturb())
 
 RD       = wrap(sollya_lib_round_down())
@@ -601,6 +633,7 @@ tripledouble = wrap(sollya_lib_triple_double_obj())
 pi          = wrap(sollya_lib_pi())
 x = _x_     = wrap(sollya_lib_free_variable())
 
+# Additional utilities
 
 def Interval(left, right=None):
   if right is None:
