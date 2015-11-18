@@ -1,0 +1,7 @@
+- clean up code generators
+- install a message callback?
+- bind decompose_externalprocedure & friends?
+- document, test
+- wrap libraryfunction (similar to externalproc, with sollya obj as in/out)
+- better support multiple precision integers, floats, intervals...
+  (perhaps only in cooperation with sage?)
