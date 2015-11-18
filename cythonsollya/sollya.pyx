@@ -8,10 +8,15 @@ from cpython.ref cimport Py_INCREF, Py_DECREF
 from cpython.string cimport PyString_AsString, PyString_FromString
 from libc.stdlib cimport malloc, free
 
-import collections, inspect, itertools, traceback, types
+import atexit, collections, inspect, itertools, traceback, types
 
-## initialization of Sollya library
+# Initialization of Sollya library
 sollya_lib_init()
+atexit.register(lambda: sollya_lib_close())
+
+def restart():
+  sollya_lib_close()
+  sollya_lib_init()
 
 # Create a new SollyaObject wrapping sollya_val, taking ownership of sollya_val
 # (which will thus be cleared when the SollyaObject gets garbage-collected)
