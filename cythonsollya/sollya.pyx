@@ -419,6 +419,8 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
   elif op is None:
     return sollya_lib_void()
   elif isinstance(op, basestring):
+    # Sollya strings are byte arrays, with no associated encoding. Can/should
+    # we do better than the following for some types of Python strings?
     return sollya_lib_string(PyString_AsString(op))
   elif isinstance(op, collections.Sequence):
     n = len(op)
