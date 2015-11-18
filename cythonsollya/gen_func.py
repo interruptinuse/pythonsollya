@@ -1,4 +1,4 @@
-# vim:sw=2
+# coding: utf-8 vim:sw=2
 
 class sollya_obj_t: 
   python_class     = "SollyaObject"
@@ -143,10 +143,47 @@ class SOT:
 
 
 
-sollya_h_list = [
-  SOT(sollya_obj_t, "sollya_lib_dirtyfindzeros",(sollya_obj_t, sollya_obj_t,)),
-  SOT(sollya_obj_t, "sollya_lib_head",(sollya_obj_t,)),
-  SOT(sollya_obj_t, "sollya_lib_roundcorrectly",(sollya_obj_t,)),
+sollya_h_list = [ # should match the order of declarations in sollya.h
+
+  # Functions corresponding to Sollya commands
+
+  SOT(void, "sollya_lib_bashexecute",(sollya_obj_t,)),
+  SOT(void, "sollya_lib_externalplot", (sollya_obj_t,)*4, optional_inputs = [sollya_obj_t]*3),
+  SOT(void, "sollya_lib_asciiplot",(sollya_obj_t,)*2),
+  SOT(void, "sollya_lib_execute",(sollya_obj_t,)),
+  # omitted: print_{double,xml,...}
+  # omitted: worstcase (deprecated)
+  SOT(void, "sollya_lib_suppressmessage", (), optional_inputs=LIST),
+  SOT(void, "sollya_lib_unsuppressmessage", (), optional_inputs=LIST),
+  SOT(void, "sollya_lib_implementconstant", (sollya_obj_t,), optional_inputs = [sollya_obj_t]*2),
+
+  # Functions corresponding to Sollya built-in procedures
+
+  SOT(sollya_obj_t, "sollya_lib_append",(sollya_obj_t, sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_prepend",(sollya_obj_t, sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_approx",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_sup",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_mid",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_inf",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_diff",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_bashevaluate", (sollya_obj_t,), optional_inputs = [sollya_obj_t]),
+  SOT(sollya_obj_t, "sollya_lib_getsuppressedmessages", ()),
+  SOT(sollya_obj_t, "sollya_lib_getbacktrace", ()),
+  SOT(sollya_obj_t, "sollya_lib_remez", (sollya_obj_t, sollya_obj_t, sollya_obj_t,), optional_inputs = [sollya_obj_t, sollya_obj_t, sollya_obj_t]),
+  SOT(sollya_obj_t, "sollya_lib_annotatefunction", (sollya_obj_t,)*4, optional_inputs = [sollya_obj_t]),
+  SOT(sollya_obj_t, "sollya_lib_min", (), optional_inputs=LIST),
+  SOT(sollya_obj_t, "sollya_lib_max", (), optional_inputs=LIST),
+  SOT(sollya_obj_t, "sollya_lib_fpminimax", (sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t,), optional_inputs = [sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t]),
+  SOT(sollya_obj_t, "sollya_lib_horner",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_canonical",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_expand",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_dirtysimplify",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_simplify",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_simplifysafe",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_taylor",(sollya_obj_t,)*3),
+  SOT(sollya_obj_t, "sollya_lib_taylorform",(sollya_obj_t,)*3, [sollya_obj_t]*2),
+  SOT(sollya_obj_t, "sollya_lib_chebyshevform",(sollya_obj_t,)*3),
+  SOT(sollya_obj_t, "sollya_lib_autodiff",(sollya_obj_t,)*3),
   SOT(sollya_obj_t, "sollya_lib_degree", (sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_numerator", (sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_denominator", (sollya_obj_t,)),
@@ -156,14 +193,32 @@ sollya_h_list = [
   SOT(sollya_obj_t, "sollya_lib_subpoly", (sollya_obj_t, sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_roundcoefficients", (sollya_obj_t, sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_rationalapprox", (sollya_obj_t, sollya_obj_t,)),
-  SOT(sollya_obj_t, "sollya_lib_evaluate", (sollya_obj_t, sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_round",(sollya_obj_t,sollya_obj_t,sollya_obj_t)),
+  SOT(sollya_obj_t, "sollya_lib_evaluate", (sollya_obj_t, sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_parse",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_readxml",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_infnorm", (sollya_obj_t, sollya_obj_t), optional_inputs = [sollya_obj_t, sollya_obj_t]),
+  SOT(sollya_obj_t, "sollya_lib_supnorm", (sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t)),
+  SOT(sollya_obj_t, "sollya_lib_findzeros", (sollya_obj_t, sollya_obj_t)),
+  SOT(sollya_obj_t, "sollya_lib_dirtyinfnorm", (sollya_obj_t, sollya_obj_t)),
+  SOT(sollya_obj_t, "sollya_lib_numberroots", (sollya_obj_t, sollya_obj_t)),
+  SOT(sollya_obj_t, "sollya_lib_integral", (sollya_obj_t, sollya_obj_t)),
+  SOT(sollya_obj_t, "sollya_lib_dirtyintegral", (sollya_obj_t, sollya_obj_t)),
+  SOT(sollya_obj_t, "sollya_lib_implementpoly", (sollya_obj_t,)*6, optional_inputs = [sollya_obj_t]*3),
+  SOT(sollya_obj_t, "sollya_lib_checkinfnorm", (sollya_obj_t,)*3),
+  SOT(sollya_obj_t, "sollya_lib_zerodenominators", (sollya_obj_t,)*2),
+  SOT(sollya_obj_t, "sollya_lib_searchgal", (sollya_obj_t,)*6),
+  SOT(sollya_obj_t, "sollya_lib_guessdegree", (sollya_obj_t,)*3, optional_inputs=[sollya_obj_t]*2),
+  SOT(sollya_obj_t, "sollya_lib_dirtyfindzeros",(sollya_obj_t, sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_head",(sollya_obj_t,)),
+  SOT(sollya_obj_t, "sollya_lib_roundcorrectly",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_revert",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_sort",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_mantissa",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_exponent",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_precision",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_tail",(sollya_obj_t,)),
+  # omitted: range (→ Interval)
   SOT(sollya_obj_t, "sollya_lib_sqrt",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_exp",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_log",(sollya_obj_t,)),
@@ -197,31 +252,8 @@ sollya_h_list = [
   SOT(sollya_obj_t, "sollya_lib_floor",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_nearestint",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_length",(sollya_obj_t,)),
+  # omitted: objectname (undocumented)
 
-  SOT(sollya_obj_t, "sollya_lib_parse",(sollya_obj_t,)),
-
-  SOT(sollya_obj_t, "sollya_lib_inf",(sollya_obj_t,)),
-  SOT(sollya_obj_t, "sollya_lib_mid",(sollya_obj_t,)),
-  SOT(sollya_obj_t, "sollya_lib_sup",(sollya_obj_t,)),
-
-  SOT(sollya_obj_t, "sollya_lib_horner",(sollya_obj_t,)),
-  SOT(sollya_obj_t, "sollya_lib_diff",(sollya_obj_t,)),
-  SOT(sollya_obj_t, "sollya_lib_canonical",(sollya_obj_t,)),
-  SOT(sollya_obj_t, "sollya_lib_expand",(sollya_obj_t,)),
-  SOT(sollya_obj_t, "sollya_lib_dirtysimplify",(sollya_obj_t,)),
-  SOT(sollya_obj_t, "sollya_lib_simplify",(sollya_obj_t,)),
-  SOT(sollya_obj_t, "sollya_lib_simplifysafe",(sollya_obj_t,)),
-
-  SOT(sollya_obj_t, "sollya_lib_fpminimax", (sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t,), optional_inputs = [sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t]),
-  SOT(sollya_obj_t, "sollya_lib_remez", (sollya_obj_t, sollya_obj_t, sollya_obj_t,), optional_inputs = [sollya_obj_t, sollya_obj_t, sollya_obj_t]),
-  SOT(sollya_obj_t, "sollya_lib_infnorm", (sollya_obj_t, sollya_obj_t), optional_inputs = [sollya_obj_t, sollya_obj_t]),
-  SOT(sollya_obj_t, "sollya_lib_supnorm", (sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t)),
-
-  SOT(sollya_obj_t, "sollya_lib_findzeros", (sollya_obj_t, sollya_obj_t)),
-  SOT(sollya_obj_t, "sollya_lib_dirtyinfnorm", (sollya_obj_t, sollya_obj_t)),
-  SOT(sollya_obj_t, "sollya_lib_numberroots", (sollya_obj_t, sollya_obj_t)),
-  SOT(sollya_obj_t, "sollya_lib_integral", (sollya_obj_t, sollya_obj_t)),
-  SOT(sollya_obj_t, "sollya_lib_dirtyintegral", (sollya_obj_t, sollya_obj_t)),
 ]
 
 if __name__ == "__main__":
