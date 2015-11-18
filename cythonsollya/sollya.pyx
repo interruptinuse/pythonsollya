@@ -37,7 +37,7 @@ cdef class SollyaObject:
     self.value = NULL
 
   def __init__(self, op):
-    self.value = convertPythonTo_sollya_obj_t(op)
+    self.value = to_sollya_obj_t(op)
 
   def __dealloc__(self):
     if self.value is not NULL:
@@ -393,7 +393,7 @@ cdef class SollyaObject:
   def approx(self):
     return wrap(sollya_lib_approx(self.value))
 
-cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
+cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
   cdef sollya_obj_t sollya_obj, old_sollya_obj
   cdef sollya_obj_t* sollya_list
   cdef int n
@@ -419,7 +419,7 @@ cdef sollya_obj_t convertPythonTo_sollya_obj_t(op) except NULL:
       end_elliptic = False
     sollya_list = <sollya_obj_t*>malloc(sizeof(sollya_obj_t) * n)
     for i in range(n):
-      sollya_list[i] = convertPythonTo_sollya_obj_t(op[i])
+      sollya_list[i] = to_sollya_obj_t(op[i])
     if end_elliptic:
       sollya_obj = sollya_lib_end_elliptic_list(sollya_list, n)
     else:
