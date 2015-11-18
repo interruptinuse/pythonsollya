@@ -62,7 +62,8 @@ cdef class SollyaObject:
 
   def __call__(self, *args):
     cdef sollya_obj_t res
-    if sollya_lib_obj_is_procedure(self.value):
+    if (sollya_lib_obj_is_procedure(self.value) or
+        sollya_lib_obj_is_externalprocedure(self.value)):
       res = sollya_lib_concat(self.value, as_SollyaObject(args).value)
       return wrap(res)
     elif len(args) == 1:
