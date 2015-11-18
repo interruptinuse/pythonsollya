@@ -9,3 +9,5 @@
   (perhaps only in cooperation with sage?)
 - bind evaluate_function_at_constant_expression, providing Python access to the
   flags it returns
+- provide Python bindings for the versions of externalproc() etc. that dlopen()
+  a file
