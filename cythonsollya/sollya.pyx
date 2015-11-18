@@ -93,6 +93,12 @@ cdef class SollyaObject:
   def is_procedure(self):
     return sollya_lib_obj_is_procedure(self.value)
 
+  def is_libraryconstant(self):
+    return sollya_lib_is_libraryconstant(self.value)
+
+  def is_externalprocedure(self):
+    return sollya_lib_obj_is_externalprocedure(self.value)
+
   # Conversions
 
   def __nonzero__(self):
