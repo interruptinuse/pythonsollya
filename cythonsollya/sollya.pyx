@@ -4,7 +4,7 @@ from csollya cimport *
 cimport libc.stdint
 from cpython.int cimport PyInt_AsLong
 from cpython.object cimport Py_LT, Py_LE, Py_EQ, Py_NE, Py_GT, Py_GE
-from cpython.ref cimport Py_INCREF
+from cpython.ref cimport Py_INCREF, Py_DECREF
 from cpython.string cimport PyString_AsString, PyString_FromString
 from libc.stdlib cimport malloc, free
 
@@ -514,10 +514,11 @@ cdef sollya_obj_t function_to_sollya_obj_t(fun) except NULL:
     <sollya_externalprocedure_type_t *>malloc(size))
   for i in range(arity):
     sollya_argspec[i] = SOLLYA_EXTERNALPROC_TYPE_OBJECT
-  Py_INCREF(fun) # leaks memory - freeing external procedures is not supported
+  Py_INCREF(fun)
   cdef sollya_obj_t sollya_obj = sollya_lib_externalprocedure_with_data(
       SOLLYA_EXTERNALPROC_TYPE_OBJECT, sollya_argspec, arity,
-      fun.__name__, callback , <void *>fun)
+      fun.__name__, callback, <void *>fun,
+      __externalproc_dealloc_callback)
   free(sollya_argspec)
   return sollya_obj
 
@@ -539,6 +540,10 @@ cdef bint __externalproc_callback(sollya_obj_t *c_res,
 # take any argument
 cdef bint __externalproc_callback_no_args(sollya_obj_t *c_res, void *c_fun):
   return __externalproc_callback(c_res, NULL, c_fun)
+
+cdef void __externalproc_dealloc_callback(void *c_fun):
+  fun = <object> c_fun
+  Py_DECREF(fun)
 
 # Global constants
 
