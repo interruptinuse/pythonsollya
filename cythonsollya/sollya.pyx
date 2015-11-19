@@ -8,7 +8,8 @@ from cpython.ref cimport Py_INCREF, Py_DECREF
 from cpython.string cimport PyString_AsString, PyString_FromString
 from libc.stdlib cimport malloc, free
 
-import __builtin__, atexit, collections, inspect, itertools, traceback, types, sys
+import __builtin__, atexit, collections, inspect, itertools
+import traceback, types, sys, warnings
 
 # Initialization of Sollya library
 sollya_lib_init()
@@ -504,6 +505,19 @@ def autoprint(obj):
   else:
     __displayhook(obj)
 
+def libraryconstant(arg):
+  if isinstance(arg, types.FunctionType):
+    Py_INCREF(arg)
+    return wrap(
+        sollya_lib_libraryconstant_with_data(
+          arg.__name__,
+          __libraryconstant_callback,
+          <void *> arg,
+          __dealloc_callback))
+  else:
+    raise NotImplementedError
+
+
 # Sollya operators (aka base functions)
 
 include "sollya_ops.pxi"
@@ -586,7 +600,7 @@ cdef sollya_obj_t function_to_sollya_obj_t(fun) except NULL:
   cdef sollya_obj_t sollya_obj = sollya_lib_externalprocedure_with_data(
       SOLLYA_EXTERNALPROC_TYPE_OBJECT, sollya_argspec, arity,
       fun.__name__, callback, <void *>fun,
-      __externalproc_dealloc_callback)
+      __dealloc_callback)
   free(sollya_argspec)
   return sollya_obj
 
@@ -609,7 +623,23 @@ cdef bint __externalproc_callback(sollya_obj_t *c_res,
 cdef bint __externalproc_callback_no_args(sollya_obj_t *c_res, void *c_fun):
   return __externalproc_callback(c_res, NULL, c_fun)
 
-cdef void __externalproc_dealloc_callback(void *c_fun):
+cdef void __libraryconstant_callback(mpfr_t res, mp_prec_t c_prec,
+                                     void *c_fun):
+  cdef mp_prec_t res_prec = 0
+  try:
+    fun = <object> c_fun
+    res0 = fun(c_prec)
+    res1 = as_SollyaObject(res0)
+    if not sollya_lib_get_prec_of_constant(&res_prec, res1.value):
+      # XXX: a warning might be enough
+      raise RuntimeError("the value {} returned by {} does not appear to be "
+          "exactly representable in floating-point".format(res1, fun))
+    mpfr_set_prec(res, res_prec)
+    sollya_lib_get_constant(res, res1.value)
+  except:
+    traceback.print_exc() # TBI?
+
+cdef void __dealloc_callback(void *c_fun):
   fun = <object> c_fun
   Py_DECREF(fun)
 

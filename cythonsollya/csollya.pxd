@@ -25,6 +25,8 @@ cdef extern from "sollya.h":
     SOLLYA_EXTERNALPROC_TYPE_VOID
     SOLLYA_EXTERNALPROC_TYPE_OBJECT
 
+  void mpfr_set_prec (mpfr_t x, mp_prec_t prec)
+
   bint sollya_lib_init()
   # int sollya_lib_init_with_arguments(int, char **)
   # int sollya_lib_init_with_custom_memory_functions(void *(*)(size_t),
