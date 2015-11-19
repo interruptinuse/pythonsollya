@@ -517,6 +517,21 @@ def libraryconstant(arg):
   else:
     raise NotImplementedError
 
+def function(arg):
+  cdef sollya_obj_t sobj
+  if isinstance(arg, types.FunctionType):
+    Py_INCREF(arg)
+    sobj = sollya_lib_libraryfunction_with_data(
+          (<SollyaObject> _x_).value,
+          arg.__name__,
+          __libraryfunction_callback,
+          <void *> arg,
+          __dealloc_callback)
+  else:
+    sobj = sollya_lib_procedurefunction(
+        (<SollyaObject> _x_).value,
+        as_SollyaObject(arg).value)
+  return wrap(sobj)
 
 # Sollya operators (aka base functions)
 
@@ -638,6 +653,21 @@ cdef void __libraryconstant_callback(mpfr_t res, mp_prec_t c_prec,
     sollya_lib_get_constant(res, res1.value)
   except:
     traceback.print_exc() # TBI?
+
+cdef int __libraryfunction_callback(mpfi_t c_res, mpfi_t c_arg,
+                                     int diff_order, void *c_fun):
+  try:
+    fun = <object> c_fun
+    arg = wrap(sollya_lib_range_from_interval(c_arg))
+    prec = mpfi_get_prec(c_res)
+    res0 = fun(arg, diff_order, prec)
+    res1 = as_SollyaObject(res0)
+    if not sollya_lib_get_interval_from_range(c_res, res1.value):
+      return 0 # "currently has no meaning"
+    return 1
+  except:
+    traceback.print_exc() # TBI?
+    return 0
 
 cdef void __dealloc_callback(void *c_fun):
   fun = <object> c_fun

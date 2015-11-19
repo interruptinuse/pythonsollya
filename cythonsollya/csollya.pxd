@@ -4,14 +4,19 @@ from libc.stdint cimport int64_t, uint64_t
 from csollya_ops cimport *
 
 cdef extern from "sollya.h":
+  ### TBI -- shouldn't be here!
   ctypedef mpz_t
   ctypedef struct __mpfr_struct:
       pass
   ctypedef __mpfr_struct * mpfr_t
   ctypedef mpfi_t
   # as far as I understand, the generated code will use the true mp_prec_t
-  # if != long
+  # even if != long
   ctypedef long mp_prec_t
+  void mpfr_set_prec (mpfr_t x, mp_prec_t prec)
+  mp_prec_t mpfi_get_prec(mpfi_t)
+  int mpfi_init_set_ui(mpfi_t, unsigned long)
+  ###
 
   ctypedef struct __sollya_internal_type_object_base:
     pass
@@ -24,8 +29,6 @@ cdef extern from "sollya.h":
   ctypedef enum sollya_externalprocedure_type_t:
     SOLLYA_EXTERNALPROC_TYPE_VOID
     SOLLYA_EXTERNALPROC_TYPE_OBJECT
-
-  void mpfr_set_prec (mpfr_t x, mp_prec_t prec)
 
   bint sollya_lib_init()
   # int sollya_lib_init_with_arguments(int, char **)
