@@ -10,3 +10,4 @@
   flags it returns
 - provide Python bindings for the versions of externalproc() etc. that dlopen()
   a file???
+- valgrind

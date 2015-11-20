@@ -279,6 +279,9 @@ cdef class SollyaObject:
         py_objs.append(Ellipsis)
       return py_objs
     elif sollya_lib_obj_is_structure(self.value):
+      # Should we return the list of keys rather than the list of pairs (as
+      # Python mappings are supposed to do) even though we don't support access
+      # by struct["key"]?
       if not sollya_lib_get_structure_elements(&names, &objs, &length,
                                                self.value):
         raise RuntimeError("conversion of Sollya structure failed")
