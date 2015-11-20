@@ -1,6 +1,6 @@
 # REQUIREMENTS
 # Cython (tested with 0.19 )
-# Sollya (tested with git repo > 4.1)
+# Sollya (> git 8dad92e3c93a0874c256ea371623a4b103cfd009)
 
 export SOLLYA_INSTALL_DIR=/work1/hardware/users/nbrunie/CythonSollya/local/
 

@@ -1,0 +1,3 @@
+There is no real user manual (yet?), but see the examples/ directory for some
+usage examples. Most functions behave like their interactive Sollya
+counterparts.
