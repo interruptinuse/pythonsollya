@@ -213,7 +213,7 @@ cdef class SollyaObject:
         pass
     return ops
 
-  # Access to fields (read-only for now)
+  # Access to fields
 
   property struct:
     def __get__(self):
