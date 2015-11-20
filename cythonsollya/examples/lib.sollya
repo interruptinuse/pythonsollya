@@ -1,0 +1,14 @@
+// A library written in Sollya whose functions we will call from Python
+// (see execute.py)
+
+procedure hello() {
+    return "hello from a Sollya procedure!";
+};
+
+procedure incr(x) {
+    return x + 1;
+};
+
+procedure eval_at_one(fun) {
+    return fun(1);
+};
