@@ -15,10 +15,6 @@ import traceback, types, sys, warnings
 sollya_lib_init()
 atexit.register(lambda: sollya_lib_close())
 
-def restart():
-  sollya_lib_close()
-  sollya_lib_init()
-
 # Create a new SollyaObject wrapping sollya_val, taking ownership of sollya_val
 # (which will thus be cleared when the SollyaObject gets garbage-collected)
 cdef SollyaObject wrap(sollya_obj_t sollya_val):
