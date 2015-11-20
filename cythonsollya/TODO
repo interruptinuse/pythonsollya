@@ -2,7 +2,6 @@
 - extract and provide as docstrings more of the sollya help
 - install a message callback? (that would result in Python warnings?)
 - bind decompose_externalprocedure & friends?
-- bind intentionally omitted commands???
 - test!
 - wrap libraryfunction (similar to externalproc, with sollya obj as in/out)
 - better support multiple precision integers, floats, intervals...

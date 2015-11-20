@@ -148,11 +148,13 @@ sollya_h_list = [ # should match the order of declarations in sollya.h
 
   # Functions corresponding to Sollya commands
 
+  SOT(void, "sollya_lib_printdouble", (sollya_obj_t,)),
+  SOT(void, "sollya_lib_printsingle", (sollya_obj_t,)),
+  SOT(void, "sollya_lib_printexpansion", (sollya_obj_t,)),
   SOT(void, "sollya_lib_bashexecute",(sollya_obj_t,)),
   SOT(void, "sollya_lib_externalplot", (sollya_obj_t,)*4, optional_inputs = [sollya_obj_t]*3),
   SOT(void, "sollya_lib_asciiplot",(sollya_obj_t,)*2),
   SOT(void, "sollya_lib_execute",(sollya_obj_t,)),
-  # omitted: print_{double,xml,...}
   # omitted: worstcase (deprecated)
   SOT(void, "sollya_lib_suppressmessage", (), optional_inputs=LIST),
   SOT(void, "sollya_lib_unsuppressmessage", (), optional_inputs=LIST),

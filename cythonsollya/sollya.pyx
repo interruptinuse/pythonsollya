@@ -462,6 +462,22 @@ include "sollya_func.pxi"
 
 # Commands and built-in procedures requiring special handling
 
+def printxml(expr, file=None, append=None):
+  if file is None:
+    if append is None:
+      sollya_lib_printxml(as_SollyaObject(expr).value)
+    else:
+      sollya_lib_printxml_appendfile(
+          as_SollyaObject(expr).value,
+          as_SollyaObject(append).value)
+  else:
+    if append is None:
+      sollya_lib_printxml_appendfile(
+          as_SollyaObject(expr).value,
+          as_SollyaObject(file).value)
+    else:
+      raise TypeError("incompatible keyword arguments: 'file' and 'append'")
+
 def plot(*args, **kwds):
   if len(args) < 2:
     raise TypeError("plot() expects at least two arguments")
