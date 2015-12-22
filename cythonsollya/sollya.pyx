@@ -12,7 +12,7 @@ import __builtin__, atexit, collections, inspect, itertools
 import traceback, types, sys, warnings
 
 # Initialization of Sollya library
-sollya_lib_init()
+sollya_lib_init_with_custom_memory_function_modifiers(NULL, NULL)
 atexit.register(lambda: sollya_lib_close())
 
 # Create a new SollyaObject wrapping sollya_val, taking ownership of sollya_val

@@ -30,10 +30,7 @@ cdef extern from "sollya.h":
     SOLLYA_EXTERNALPROC_TYPE_VOID
     SOLLYA_EXTERNALPROC_TYPE_OBJECT
 
-  bint sollya_lib_init()
-  # int sollya_lib_init_with_arguments(int, char **)
-  # int sollya_lib_init_with_custom_memory_functions(void *(*)(size_t),
-  # int sollya_lib_init_with_custom_memory_functions_with_arguments(void *(*)(size_t),
+  bint sollya_lib_init_with_custom_memory_function_modifiers(void *, void *)
   bint sollya_lib_close()
 
   bint sollya_lib_install_msg_callback(int (*) (sollya_msg_t, void *), void *)
