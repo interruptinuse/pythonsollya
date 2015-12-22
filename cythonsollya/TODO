@@ -11,3 +11,4 @@
 - provide Python bindings for the versions of externalproc() etc. that dlopen()
   a file???
 - valgrind
+- support min([a, b, c]), plot([f, g], ...), etc.?
