@@ -28,6 +28,12 @@ cdef SollyaObject as_SollyaObject(op):
   else:
     return SollyaObject(op)
 
+# WARNING: We rely pretty extensively on the lifetime of temporary
+# SollyaObjects extending at least up to the next call to Python (e.g. in
+# c_function(as_SollyaObject(foo).value)), and perhaps also on SollyaObjects
+# stored in local variables not being deallocated before the function returns.
+# I'm not sure how much of this really is guaranteed by [PC]ython.
+
 cdef class SollyaObject:
 
   def __cinit__(self):
@@ -560,18 +566,25 @@ cdef class SollyaOperator:
 
   def __call__(self, *args):
     cdef sollya_obj_t[4] padded
+    cdef SollyaObject tmp
     n = len(args)
     if n > 4:
       raise NotImplementedError
+    my_args = tuple(as_SollyaObject(arg) for arg in args)
     for i in range(n):
-      padded[i] = as_SollyaObject(args[i]).value
+      Py_INCREF(my_args[i]) # probably not necessary
+      padded[i] = (<SollyaObject> my_args[i]).value
     for i in range(n, 4):
       padded[i] = NULL
     cdef SollyaObject res = SollyaObject.__new__(SollyaObject)
-    # variadic, but all operators actually have arity <= 2
-    if not sollya_lib_construct_function(&res.value, self.value,
-        padded[0], padded[1], padded[2], padded[3], NULL):
-      raise ValueError("invalid number of operands for " + str(self))
+    try:
+      # variadic, but all operators actually have arity <= 2
+      if not sollya_lib_construct_function(&res.value, self.value,
+          padded[0], padded[1], padded[2], padded[3], NULL):
+        raise ValueError("invalid number of operands for " + str(self))
+    finally:
+      for i in range(n):
+        Py_DECREF(my_args[i])
     return res
 
 # Access to fields of Sollya structures
