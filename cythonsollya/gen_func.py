@@ -255,7 +255,7 @@ sollya_h_list = [ # should match the order of declarations in sollya.h
   SOT(sollya_obj_t, "sollya_lib_floor",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_nearestint",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_length",(sollya_obj_t,)),
-  # omitted: objectname (undocumented)
+  SOT(sollya_obj_t, "sollya_lib_objectname",(sollya_obj_t,)),
 
 ]
 
