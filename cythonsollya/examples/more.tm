@@ -7,30 +7,6 @@
     <\input>
       \<gtr\>\<gtr\>\<gtr\>\ 
     <|input>
-      import sys
-    </input>
-
-    <\input>
-      \<gtr\>\<gtr\>\<gtr\>\ 
-    <|input>
-      sys.path.append("/home/marc/docs/recherche/projets/metalibm/pythonsollya/cythonsollya/build/lib.linux-x86_64-2.7<next-line>")
-    </input>
-
-    <\input>
-      \<gtr\>\<gtr\>\<gtr\>\ 
-    <|input>
-      \;
-    </input>
-
-    <\input>
-      \<gtr\>\<gtr\>\<gtr\>\ 
-    <|input>
-      \;
-    </input>
-
-    <\input>
-      \<gtr\>\<gtr\>\<gtr\>\ 
-    <|input>
       from sollya import *
     </input>
 
