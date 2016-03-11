@@ -3,7 +3,7 @@
 # Sollya (tested with git repo > 4.1)
 
 
-python ./wrapper_generator.py > ./sollya_func.pxi
+python2 ./wrapper_generator.py > ./sollya_func.pxi
 
-CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python setup.py build
-CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python setup.py install --prefix $INSTALL_DIR
+CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python2 setup.py build
+CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python2 setup.py install --prefix $INSTALL_DIR
