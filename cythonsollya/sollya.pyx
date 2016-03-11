@@ -9,11 +9,12 @@ from cpython.string cimport PyString_AsString, PyString_FromString
 from libc.stdlib cimport malloc, free
 
 import __builtin__, atexit, collections, inspect, itertools
-import traceback, types, sys, warnings
+import sys, traceback, types, warnings
 
 # Initialization of Sollya library
 sollya_lib_init_with_custom_memory_function_modifiers(NULL, NULL)
 atexit.register(lambda: sollya_lib_close())
+sollya_lib_install_msg_callback(__msg_callback, NULL)
 
 # Create a new SollyaObject wrapping sollya_val, taking ownership of sollya_val
 # (which will thus be cleared when the SollyaObject gets garbage-collected)
@@ -684,6 +685,14 @@ cdef int __libraryfunction_callback(mpfi_t c_res, mpfi_t c_arg,
 cdef void __dealloc_callback(void *c_fun):
   fun = <object> c_fun
   Py_DECREF(fun)
+
+_print_backtraces = False
+
+cdef int __msg_callback(sollya_msg_t msg, void *data):
+    sys.stderr.write(sollya_lib_msg_to_text(msg))
+    # Quick hack to help debugging python codes that use cythonsollya
+    if _print_backtraces:
+      traceback.print_stack(None, None, sys.stderr)
 
 # Global constants
 
