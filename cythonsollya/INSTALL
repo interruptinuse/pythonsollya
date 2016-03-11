@@ -3,7 +3,5 @@
 # Sollya (tested with git f05398367036729382048e6f75dea24eae661397,
 #         should mostly work with slightly older versions)
 
-export SOLLYA_INSTALL_DIR=/work1/hardware/users/nbrunie/CythonSollya/local/
-
 CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" make
-CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python setup.py install --prefix /work1/hardware/users/nbrunie/new_tmp_ml/local/
+CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python2 setup.py install --prefix $INSTALL_DIR
