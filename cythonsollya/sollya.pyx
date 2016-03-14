@@ -417,6 +417,8 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
   # order matters!
   if isinstance(op, SollyaObject):
     return sollya_lib_copy_obj((<SollyaObject>op).value)
+  elif hasattr(op, '_sollya_'):
+    return sollya_lib_copy_obj((<SollyaObject>(op._sollya_())).value)
   elif isinstance(op, float):
     return sollya_lib_constant_from_double(<double>op)
   elif isinstance(op, bool):
