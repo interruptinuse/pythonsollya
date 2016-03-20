@@ -239,7 +239,6 @@ sollya_h_list = [ # should match the order of declarations in sollya.h
   SOT(sollya_obj_t, "sollya_lib_asinh",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_acosh",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_atanh",(sollya_obj_t,)),
-  SOT(sollya_obj_t, "sollya_lib_abs",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_erf",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_erfc",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_log1p",(sollya_obj_t,)),

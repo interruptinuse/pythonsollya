@@ -383,6 +383,12 @@ cdef class SollyaObject:
     result.value = sollya_lib_pow(op0.value, op1.value)
     return result
 
+  def __abs__(self):
+    cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
+    cdef SollyaObject op0 = as_SollyaObject(self)
+    result.value = sollya_lib_abs(op0.value)
+    return result
+
   # Comparison operators
 
   def __richcmp__(SollyaObject self, py_other, int cmp_op):
