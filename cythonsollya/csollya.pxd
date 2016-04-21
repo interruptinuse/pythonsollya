@@ -18,6 +18,12 @@ cdef extern from "sollya.h":
   int mpfi_init_set_ui(mpfi_t, unsigned long)
   ###
 
+  ctypedef int mpfr_rnd_t
+  mpfr_t mpfr_cbrt(mpfr_t, mpfr_t, mpfr_rnd_t) 
+  void mpfr_clear(mpfr_t)
+  void mpfr_init2(mpfr_t, int)
+  mpfr_rnd_t MPFR_RNDN 
+
   ctypedef struct __sollya_internal_type_object_base:
     pass
 

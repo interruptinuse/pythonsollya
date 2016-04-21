@@ -702,6 +702,22 @@ cdef int __msg_callback(sollya_msg_t msg, void *data):
     if _print_backtraces:
       traceback.print_stack(None, None, sys.stderr)
 
+
+def cbrt(x):
+  """ Custom wrapper for MPFR Cubic Root function """
+  cdef mpfr_t op, result
+  cdef int prec = 100
+  cdef SollyaObject res = SollyaObject.__new__(SollyaObject)
+
+  mpfr_init2(op, prec)
+  mpfr_init2(result, prec)
+  sollya_lib_get_constant(op, as_SollyaObject(x).value)
+  mpfr_cbrt(result, op, MPFR_RNDN)
+  res.value = sollya_lib_constant(result)
+  mpfr_clear(op)
+  mpfr_clear(result)
+  return res
+
 # Global constants
 
 on = wrap(sollya_lib_on())

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*- vim:sw=2
 
+CYTHONSOLLYA_VERSION = "\"0.1b\""
+
 sollya_settings = [
   "prec",
   "points",
@@ -32,4 +34,11 @@ for name in sollya_settings:
             sollya_lib_set_{name}(default)
             sollya_lib_clear_obj(default)
     """.format(name=name)
+
+print r"""
+    property version:
+        def __get__(self):
+            return {version}
+""".format(version=CYTHONSOLLYA_VERSION)
+
 print "settings = __Settings()"
