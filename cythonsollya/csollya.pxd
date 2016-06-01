@@ -132,7 +132,6 @@ cdef extern from "sollya.h":
   sollya_obj_t sollya_lib_expand(sollya_obj_t)
   sollya_obj_t sollya_lib_dirtysimplify(sollya_obj_t)
   sollya_obj_t sollya_lib_simplify(sollya_obj_t)
-  sollya_obj_t sollya_lib_simplifysafe(sollya_obj_t)
   sollya_obj_t sollya_lib_taylor(sollya_obj_t, sollya_obj_t, sollya_obj_t)
   sollya_obj_t sollya_lib_taylorform(sollya_obj_t, sollya_obj_t, sollya_obj_t, ...)
   sollya_obj_t sollya_lib_chebyshevform(sollya_obj_t, sollya_obj_t, sollya_obj_t)
@@ -159,7 +158,6 @@ cdef extern from "sollya.h":
   sollya_obj_t sollya_lib_dirtyintegral(sollya_obj_t, sollya_obj_t)
   sollya_obj_t sollya_lib_implementpoly(sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t, ...)
   sollya_obj_t sollya_lib_checkinfnorm(sollya_obj_t, sollya_obj_t, sollya_obj_t)
-  sollya_obj_t sollya_lib_zerodenominators(sollya_obj_t, sollya_obj_t)
   sollya_obj_t sollya_lib_searchgal(sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t, sollya_obj_t)
   sollya_obj_t sollya_lib_guessdegree(sollya_obj_t, sollya_obj_t, sollya_obj_t, ...)
   sollya_obj_t sollya_lib_dirtyfindzeros(sollya_obj_t, sollya_obj_t)
@@ -311,7 +309,7 @@ cdef extern from "sollya.h":
   bint sollya_lib_get_function_arity(int *, sollya_obj_t)
   bint sollya_lib_get_head_function(sollya_base_function_t *, sollya_obj_t)
   bint sollya_lib_get_subfunctions(sollya_obj_t, int *, ...)
-  bint sollya_lib_get_subfunction(sollya_obj_t *, sollya_obj_t, int)
+  bint sollya_lib_get_nth_subfunction(sollya_obj_t *, sollya_obj_t, int)
   bint sollya_lib_decompose_function(sollya_obj_t, sollya_base_function_t *, int *, ...)
   bint sollya_lib_construct_function(sollya_obj_t *, sollya_base_function_t, ...)
 
@@ -331,7 +329,6 @@ cdef extern from "sollya.h":
   # Omitted: sollya_lib_is_{on,off,...}
   bint sollya_lib_is_true(sollya_obj_t)
   bint sollya_lib_is_false(sollya_obj_t)
-  bint sollya_lib_is_libraryconstant(sollya_obj_t)
 
   sollya_fp_result_t sollya_lib_evaluate_function_at_point(mpfr_t, sollya_obj_t, mpfr_t, mpfr_t *)
   sollya_fp_result_t sollya_lib_evaluate_function_at_constant_expression(mpfr_t, sollya_obj_t, sollya_obj_t, mpfr_t *)
