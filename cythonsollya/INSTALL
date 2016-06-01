@@ -1,7 +1,6 @@
 # REQUIREMENTS
-# Cython (tested with 0.19 )
-# Sollya (tested with git f05398367036729382048e6f75dea24eae661397,
-#         should mostly work with slightly older versions)
+# Cython (tested with 0.23.4)
+# Sollya >= git 95b6c220cf3967c9fddd01f48c8cbef1df5a5d2b
 
 CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" make
 CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python2 setup.py install --prefix $INSTALL_DIR
