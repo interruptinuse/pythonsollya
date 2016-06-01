@@ -3,7 +3,6 @@
 - install a message callback? (that would result in Python warnings?)
 - bind decompose_externalprocedure & friends?
 - test!
-- wrap libraryfunction (similar to externalproc, with sollya obj as in/out)
 - better support multiple precision integers, floats, intervals...
   (perhaps only in cooperation with sage?)
 - bind evaluate_function_at_constant_expression, providing Python access to the
