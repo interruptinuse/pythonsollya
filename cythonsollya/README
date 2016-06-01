@@ -1,3 +1,23 @@
-There is no real user manual (yet?), but see the examples/ directory for some
-usage examples. Most functions behave like their interactive Sollya
+Python bindings for Sollya
+http://sollya.gforge.inria.fr/
+
+AUTHORS:
+
+- Nicolas Brunie <nicolas.brunie@kalray.eu>
+- Marc Mezzarobba <marc@mezzarobba.net>
+
+REQUIREMENTS:
+
+- Cython (tested with 0.23.4)
+- Sollya >= git 95b6c220cf3967c9fddd01f48c8cbef1df5a5d2b
+
+INSTALLATION:
+
+$ make [SOLLYA_DIR=/sollya/installation/directory]
+$ make install [PREFIX=/destination/]
+
+USAGE:
+
+There is no real user manual (yet?), but see the examples/ directory for
+some usage examples. Most functions behave like their interactive Sollya
 counterparts.
