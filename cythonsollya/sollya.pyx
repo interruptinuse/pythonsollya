@@ -9,7 +9,13 @@ from cpython.string cimport PyString_AsString, PyString_FromString
 from libc.stdlib cimport malloc, free
 
 IF HAVE_SAGE:
+  from sage.libs.mpfr cimport mpfr_rnd_t, mpfr_get_prec
+  from sage.libs.mpfr cimport MPFR_RNDN, MPFR_RNDZ, MPFR_RNDU, MPFR_RNDD
   from sage.rings.integer cimport Integer
+  from sage.rings.rational cimport Rational
+  from sage.rings.real_mpfi cimport (RealIntervalFieldElement,
+      RealIntervalField_class)
+  from sage.rings.real_mpfr cimport RealNumber, RealField_class
 
 import __builtin__, atexit, collections, inspect, itertools
 import sys, traceback, types, warnings
@@ -193,6 +199,44 @@ cdef class SollyaObject:
       else:
         raise ValueError("unable to convert this Sollya object "
             "to a Sage integer")
+
+    def _rational_(self, parent=None):
+      cdef Rational result = <Rational> Rational.__new__(Rational)
+      if sollya_lib_get_constant_as_mpq(result.value, self.value):
+        return result
+      else:
+        raise ValueError("unable to convert this Sollya object "
+            "to a Sage rational")
+
+    def _real_mpfi_(self, RealIntervalField_class parent):
+      cdef double dummy[1]
+      cdef RealIntervalFieldElement result = parent._new()
+      if sollya_lib_get_interval_from_range(result.value, self.value):
+        return result
+      elif sollya_lib_get_constant_as_double(dummy, self.value):
+        # self looks like a constant expression
+        if sollya_lib_evaluate_function_over_interval(result.value, self.value,
+            result.value):
+          return result
+      else:
+        raise ValueError("unable to convert this Sollya object "
+            "to a Sage real interval")
+
+    def _mpfr_(self, RealField_class parent):
+      cdef sollya_obj_t prec, rounded
+      cdef RealNumber result = parent._new()
+      cdef sollya_obj_t rnd = __rounding_mode(parent.rnd) # global, do not free
+      try:
+        prec = sollya_lib_constant_from_int64(mpfr_get_prec(result.value))
+        rounded = sollya_lib_round(self.value, prec, rnd)
+        if sollya_lib_get_constant(result.value, rounded):
+          return result
+        else:
+          raise ValueError("unable to convert this Sollya object "
+              "to a Sage floating-point number")
+      finally:
+        sollya_lib_clear_obj(rounded)
+        sollya_lib_clear_obj(prec)
 
   # Destructuring
 
@@ -485,6 +529,13 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
   IF HAVE_SAGE:
     if isinstance(op, Integer):
       return sollya_lib_constant_from_mpz((<Integer> op).value)
+    elif isinstance(op, Rational):
+      return sollya_lib_constant_from_mpq((<Rational> op).value)
+    elif isinstance(op, RealIntervalFieldElement):
+      return sollya_lib_range_from_interval(
+          (<RealIntervalFieldElement> op).value)
+    elif isinstance(op, RealNumber):
+      return sollya_lib_constant((<RealNumber> op).value)
   raise TypeError("unsupported conversion to sollya object", op, op.__class__)
 
 include "sollya_settings.pxi"
@@ -763,6 +814,25 @@ tripledouble = wrap(sollya_lib_triple_double_obj())
 
 pi          = wrap(sollya_lib_pi())
 x = _x_     = wrap(sollya_lib_free_variable())
+
+# MPFR -> Sollya rounding modes
+
+IF HAVE_SAGE:
+  cdef sollya_obj_t __sollya_rndn = sollya_lib_round_to_nearest()
+  cdef sollya_obj_t __sollya_rndz = sollya_lib_round_towards_zero()
+  cdef sollya_obj_t __sollya_rndd = sollya_lib_round_down()
+  cdef sollya_obj_t __sollya_rndu = sollya_lib_round_up()
+  cdef sollya_obj_t __rounding_mode(mpfr_rnd_t rnd):
+    if rnd == MPFR_RNDN:
+      return __sollya_rndn
+    elif rnd == MPFR_RNDZ:
+      return __sollya_rndz
+    elif rnd == MPFR_RNDD:
+      return __sollya_rndd
+    elif rnd == MPFR_RNDU:
+      return __sollya_rndu
+    else:
+      raise ValueError("unsupported rounding mode")
 
 # Additional utilities
 
