@@ -8,7 +8,7 @@ export LDFLAGS CPPFLAGS
 .PHONY: build install srctarball
 
 build: sollya_func.pxi sollya_settings.pxi sollya_ops.pxi csollya_ops.pxd
-	python2 setup.py --verbose build
+	python2 setup.py build_ext --inplace
 
 install:
 	python2 setup.py install --prefix ${PREFIX}
