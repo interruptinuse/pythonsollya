@@ -9,16 +9,22 @@ from cpython.string cimport PyString_AsString, PyString_FromString
 from libc.stdlib cimport malloc, free
 
 IF HAVE_SAGE:
+  from sage.libs.mpfi cimport mpfi_set
   from sage.libs.mpfr cimport mpfr_rnd_t, mpfr_get_prec
   from sage.libs.mpfr cimport MPFR_RNDN, MPFR_RNDZ, MPFR_RNDU, MPFR_RNDD
   from sage.rings.integer cimport Integer
   from sage.rings.rational cimport Rational
-  from sage.rings.real_mpfi cimport (RealIntervalFieldElement,
-      RealIntervalField_class)
+  from sage.rings.real_mpfi cimport (
+      RealIntervalField_class,
+      RealIntervalFieldElement)
   from sage.rings.real_mpfr cimport RealNumber, RealField_class
 
 import __builtin__, atexit, collections, inspect, itertools
 import sys, traceback, types, warnings
+
+IF HAVE_SAGE:
+  from sage.rings.real_mpfi import RealIntervalField
+
 
 # Initialization of Sollya library
 sollya_lib_init_with_custom_memory_function_modifiers(NULL, NULL)
@@ -614,6 +620,23 @@ def function(arg):
         as_SollyaObject(arg).value)
   return wrap(sobj)
 
+IF HAVE_SAGE:
+  def sagefunction(arg):
+    r"""
+    Similar to Sollya's function(), but the user-defined function receives a
+    real interval and must return something convertible to a real interval (of
+    the given precision).
+    """
+    cdef sollya_obj_t sobj
+    Py_INCREF(arg)
+    sobj = sollya_lib_libraryfunction_with_data(
+          (<SollyaObject> _x_).value,
+          str(arg),
+          __sage_libraryfunction_callback,
+          <void *> arg,
+          __dealloc_callback)
+    return wrap(sobj)
+
 # Sollya operators (aka base functions)
 
 include "sollya_ops.pxi"
@@ -756,6 +779,25 @@ cdef int __libraryfunction_callback(mpfi_t c_res, mpfi_t c_arg,
   except Exception:
     traceback.print_exc() # TBI?
     return 0
+
+IF HAVE_SAGE:
+  cdef int __sage_libraryfunction_callback(mpfi_t c_res, mpfi_t c_arg,
+                                           int diff_order, void *c_fun):
+    cdef RealIntervalField_class IntervalField
+    cdef RealIntervalFieldElement arg, res
+    try:
+      fun = <object> c_fun
+      prec = mpfi_get_prec(c_res)
+      IntervalField = RealIntervalField(prec)
+      arg = IntervalField._new()
+      mpfi_set(arg.value, c_arg)
+      res0 = fun(arg, diff_order, prec)
+      res = IntervalField(res0)
+      mpfi_set(c_res, res.value)
+      return 1
+    except Exception:
+      traceback.print_exc() # TBI?
+      return 0
 
 cdef void __dealloc_callback(void *c_fun):
   fun = <object> c_fun
