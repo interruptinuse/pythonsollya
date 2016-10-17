@@ -753,7 +753,7 @@ cdef int __libraryfunction_callback(mpfi_t c_res, mpfi_t c_arg,
     if not sollya_lib_get_interval_from_range(c_res, res1.value):
       return 0 # "currently has no meaning"
     return 1
-  except:
+  except Exception:
     traceback.print_exc() # TBI?
     return 0
 
