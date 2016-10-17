@@ -8,6 +8,9 @@ from cpython.ref cimport Py_INCREF, Py_DECREF
 from cpython.string cimport PyString_AsString, PyString_FromString
 from libc.stdlib cimport malloc, free
 
+IF HAVE_SAGE:
+  from sage.rings.integer cimport Integer
+
 import __builtin__, atexit, collections, inspect, itertools
 import sys, traceback, types, warnings
 
@@ -15,6 +18,9 @@ import sys, traceback, types, warnings
 sollya_lib_init_with_custom_memory_function_modifiers(NULL, NULL)
 atexit.register(lambda: sollya_lib_close())
 sollya_lib_install_msg_callback(__msg_callback, NULL)
+
+def has_sage_support():
+  return HAVE_SAGE
 
 # Create a new SollyaObject wrapping sollya_val, taking ownership of sollya_val
 # (which will thus be cleared when the SollyaObject gets garbage-collected)
@@ -177,6 +183,16 @@ cdef class SollyaObject:
     i = sollya_lib_get_constant_as_double(result, self.value)
     # XXX: handle errors
     return result[0]
+
+  IF HAVE_SAGE:
+
+    def _integer_(self, parent=None):
+      cdef Integer result = <Integer> Integer.__new__(Integer)
+      if sollya_lib_get_constant_as_mpz(result.value, self.value):
+        return result
+      else:
+        raise ValueError("unable to convert this Sollya object "
+            "to a Sage integer")
 
   # Destructuring
 
@@ -466,8 +482,10 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
     return sollya_obj
   elif isinstance(op, types.FunctionType):
     return function_to_sollya_obj_t(op)
-  else:
-    raise TypeError("unsupported conversion to sollya object", op, op.__class__)
+  IF HAVE_SAGE:
+    if isinstance(op, Integer):
+      return sollya_lib_constant_from_mpz((<Integer> op).value)
+  raise TypeError("unsupported conversion to sollya object", op, op.__class__)
 
 include "sollya_settings.pxi"
 include "sollya_func.pxi"

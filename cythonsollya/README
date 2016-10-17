@@ -1,4 +1,4 @@
-Python bindings for Sollya
+Python/SageMath bindings for Sollya
 http://sollya.gforge.inria.fr/
 
 AUTHORS:
@@ -8,13 +8,26 @@ AUTHORS:
 
 REQUIREMENTS:
 
-- Cython (tested with 0.23.4)
+- Cython (tested with 0.24.1)
 - Sollya >= git 95b6c220cf3967c9fddd01f48c8cbef1df5a5d2b
+- SageMath (optional, tested with 7.4.rc0)
 
 INSTALLATION:
 
-$ make [SOLLYA_DIR=/sollya/installation/directory]
-$ make install [PREFIX=/destination/]
+    $ make [SOLLYA_DIR=/sollya/installation/directory]
+    $ make install [PREFIX=/destination/]
+
+Note that the build scripts are quite fragile. For now, they will automatically
+try to detect if SageMath (Sage) is available (in the Python search path), and
+build PythonSollya with Sage support if possible. Thus, with a typical setup,
+
+    $ make [SOLLYA_DIR=/sollya/installation/directory]
+
+will build pure Python bindings, while
+
+    $ sage -sh -c make SOLLYA_DIR="$HOME/opt/sollya"
+
+will build Python+Sage bindings.
 
 USAGE:
 

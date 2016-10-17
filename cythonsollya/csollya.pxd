@@ -1,11 +1,13 @@
 # vim: sw=2
-from libc.stdint cimport int64_t, uint64_t
 
+from libc.stdint cimport int64_t, uint64_t
 from csollya_ops cimport *
+
+IF HAVE_SAGE:
+  from sage.libs.gmp.all cimport mpz_t
 
 cdef extern from "sollya.h":
   ### TBI -- shouldn't be here!
-  ctypedef mpz_t
   ctypedef struct __mpfr_struct:
       pass
   ctypedef __mpfr_struct * mpfr_t
