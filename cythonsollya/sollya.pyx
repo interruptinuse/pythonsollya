@@ -175,6 +175,7 @@ cdef class SollyaObject:
     cdef int i
     cdef double result[1]
     i = sollya_lib_get_constant_as_double(result, self.value)
+    # XXX: handle errors
     return result[0]
 
   # Destructuring
