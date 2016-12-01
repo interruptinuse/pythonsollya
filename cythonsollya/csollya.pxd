@@ -297,6 +297,7 @@ cdef extern from "sollya.h":
   bint sollya_lib_get_prec_of_constant(mp_prec_t *, sollya_obj_t)
   bint sollya_lib_get_prec_of_range(mp_prec_t *, sollya_obj_t)
   bint sollya_lib_get_constant_as_mpz(mpz_t, sollya_obj_t)
+  bint sollya_lib_get_constant_as_uint64_array(int *, uint64_t **, size_t *, sollya_obj_t)
 
   IF HAVE_SAGE:
     sollya_obj_t sollya_lib_constant_from_mpq(mpq_t)
@@ -347,5 +348,11 @@ cdef extern from "sollya.h":
   sollya_obj_t sollya_lib_get_object_list_head(sollya_obj_list_t)
 
   # Omitted: sollya_*_lib_t and related functions
+
+  sollya_obj_t sollya_lib_build_function_add(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_build_function_mul(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_build_function_pow(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_build_function_neg(sollya_obj_t)
+
 
 # vim: sw=2

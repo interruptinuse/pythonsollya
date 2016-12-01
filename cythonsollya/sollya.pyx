@@ -147,43 +147,34 @@ cdef class SollyaObject:
       raise ValueError("not a boolean")
 
   def __int__(SollyaObject self):
-    cdef int64_t result
-    if sollya_lib_get_constant_as_int64(&result, self.value):
+    cdef uint64_t *value
+    cdef int sign
+    cdef size_t len
+    if sollya_lib_get_constant_as_uint64_array(&sign, &value, &len, self.value):
+      res = 0
+      for i in range(len):
+        t = value[len-1-i]
+        res = (res << 64) + t
+      if sign == 0:
+        result = 0
+      elif sign < 0:
+        result = -res
+      else:
+        result = res
+      sollya_lib_free(value)
       return result
     else:
       raise ValueError("no conversion of this Sollya object to int")
 
   def getConstantAsInt(SollyaObject self):
-    cdef sollya_obj_t tmp, c64, divr, divr_, prod, rem, c0
-    cdef int64_t result[1]
-    cdef int status
-    tmp = sollya_lib_copy_obj(self.value) #sollya_lib_nearestint(self.value)
-    c64 = sollya_lib_constant_from_int64(1 << 32)
-    c0  = sollya_lib_constant_from_int64(0)
-    weight = 0
-    value = 0
-    wd = 0
-    while sollya_lib_cmp_not_equal(tmp, c0):
-      divr_ = sollya_lib_div(tmp, c64)
-      divr = sollya_lib_nearestint(divr_)
-      prod = sollya_lib_mul(divr, c64)
-      rem = sollya_lib_sub(tmp, prod)
-      status = sollya_lib_get_constant_as_int64(result, rem)
-      value += result[0] * 2**weight
-      weight += 32
-      tmp = sollya_lib_copy_obj(divr)
-      sollya_lib_clear_obj(divr)
-      sollya_lib_clear_obj(rem)
-      sollya_lib_clear_obj(prod)
-      wd += 1
-      if wd > 10: break
-    sollya_lib_clear_obj(tmp)
-    sollya_lib_clear_obj(c64)
-    sollya_lib_clear_obj(c0)
-    return value
+    return int(self)
 
   def getConstantAsIntLegacy(SollyaObject self):
-    return int(self)
+    cdef int64_t result
+    if sollya_lib_get_constant_as_int64(&result, self.value):
+      return result
+    else:
+      raise ValueError("no conversion of this Sollya object to int")
 
   def getConstantAsUInt(SollyaObject self):
     cdef int i 
@@ -497,6 +488,35 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
     return sollya_lib_true() if op else sollya_lib_false()
   elif isinstance(op, int):
     return sollya_lib_constant_from_int64(PyInt_AsLong(op))
+  elif isinstance(op, long):
+    if ((-(1 << 30)) < op) and (op < (1 << 30)):
+       return sollya_lib_constant_from_int64(PyInt_AsLong(op))
+    sollya_obj = sollya_lib_constant_from_int64(PyInt_AsLong(0))
+    if op >= 0:
+      r = op
+      s = 1
+    else:
+      r = -op
+      s = -1
+    w = 0
+    while r != 0:
+          t = r >> 30
+          c = r - (t << 30)
+          sollya_obj = sollya_lib_build_function_add(sollya_obj,
+                         sollya_lib_build_function_mul(
+                           sollya_lib_build_function_pow(
+                             sollya_lib_constant_from_int64(PyInt_AsLong(2)),
+			     sollya_lib_build_function_mul(
+			       sollya_lib_constant_from_int64(PyInt_AsLong(30)),
+                               sollya_lib_constant_from_int64(PyInt_AsLong(w)))),
+                           sollya_lib_constant_from_int64(PyInt_AsLong(c))))
+          w = w + 1
+          r = t
+    if s < 0:
+      sollya_obj = sollya_lib_build_function_neg(sollya_obj)
+    old_sollya_obj = sollya_obj
+    sollya_obj = sollya_lib_simplify(old_sollya_obj)
+    return sollya_obj
   elif op is None:
     return sollya_lib_void()
   elif isinstance(op, basestring):
