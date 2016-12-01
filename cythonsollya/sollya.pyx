@@ -832,6 +832,7 @@ cdef int __msg_callback(sollya_msg_t msg, void *data):
     # Quick hack to help debugging python codes that use cythonsollya
     if _print_backtraces:
       traceback.print_stack(None, None, sys.stderr)
+    return 0
 
 # Global constants
 
