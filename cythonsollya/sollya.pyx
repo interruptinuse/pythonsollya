@@ -5,6 +5,7 @@ DEF HAVE_SAGE = False
 from csollya cimport *
 cimport libc.stdint
 from cpython.int cimport PyInt_AsLong
+from cpython.long cimport PyLong_AsLong
 from cpython.object cimport Py_LT, Py_LE, Py_EQ, Py_NE, Py_GT, Py_GE
 from cpython.ref cimport Py_INCREF, Py_DECREF
 from cpython.string cimport PyString_AsString, PyString_FromString
@@ -147,22 +148,25 @@ cdef class SollyaObject:
       raise ValueError("not a boolean")
 
   def __int__(SollyaObject self):
+    r"""
+    Interpret this Sollya object as a Python integer.
+
+    Warning: quadratic complexity.
+    """
     cdef uint64_t *value
     cdef int sign
     cdef size_t len
     if sollya_lib_get_constant_as_uint64_array(&sign, &value, &len, self.value):
       res = 0
       for i in range(len):
-        t = value[len-1-i]
-        res = (res << 64) + t
-      if sign == 0:
-        result = 0
-      elif sign < 0:
-        result = -res
-      else:
-        result = res
+        res = (res << 64) + value[len-1-i]
       sollya_lib_free(value)
-      return result
+      res *= cmp(sign, 0)
+      # Attempt to return a Python int (instead of a long) when possible
+      try:
+        return PyLong_AsLong(res)
+      except OverflowError:
+        return res
     else:
       raise ValueError("no conversion of this Sollya object to int")
 
@@ -489,34 +493,7 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
   elif isinstance(op, int):
     return sollya_lib_constant_from_int64(PyInt_AsLong(op))
   elif isinstance(op, long):
-    if ((-(1 << 30)) < op) and (op < (1 << 30)):
-       return sollya_lib_constant_from_int64(PyInt_AsLong(op))
-    sollya_obj = sollya_lib_constant_from_int64(PyInt_AsLong(0))
-    if op >= 0:
-      r = op
-      s = 1
-    else:
-      r = -op
-      s = -1
-    w = 0
-    while r != 0:
-          t = r >> 30
-          c = r - (t << 30)
-          sollya_obj = sollya_lib_build_function_add(sollya_obj,
-                         sollya_lib_build_function_mul(
-                           sollya_lib_build_function_pow(
-                             sollya_lib_constant_from_int64(PyInt_AsLong(2)),
-			     sollya_lib_build_function_mul(
-			       sollya_lib_constant_from_int64(PyInt_AsLong(30)),
-                               sollya_lib_constant_from_int64(PyInt_AsLong(w)))),
-                           sollya_lib_constant_from_int64(PyInt_AsLong(c))))
-          w = w + 1
-          r = t
-    if s < 0:
-      sollya_obj = sollya_lib_build_function_neg(sollya_obj)
-    old_sollya_obj = sollya_obj
-    sollya_obj = sollya_lib_simplify(old_sollya_obj)
-    return sollya_obj
+    return pylong_to_sollya_obj_t(op)
   elif op is None:
     return sollya_lib_void()
   elif isinstance(op, basestring):
@@ -565,6 +542,36 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
     elif isinstance(op, RealNumber):
       return sollya_lib_constant((<RealNumber> op).value)
   raise TypeError("unsupported conversion to sollya object", op, op.__class__)
+
+# Warning: quadratic complexity! (Alt options: use the undocumented format of
+# Python longs, go through a base 16 or 32 string representation.)
+cdef sollya_obj_t pylong_to_sollya_obj_t(op):
+  if ((-(1 << 30)) < op) and (op < (1 << 30)):
+    return sollya_lib_constant_from_int64(PyInt_AsLong(op))
+  sollya_obj = sollya_lib_constant_from_int64(PyInt_AsLong(0))
+  if op >= 0:
+    r = op
+    s = 1
+  else:
+    r = -op
+    s = -1
+  w = 0
+  while r != 0:
+    t = r >> 30
+    c = r - (t << 30)
+    sollya_obj = sollya_lib_build_function_add(sollya_obj,
+                    sollya_lib_build_function_mul(
+                      sollya_lib_build_function_pow(
+                        sollya_lib_constant_from_int64(PyInt_AsLong(2)),
+                        sollya_lib_build_function_mul(
+                          sollya_lib_constant_from_int64(PyInt_AsLong(30)),
+                          sollya_lib_constant_from_int64(PyInt_AsLong(w)))),
+                      sollya_lib_constant_from_int64(PyInt_AsLong(c))))
+    w = w + 1
+    r = t
+  if s < 0:
+    sollya_obj = sollya_lib_build_function_neg(sollya_obj)
+  return sollya_lib_simplify(sollya_obj)
 
 include "sollya_settings.pxi"
 include "sollya_func.pxi"
