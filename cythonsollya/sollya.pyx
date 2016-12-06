@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*- vim: sw=2
 
-DEF HAVE_SAGE = False
-
 from csollya cimport *
 cimport libc.stdint
 from cpython.int cimport PyInt_AsLong

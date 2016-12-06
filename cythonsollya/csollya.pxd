@@ -1,7 +1,5 @@
 # vim: sw=2
 
-DEF HAVE_SAGE = False
-
 from libc.stdint cimport int64_t, uint64_t
 from csollya_ops cimport *
 
