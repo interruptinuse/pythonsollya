@@ -3,6 +3,7 @@
 import logging
 from setuptools import setup
 from Cython.Distutils.extension import Extension
+from Cython.Distutils.build_ext import build_ext
 
 logging.basicConfig(level=logging.INFO)
 
@@ -35,4 +36,5 @@ setup(
   author="Nicolas Brunie, Marc Mezzarobba",
   author_email="nicolas.brunie@kalray.eu",
   ext_modules=ext_modules,
+  cmdclass = {'build_ext': build_ext},
 )
