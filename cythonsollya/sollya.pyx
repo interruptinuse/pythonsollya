@@ -341,9 +341,12 @@ cdef class SollyaObject:
       if not sollya_lib_get_list_elements(&objs, &length, &is_end_elliptic,
                                           self.value):
         raise RuntimeError("conversion of Sollya list failed")
-      py_objs = [wrap(objs[i]) for i in range(length)]
+      if length == 0:
+        py_objs = [] 
+      else:
+        py_objs = [wrap(objs[i]) for i in range(length)]
       sollya_lib_free(objs)
-      if is_end_elliptic:
+      if is_end_elliptic and not (length == 0):
         py_objs.append(Ellipsis)
       return py_objs
     elif sollya_lib_obj_is_structure(self.value):
@@ -365,14 +368,15 @@ cdef class SollyaObject:
 
   def __iter__(self):
     cdef bint is_end_elliptic = sollya_lib_obj_is_end_elliptic_list(self.value)
+    cdef bint is_list = sollya_lib_obj_is_list(self.value)
     # wrap all elements first to avoid leaking memory if interrupted
     items = self.list()
-    if is_end_elliptic:
+    if is_end_elliptic and not is_list:
       last = items.pop(-1)
       assert last is Ellipsis
     for item in items:
       yield item
-    if is_end_elliptic: # may be slow if the initial part is long
+    if is_end_elliptic and not is_list: # may be slow if the initial part is long
       for i in itertools.count(len(items)):
         yield self[i]
 
