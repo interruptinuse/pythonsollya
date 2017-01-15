@@ -112,8 +112,8 @@ cdef class SollyaObject:
   def is_procedure(self):
     return sollya_lib_obj_is_procedure(self.value)
 
-  def is_libraryconstant(self):
-    return sollya_lib_is_libraryconstant(self.value)
+  #def is_libraryconstant(self):
+  #  return sollya_lib_is_libraryconstant(self.value)
 
   def is_externalprocedure(self):
     return sollya_lib_obj_is_externalprocedure(self.value)
@@ -206,7 +206,7 @@ cdef class SollyaObject:
 
   def operand(self, n):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    if not sollya_lib_get_subfunction(&result.value, self.value, n):
+    if not sollya_lib_get_nth_subfunction(&result.value, self.value, n):
       raise IndexError("operand index out of range or object without operands")
     return result
 
