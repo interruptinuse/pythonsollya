@@ -39,7 +39,7 @@ cdef extern from "sollya.h":
   bint sollya_lib_init_with_custom_memory_function_modifiers(void *, void *)
   bint sollya_lib_close()
 
-  bint sollya_lib_install_msg_callback(int (*) (sollya_msg_t, void *), void *)
+  bint sollya_lib_install_msg_callback(bint (*) (sollya_msg_t, void *), void *)
   bint sollya_lib_uninstall_msg_callback()
   void sollya_lib_get_msg_callback(int (**)(sollya_msg_t, void *), void **)
   bint sollya_lib_get_msg_id(sollya_msg_t)
