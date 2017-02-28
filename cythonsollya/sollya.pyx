@@ -656,9 +656,13 @@ IF HAVE_SAGE:
     """
     cdef sollya_obj_t sobj
     Py_INCREF(arg)
+    try:
+      name = arg.__name__
+    except AttributeError:
+      name = str(arg)
     sobj = sollya_lib_libraryfunction_with_data(
           (<SollyaObject> _x_).value,
-          str(arg),
+          name,
           __sage_libraryfunction_callback,
           <void *> arg,
           __dealloc_callback)
