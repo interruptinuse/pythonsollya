@@ -19,7 +19,7 @@ sollya_settings = [
   "hopitalrecursions",
 ]
 
-print "cdef class __Settings(object):"
+print "cdef class __Settings0(object):"
 for name in sollya_settings:
     print r"""
     property {name}:
@@ -32,4 +32,3 @@ for name in sollya_settings:
             sollya_lib_set_{name}(default)
             sollya_lib_clear_obj(default)
     """.format(name=name)
-print "settings = __Settings()"

@@ -20,7 +20,7 @@ IF HAVE_SAGE:
       RealIntervalFieldElement)
   from sage.rings.real_mpfr cimport RealNumber, RealField_class
 
-import __builtin__, atexit, collections, inspect, itertools
+import __builtin__, atexit, collections, contextlib, inspect, itertools
 import sys, traceback, types, warnings
 
 IF HAVE_SAGE:
@@ -571,8 +571,21 @@ cdef sollya_obj_t pylong_to_sollya_obj_t(op):
     sollya_obj = sollya_lib_build_function_neg(sollya_obj)
   return sollya_lib_simplify(sollya_obj)
 
-include "sollya_settings.pxi"
 include "sollya_func.pxi"
+include "sollya_settings.pxi"
+
+class __Settings(__Settings0):
+
+  @contextlib.contextmanager
+  def __call__(self, **kwds):
+    saved = {name: getattr(self, name) for name in kwds}
+    for name, value in kwds.iteritems():
+      setattr(self, name, value)
+    yield
+    for name, value in saved.iteritems():
+      setattr(self, name, value)
+
+settings = __Settings()
 
 # Commands and built-in procedures requiring special handling
 
