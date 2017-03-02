@@ -637,7 +637,7 @@ def libraryconstant(arg):
     Py_INCREF(arg)
     return wrap(
         sollya_lib_libraryconstant_with_data(
-          arg.__name__,
+          "py_" + arg.__name__,
           __libraryconstant_callback,
           <void *> arg,
           __dealloc_callback))
@@ -650,7 +650,7 @@ def function(arg):
     Py_INCREF(arg)
     sobj = sollya_lib_libraryfunction_with_data(
           (<SollyaObject> _x_).value,
-          arg.__name__,
+          "py_" + arg.__name__,
           __libraryfunction_callback,
           <void *> arg,
           __dealloc_callback)
@@ -675,7 +675,7 @@ IF HAVE_SAGE:
       name = str(arg)
     sobj = sollya_lib_libraryfunction_with_data(
           (<SollyaObject> _x_).value,
-          name,
+          "sage_" + name,
           __sage_libraryfunction_callback,
           <void *> arg,
           __dealloc_callback)
@@ -769,7 +769,7 @@ cdef sollya_obj_t function_to_sollya_obj_t(fun) except NULL:
   Py_INCREF(fun)
   cdef sollya_obj_t sollya_obj = sollya_lib_externalprocedure_with_data(
       SOLLYA_EXTERNALPROC_TYPE_OBJECT, sollya_argspec, arity,
-      fun.__name__, callback, <void *>fun,
+      "py_" + fun.__name__, callback, <void *>fun,
       __dealloc_callback)
   free(sollya_argspec)
   return sollya_obj
