@@ -3,5 +3,14 @@
 # Sollya (tested with git f05398367036729382048e6f75dea24eae661397,
 #         should mostly work with slightly older versions)
 
-CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" make
-CFLAGS="-I$SOLLYA_INSTALL_DIR/include/" LDFLAGS="-L$SOLLYA_INSTALL_DIR/lib/" python2 setup.py install --prefix $INSTALL_DIR
+# if Sollya install is not accessible in default path
+# the environment variable SOLLYA_INSTALL_DIR MUST be set
+# to points towards the root of Sollya install directory
+# uncomment and complete the following
+
+# export SOLLYA_INSTALL_DIR=<custom sollya install dir>
+
+make build 
+# INSTALL_DIR is install directory of pythonsollya
+make install INSTALL_DIR=$INSTALL_DIR
+make test
