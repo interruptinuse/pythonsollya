@@ -54,6 +54,13 @@ class LIST: pass
 
 class SOT:
   """ Sollya Object template """
+  # @param return_format format of the returned value
+  # @param name sollya library function name
+  # @param input_formats tuple of argument's formats
+  # @param optional_inputs list of optional argument formats
+  # @param binding_name name to set for the associated python function
+  # @param interactive_name name to set for the interactive interpreter (?)
+  # @param variadic boolean flag indicating a variable number of arguments
   def __init__(self, return_format, name, input_formats,
       optional_inputs=[], binding_name=None, interactive_name=None, variadic=None):
     self.return_format = return_format
@@ -163,6 +170,13 @@ sollya_h_list = [ # should match the order of declarations in sollya.h
   SOT(void, "sollya_lib_unsuppressmessage", (), optional_inputs=LIST),
   SOT(void, "sollya_lib_implementconstant", (sollya_obj_t,), optional_inputs = [sollya_obj_t]*2),
 
+  # print variable encoding
+  SOT(void, "sollya_lib_printsingle", (sollya_obj_t,), binding_name = "printfloat"),
+  SOT(void, "sollya_lib_printdouble", (sollya_obj_t,)),
+  SOT(void, "sollya_lib_printexpansion", (sollya_obj_t,)),
+
+  SOT(void, "sollya_lib_set_roundingwarnings", (sollya_obj_t,)), 
+
   # Functions corresponding to Sollya built-in procedures
 
   SOT(sollya_obj_t, "sollya_lib_append",(sollya_obj_t, sollya_obj_t,)),
@@ -258,6 +272,7 @@ sollya_h_list = [ # should match the order of declarations in sollya.h
   SOT(sollya_obj_t, "sollya_lib_nearestint",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_length",(sollya_obj_t,)),
   SOT(sollya_obj_t, "sollya_lib_objectname",(sollya_obj_t,)),
+
 
 ]
 
