@@ -1,4 +1,6 @@
-.PHONY: build
+# list of tests
+TESTS := func basic
+TEST_GEN_DIR := ./output
 
 build: sollya_func.pxi sollya_settings.pxi sollya_ops.pxi csollya_ops.pxd
 	python2 setup.py build
@@ -15,8 +17,26 @@ install:
 	python2 setup.py install 
 
 test:
-	# LD_LIBRARY_PATH=$(SOLLYA_INSTALL_DIR)/lib:$(LD_LIBRARY_PATH) python2 ./examples/custom.py
-	LD_LIBRARY_PATH=$(SOLLYA_INSTALL_DIR)/lib:$(LD_LIBRARY_PATH) python2 ./tests/check001.sollya.py
+	export LD_LIBRARY_PATH=$(SOLLYA_INSTALL_DIR)/lib:$(LD_LIBRARY_PATH) 
+
+
+
+# $1 test name
+define gen_test_rule
+
+$1.test:
+	mkdir -p $(TEST_GEN_DIR) 
+	python2 ./tests/test_$1.py > $(TEST_GEN_DIR)/test_$1.gen && diff $(TEST_GEN_DIR)/test_$1.gen tests/test_$1.reference && echo "test_$1: success" || echo "test_$1 failed"
+
+test: $1.test
+
+endef
+
+$(foreach test,$(TESTS),\
+	$(eval $(call gen_test_rule,$(test))))
+
 
 sollya_%.pxi: gen_%.py
 	python2 $< > $@
+
+.PHONY: build
