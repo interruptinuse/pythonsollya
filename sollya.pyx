@@ -1,20 +1,41 @@
 # -*- coding: utf-8 -*- vim: sw=2
 
+DEF HAVE_SAGE = False
+
 from csollya cimport *
 cimport libc.stdint
 from cpython.int cimport PyInt_AsLong
+from cpython.long cimport PyLong_AsLong
 from cpython.object cimport Py_LT, Py_LE, Py_EQ, Py_NE, Py_GT, Py_GE
 from cpython.ref cimport Py_INCREF, Py_DECREF
 from cpython.string cimport PyString_AsString, PyString_FromString
 from libc.stdlib cimport malloc, free
 
+IF HAVE_SAGE:
+  from sage.libs.mpfi cimport mpfi_set
+  from sage.libs.mpfr cimport mpfr_rnd_t, mpfr_get_prec
+  from sage.libs.mpfr cimport MPFR_RNDN, MPFR_RNDZ, MPFR_RNDU, MPFR_RNDD
+  from sage.rings.integer cimport Integer
+  from sage.rings.rational cimport Rational
+  from sage.rings.real_mpfi cimport (
+      RealIntervalField_class,
+      RealIntervalFieldElement)
+  from sage.rings.real_mpfr cimport RealNumber, RealField_class
+
 import __builtin__, atexit, collections, inspect, itertools
 import sys, traceback, types, warnings
+
+IF HAVE_SAGE:
+  from sage.rings.real_mpfi import RealIntervalField
+
 
 # Initialization of Sollya library
 sollya_lib_init_with_custom_memory_function_modifiers(NULL, NULL)
 atexit.register(lambda: sollya_lib_close())
 sollya_lib_install_msg_callback(__msg_callback, NULL)
+
+def has_sage_support():
+  return HAVE_SAGE
 
 # Create a new SollyaObject wrapping sollya_val, taking ownership of sollya_val
 # (which will thus be cleared when the SollyaObject gets garbage-collected)
@@ -130,43 +151,37 @@ cdef class SollyaObject:
       raise ValueError("not a boolean")
 
   def __int__(SollyaObject self):
+    r"""
+    Interpret this Sollya object as a Python integer.
+
+    Warning: quadratic complexity.
+    """
+    cdef uint64_t *value
+    cdef int sign
+    cdef size_t len
+    if sollya_lib_get_constant_as_uint64_array(&sign, &value, &len, self.value):
+      res = 0
+      for i in range(len):
+        res = (res << 64) + value[len-1-i]
+      sollya_lib_free(value)
+      res *= cmp(sign, 0)
+      # Attempt to return a Python int (instead of a long) when possible
+      try:
+        return PyLong_AsLong(res)
+      except OverflowError:
+        return res
+    else:
+      raise ValueError("no conversion of this Sollya object to int")
+
+  def getConstantAsInt(SollyaObject self):
+    return int(self)
+
+  def getConstantAsIntLegacy(SollyaObject self):
     cdef int64_t result
     if sollya_lib_get_constant_as_int64(&result, self.value):
       return result
     else:
       raise ValueError("no conversion of this Sollya object to int")
-
-  def getConstantAsInt(SollyaObject self):
-    cdef sollya_obj_t tmp, c64, divr, divr_, prod, rem, c0
-    cdef int64_t result[1]
-    cdef int status
-    tmp = sollya_lib_copy_obj(self.value) #sollya_lib_nearestint(self.value)
-    c64 = sollya_lib_constant_from_int64(1 << 32)
-    c0  = sollya_lib_constant_from_int64(0)
-    weight = 0
-    value = 0
-    wd = 0
-    while sollya_lib_cmp_not_equal(tmp, c0):
-      divr_ = sollya_lib_div(tmp, c64)
-      divr = sollya_lib_nearestint(divr_)
-      prod = sollya_lib_mul(divr, c64)
-      rem = sollya_lib_sub(tmp, prod)
-      status = sollya_lib_get_constant_as_int64(result, rem)
-      value += result[0] * 2**weight
-      weight += 32
-      tmp = sollya_lib_copy_obj(divr)
-      sollya_lib_clear_obj(divr)
-      sollya_lib_clear_obj(rem)
-      sollya_lib_clear_obj(prod)
-      wd += 1
-      if wd > 10: break
-    sollya_lib_clear_obj(tmp)
-    sollya_lib_clear_obj(c64)
-    sollya_lib_clear_obj(c0)
-    return value
-
-  def getConstantAsIntLegacy(SollyaObject self):
-    return int(self)
 
   def getConstantAsUInt(SollyaObject self):
     cdef int i 
@@ -178,7 +193,56 @@ cdef class SollyaObject:
     cdef int i
     cdef double result[1]
     i = sollya_lib_get_constant_as_double(result, self.value)
+    # XXX: handle errors
     return result[0]
+
+  IF HAVE_SAGE:
+
+    def _integer_(self, parent=None):
+      cdef Integer result = <Integer> Integer.__new__(Integer)
+      if sollya_lib_get_constant_as_mpz(result.value, self.value):
+        return result
+      else:
+        raise ValueError("unable to convert this Sollya object "
+            "to a Sage integer")
+
+    def _rational_(self, parent=None):
+      cdef Rational result = <Rational> Rational.__new__(Rational)
+      if sollya_lib_get_constant_as_mpq(result.value, self.value):
+        return result
+      else:
+        raise ValueError("unable to convert this Sollya object "
+            "to a Sage rational")
+
+    def _real_mpfi_(self, RealIntervalField_class parent):
+      cdef double dummy[1]
+      cdef RealIntervalFieldElement result = parent._new()
+      if sollya_lib_get_interval_from_range(result.value, self.value):
+        return result
+      elif sollya_lib_get_constant_as_double(dummy, self.value):
+        # self looks like a constant expression
+        if sollya_lib_evaluate_function_over_interval(result.value, self.value,
+            result.value):
+          return result
+      else:
+        raise ValueError("unable to convert this Sollya object "
+            "to a Sage real interval")
+
+    def _mpfr_(self, RealField_class parent):
+      cdef sollya_obj_t prec, rounded
+      cdef RealNumber result = parent._new()
+      cdef sollya_obj_t rnd = __rounding_mode(parent.rnd) # global, do not free
+      try:
+        prec = sollya_lib_constant_from_int64(mpfr_get_prec(result.value))
+        rounded = sollya_lib_round(self.value, prec, rnd)
+        if sollya_lib_get_constant(result.value, rounded):
+          return result
+        else:
+          raise ValueError("unable to convert this Sollya object "
+              "to a Sage floating-point number")
+      finally:
+        sollya_lib_clear_obj(rounded)
+        sollya_lib_clear_obj(prec)
 
   # Destructuring
 
@@ -206,7 +270,7 @@ cdef class SollyaObject:
 
   def operand(self, n):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
-    if not sollya_lib_get_nth_subfunction(&result.value, self.value, n):
+    if not sollya_lib_get_nth_subfunction(&result.value, self.value, n + 1):
       raise IndexError("operand index out of range or object without operands")
     return result
 
@@ -280,9 +344,12 @@ cdef class SollyaObject:
       if not sollya_lib_get_list_elements(&objs, &length, &is_end_elliptic,
                                           self.value):
         raise RuntimeError("conversion of Sollya list failed")
-      py_objs = [wrap(objs[i]) for i in range(length)]
+      if length == 0:
+        py_objs = [] 
+      else:
+        py_objs = [wrap(objs[i]) for i in range(length)]
       sollya_lib_free(objs)
-      if is_end_elliptic:
+      if is_end_elliptic and not (length == 0):
         py_objs.append(Ellipsis)
       return py_objs
     elif sollya_lib_obj_is_structure(self.value):
@@ -304,14 +371,15 @@ cdef class SollyaObject:
 
   def __iter__(self):
     cdef bint is_end_elliptic = sollya_lib_obj_is_end_elliptic_list(self.value)
+    cdef bint is_list = sollya_lib_obj_is_list(self.value)
     # wrap all elements first to avoid leaking memory if interrupted
     items = self.list()
-    if is_end_elliptic:
+    if is_end_elliptic and not is_list:
       last = items.pop(-1)
       assert last is Ellipsis
     for item in items:
       yield item
-    if is_end_elliptic: # may be slow if the initial part is long
+    if is_end_elliptic and not is_list: # may be slow if the initial part is long
       for i in itertools.count(len(items)):
         yield self[i]
 
@@ -431,6 +499,8 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
     return sollya_lib_true() if op else sollya_lib_false()
   elif isinstance(op, int):
     return sollya_lib_constant_from_int64(PyInt_AsLong(op))
+  elif isinstance(op, long):
+    return pylong_to_sollya_obj_t(op)
   elif op is None:
     return sollya_lib_void()
   elif isinstance(op, basestring):
@@ -468,8 +538,47 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
     return sollya_obj
   elif isinstance(op, types.FunctionType):
     return function_to_sollya_obj_t(op)
+  IF HAVE_SAGE:
+    if isinstance(op, Integer):
+      return sollya_lib_constant_from_mpz((<Integer> op).value)
+    elif isinstance(op, Rational):
+      return sollya_lib_constant_from_mpq((<Rational> op).value)
+    elif isinstance(op, RealIntervalFieldElement):
+      return sollya_lib_range_from_interval(
+          (<RealIntervalFieldElement> op).value)
+    elif isinstance(op, RealNumber):
+      return sollya_lib_constant((<RealNumber> op).value)
+  raise TypeError("unsupported conversion to sollya object", op, op.__class__)
+
+# Warning: quadratic complexity! (Alt options: use the undocumented format of
+# Python longs, go through a base 16 or 32 string representation.)
+cdef sollya_obj_t pylong_to_sollya_obj_t(op):
+  if ((-(1 << 30)) < op) and (op < (1 << 30)):
+    return sollya_lib_constant_from_int64(PyInt_AsLong(op))
+  sollya_obj = sollya_lib_constant_from_int64(PyInt_AsLong(0))
+  if op >= 0:
+    r = op
+    s = 1
   else:
-    raise TypeError("unsupported conversion to sollya object", op, op.__class__)
+    r = -op
+    s = -1
+  w = 0
+  while r != 0:
+    t = r >> 30
+    c = r - (t << 30)
+    sollya_obj = sollya_lib_build_function_add(sollya_obj,
+                    sollya_lib_build_function_mul(
+                      sollya_lib_build_function_pow(
+                        sollya_lib_constant_from_int64(PyInt_AsLong(2)),
+                        sollya_lib_build_function_mul(
+                          sollya_lib_constant_from_int64(PyInt_AsLong(30)),
+                          sollya_lib_constant_from_int64(PyInt_AsLong(w)))),
+                      sollya_lib_constant_from_int64(PyInt_AsLong(c))))
+    w = w + 1
+    r = t
+  if s < 0:
+    sollya_obj = sollya_lib_build_function_neg(sollya_obj)
+  return sollya_lib_simplify(sollya_obj)
 
 include "sollya_settings.pxi"
 include "sollya_func.pxi"
@@ -546,6 +655,23 @@ def function(arg):
         (<SollyaObject> _x_).value,
         as_SollyaObject(arg).value)
   return wrap(sobj)
+
+IF HAVE_SAGE:
+  def sagefunction(arg):
+    r"""
+    Similar to Sollya's function(), but the user-defined function receives a
+    real interval and must return something convertible to a real interval (of
+    the given precision).
+    """
+    cdef sollya_obj_t sobj
+    Py_INCREF(arg)
+    sobj = sollya_lib_libraryfunction_with_data(
+          (<SollyaObject> _x_).value,
+          str(arg),
+          __sage_libraryfunction_callback,
+          <void *> arg,
+          __dealloc_callback)
+    return wrap(sobj)
 
 # Sollya operators (aka base functions)
 
@@ -686,9 +812,28 @@ cdef int __libraryfunction_callback(mpfi_t c_res, mpfi_t c_arg,
     if not sollya_lib_get_interval_from_range(c_res, res1.value):
       return 0 # "currently has no meaning"
     return 1
-  except:
+  except Exception:
     traceback.print_exc() # TBI?
     return 0
+
+IF HAVE_SAGE:
+  cdef int __sage_libraryfunction_callback(mpfi_t c_res, mpfi_t c_arg,
+                                           int diff_order, void *c_fun):
+    cdef RealIntervalField_class IntervalField
+    cdef RealIntervalFieldElement arg, res
+    try:
+      fun = <object> c_fun
+      prec = mpfi_get_prec(c_res)
+      IntervalField = RealIntervalField(prec)
+      arg = IntervalField._new()
+      mpfi_set(arg.value, c_arg)
+      res0 = fun(arg, diff_order, prec)
+      res = IntervalField(res0)
+      mpfi_set(c_res, res.value)
+      return 1
+    except Exception:
+      traceback.print_exc() # TBI?
+      return 0
 
 cdef void __dealloc_callback(void *c_fun):
   fun = <object> c_fun
@@ -701,6 +846,7 @@ cdef int __msg_callback(sollya_msg_t msg, void *data):
     # Quick hack to help debugging python codes that use cythonsollya
     if _print_backtraces:
       traceback.print_stack(None, None, sys.stderr)
+    return 0
 
 
 def cbrt(x):
@@ -763,6 +909,25 @@ tripledouble = wrap(sollya_lib_triple_double_obj())
 
 pi          = wrap(sollya_lib_pi())
 x = _x_     = wrap(sollya_lib_free_variable())
+
+# MPFR -> Sollya rounding modes
+
+IF HAVE_SAGE:
+  cdef sollya_obj_t __sollya_rndn = sollya_lib_round_to_nearest()
+  cdef sollya_obj_t __sollya_rndz = sollya_lib_round_towards_zero()
+  cdef sollya_obj_t __sollya_rndd = sollya_lib_round_down()
+  cdef sollya_obj_t __sollya_rndu = sollya_lib_round_up()
+  cdef sollya_obj_t __rounding_mode(mpfr_rnd_t rnd):
+    if rnd == MPFR_RNDN:
+      return __sollya_rndn
+    elif rnd == MPFR_RNDZ:
+      return __sollya_rndz
+    elif rnd == MPFR_RNDD:
+      return __sollya_rndd
+    elif rnd == MPFR_RNDU:
+      return __sollya_rndu
+    else:
+      raise ValueError("unsupported rounding mode")
 
 # Additional utilities
 

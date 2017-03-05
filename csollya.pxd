@@ -1,22 +1,30 @@
 # vim: sw=2
-from libc.stdint cimport int64_t, uint64_t
 
+DEF HAVE_SAGE = False
+
+from libc.stdint cimport int64_t, uint64_t
 from csollya_ops cimport *
 
-cdef extern from "sollya.h":
-  ### TBI -- shouldn't be here!
-  ctypedef mpz_t
+ctypedef long mp_prec_t
+
+IF HAVE_SAGE:
+  from sage.libs.gmp.all cimport mpz_t, mpq_t
+  from sage.libs.mpfi cimport mpfi_t, mpfi_get_prec, mpfi_init_set_ui
+ELSE:
+  cdef extern from "sollya.h":
+    ctypedef mpfi_t
+    mp_prec_t mpfi_get_prec(mpfi_t)
+    int mpfi_init_set_ui(mpfi_t, unsigned long)
+
+cdef extern from "sollya.h":  # ???
   ctypedef struct __mpfr_struct:
       pass
   ctypedef __mpfr_struct * mpfr_t
-  ctypedef mpfi_t
   # as far as I understand, the generated code will use the true mp_prec_t
   # even if != long
-  ctypedef long mp_prec_t
   void mpfr_set_prec (mpfr_t x, mp_prec_t prec)
-  mp_prec_t mpfi_get_prec(mpfi_t)
-  int mpfi_init_set_ui(mpfi_t, unsigned long)
-  ###
+
+cdef extern from "sollya.h":
 
   ctypedef int mpfr_rnd_t
   mpfr_t mpfr_cbrt(mpfr_t, mpfr_t, mpfr_rnd_t) 
@@ -286,7 +294,6 @@ cdef extern from "sollya.h":
   sollya_obj_t sollya_lib_constant_from_int64(int64_t)
   sollya_obj_t sollya_lib_constant_from_uint64(uint64_t)
   sollya_obj_t sollya_lib_constant_from_mpz(mpz_t)
-  #sollya_obj_t sollya_lib_constant_from_mpq(mpq_t)
   bint sollya_lib_get_interval_from_range(mpfi_t, sollya_obj_t)
   bint sollya_lib_get_bounds_from_range(mpfr_t, mpfr_t, sollya_obj_t)
   bint sollya_lib_get_string(char **, sollya_obj_t)
@@ -298,7 +305,11 @@ cdef extern from "sollya.h":
   bint sollya_lib_get_prec_of_constant(mp_prec_t *, sollya_obj_t)
   bint sollya_lib_get_prec_of_range(mp_prec_t *, sollya_obj_t)
   bint sollya_lib_get_constant_as_mpz(mpz_t, sollya_obj_t)
-  # bint sollya_lib_get_constant_as_mpq(mpq_t, sollya_obj_t)
+  bint sollya_lib_get_constant_as_uint64_array(int *, uint64_t **, size_t *, sollya_obj_t)
+
+  IF HAVE_SAGE:
+    sollya_obj_t sollya_lib_constant_from_mpq(mpq_t)
+    bint sollya_lib_get_constant_as_mpq(mpq_t, sollya_obj_t)
 
   sollya_obj_t sollya_lib_list(sollya_obj_t[], int)
   sollya_obj_t sollya_lib_end_elliptic_list(sollya_obj_t[], int)
@@ -346,5 +357,11 @@ cdef extern from "sollya.h":
   sollya_obj_t sollya_lib_get_object_list_head(sollya_obj_list_t)
 
   # Omitted: sollya_*_lib_t and related functions
+
+  sollya_obj_t sollya_lib_build_function_add(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_build_function_mul(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_build_function_pow(sollya_obj_t, sollya_obj_t)
+  sollya_obj_t sollya_lib_build_function_neg(sollya_obj_t)
+
 
 # vim: sw=2
