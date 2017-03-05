@@ -1,0 +1,3 @@
+verbosity = 0!;
+printfloat(1.1);
+printdouble(1.3);
