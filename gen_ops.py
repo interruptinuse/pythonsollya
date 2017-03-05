@@ -1,3 +1,5 @@
+#  Generate __operator_names: a list of Sollya base function.
+#  Should be fed with the list of SOLLYA_BASE_FUNC_* functions
 import sys
 
 ops = []
