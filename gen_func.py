@@ -1,4 +1,6 @@
 # coding: utf-8 vim:sw=2
+import os
+
 
 class sollya_obj_t: 
   python_class     = "SollyaObject"
@@ -75,7 +77,8 @@ class SOT:
 
   def docstring(self):
     from subprocess import Popen, PIPE
-    interpreter = Popen(['sollya'], stdin=PIPE, stdout=PIPE)
+    sollya_bin = os.path.join(os.environ['SOLLYA_INSTALL_DIR'], 'bin', 'sollya') if 'SOLLYA_INSTALL_DIR' in os.environ else 'sollya'
+    interpreter = Popen([sollya_bin], stdin=PIPE, stdout=PIPE)
     command = "help {};".format(self.interactive_name)
     help_text = interpreter.communicate(command)[0]
     help_lines = help_text.split('\n')
