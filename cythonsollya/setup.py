@@ -10,15 +10,17 @@ logging.basicConfig(level=logging.INFO)
 options = {
   "cython_compile_time_env": {}
 }
-try:
-  import sage.env
-  logging.info("Building with SageMath support")
-  options["include_dirs"] = sage.env.sage_include_directories()
-  options["cython_compile_time_env"]["HAVE_SAGE"] = True
-except ImportError:
-  logging.info("SageMath not found, building in pure Python mode")
-  options["cython_compile_time_env"]["HAVE_SAGE"] = False
-  pass
+# try:
+#   import sage.env
+#   logging.info("Building with SageMath support")
+#   options["include_dirs"] = sage.env.sage_include_directories()
+#   options["cython_compile_time_env"]["HAVE_SAGE"] = True
+# except ImportError:
+#   logging.info("SageMath not found, building in pure Python mode")
+#   options["cython_compile_time_env"]["HAVE_SAGE"] = False
+#   pass
+#
+options["cython_compile_time_env"]["HAVE_SAGE"] = False
 
 ext_modules = [
   Extension(
