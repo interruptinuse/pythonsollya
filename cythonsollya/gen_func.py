@@ -1,5 +1,7 @@
 # coding: utf-8 vim:sw=2
 
+from __future__ import print_function
+
 class sollya_obj_t: 
   python_class     = "SollyaObject"
   c_format         = "sollya_obj_t"
@@ -75,7 +77,8 @@ class SOT:
 
   def docstring(self):
     from subprocess import Popen, PIPE
-    interpreter = Popen(['sollya'], stdin=PIPE, stdout=PIPE)
+    interpreter = Popen(['sollya'], stdin=PIPE, stdout=PIPE,
+                        universal_newlines=True)
     command = "help {};".format(self.interactive_name)
     help_text = interpreter.communicate(command)[0]
     help_lines = help_text.split('\n')
@@ -128,14 +131,14 @@ class SOT:
     else:
       # optional arguments
       code_op_decl += self.return_format.result_decl_gen("result", tab = 2)
-      for i in xrange(num_opt_inputs+1):
-        call_opt_list = call_op_list + ["sollya_opt_op%d" % j for j in xrange(i)]
+      for i in range(num_opt_inputs+1):
+        call_opt_list = call_op_list + ["sollya_opt_op%d" % j for j in range(i)]
         if self.variadic:
           call_opt_list.append("NULL")
         call_code = "%s(%s)" % (self.name, ", ".join(call_opt_list))
         result = self.return_format.result_asgn_gen("result", call_code, tab = 4)
         code_op_decl += "  if len(opt_args) == %d:\n" % i
-        for j in xrange(i):
+        for j in range(i):
           op_format = self.optional_inputs[j]
           code_op_decl += "    sollya_opt_op%d = %s(opt_args[%d])\n" % (j,op_format.convert_function,j)
         code_op_decl += result + "\n"
@@ -258,4 +261,4 @@ sollya_h_list = [ # should match the order of declarations in sollya.h
 
 if __name__ == "__main__":
   for func in sollya_h_list:
-    print func.generate_binding()
+    print(func.generate_binding())

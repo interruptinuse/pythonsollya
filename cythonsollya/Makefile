@@ -4,7 +4,7 @@ SOLLYA_DIR = /usr/local
 CPPFLAGS = -I${SOLLYA_DIR}/include
 LDFLAGS = -L${SOLLYA_DIR}/lib
 PYTHONPATH = $(shell PYTHONUSERBASE=${PREFIX} ${PYTHON} -c "import site; \
-	     print site.getusersitepackages()")
+	     print(site.getusersitepackages())")
 
 export LDFLAGS CPPFLAGS PYTHONPATH
 

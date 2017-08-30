@@ -19,9 +19,9 @@ sollya_settings = [
   "hopitalrecursions",
 ]
 
-print "cdef class __Settings0(object):"
+print("cdef class __Settings0(object):")
 for name in sollya_settings:
-    print r"""
+    print(r"""
     property {name}:
         def __get__(self):
             return wrap(sollya_lib_get_{name}())
@@ -31,4 +31,4 @@ for name in sollya_settings:
             cdef sollya_obj_t default = sollya_lib_default()
             sollya_lib_set_{name}(default)
             sollya_lib_clear_obj(default)
-    """.format(name=name)
+    """.format(name=name))
