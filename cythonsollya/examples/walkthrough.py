@@ -16,8 +16,8 @@ manipulated directly.
 >>> sollya.x
 x
 
->>> type(sollya.x)
-<type 'sollya.SollyaObject'>
+>>> type(sollya.x) # doctest: +ELLIPSIS
+<... 'sollya.SollyaObject'>
 
 >>> sollya.Interval(1, 2)
 [1;2]
@@ -105,8 +105,8 @@ Destructuring of Sollya “functions” (symbolic expressions):
 >>> expr.operator()
 ADD
 
->>> type(expr.operator())
-<type 'sollya.SollyaOperator'>
+>>> type(expr.operator()) # doctest: +ELLIPSIS
+<... 'sollya.SollyaOperator'>
 
 >>> SollyaOperator("sub")(*expr.operands())
 exp(1) - 2 * x
@@ -141,7 +141,7 @@ value
 >>> SollyaObject({"éé": 1}) # doctest: +ELLIPSIS
 Traceback (most recent call last):
 ...
-RuntimeError: creation of Sollya structure failed
+Unicode...Error: 'ascii' codec can't...
 
 Sollya global settings are accessed as follows:
 

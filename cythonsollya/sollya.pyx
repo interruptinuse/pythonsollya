@@ -371,7 +371,8 @@ cdef class SollyaObject:
       if not sollya_lib_get_structure_elements(&names, &objs, &length,
                                                self.value):
         raise RuntimeError("conversion of Sollya structure failed")
-      pairs = [(PyBytes_FromString(names[i]), wrap(objs[i]))
+      pairs = [(str(PyBytes_FromString(names[i]).decode("ascii")),
+                wrap(objs[i]))
                for i in range(length)]
       for i in range(length):
         sollya_lib_free(names[i])
@@ -550,7 +551,8 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
     for name in op.keys():
       old_sollya_obj = sollya_obj
       if not sollya_lib_create_structure(&sollya_obj, sollya_obj,
-          PyBytes_AsString(name), as_SollyaObject(op[name]).value):
+          PyBytes_AsString(name.encode('ascii')),
+          as_SollyaObject(op[name]).value):
         raise RuntimeError("creation of Sollya structure failed")
       sollya_lib_clear_obj(old_sollya_obj)
     return sollya_obj
@@ -664,7 +666,7 @@ def libraryconstant(arg):
     Py_INCREF(arg)
     return wrap(
         sollya_lib_libraryconstant_with_data(
-          "py_" + arg.__name__,
+          ("py_" + arg.__name__).encode("ascii"),
           __libraryconstant_callback,
           <void *> arg,
           __dealloc_callback))
@@ -677,7 +679,7 @@ def function(arg):
     Py_INCREF(arg)
     sobj = sollya_lib_libraryfunction_with_data(
           (<SollyaObject> _x_).value,
-          "py_" + arg.__name__,
+          ("py_" + arg.__name__).encode("ascii"),
           __libraryfunction_callback,
           <void *> arg,
           __dealloc_callback)
@@ -724,7 +726,7 @@ cdef class SollyaOperator:
       raise ValueError("unknown Sollya operator")
 
   def __repr__(self):
-    return decode_string(__operator_names[self.value])
+    return __operator_names[self.value]
 
   def __richcmp__(SollyaOperator self, SollyaOperator other, cmp_op):
     if cmp_op == Py_EQ:
@@ -768,7 +770,8 @@ cdef class SollyaStructureWrapper:
 
   def __getattribute__(self, name):
     cdef SollyaObject res = SollyaObject.__new__(SollyaObject)
-    if not sollya_lib_get_element_in_structure(&res.value, PyBytes_AsString(name),
+    if not sollya_lib_get_element_in_structure(&res.value,
+        PyBytes_AsString(name.encode("ascii")),
         self.obj.value):
       raise AttributeError(name) # ?
     else:
@@ -777,7 +780,7 @@ cdef class SollyaStructureWrapper:
   def __setattr__(self, name, val):
     cdef sollya_obj_t old_struct = self.obj.value
     if not sollya_lib_create_structure(&self.obj.value, self.obj.value,
-        PyBytes_AsString(name), as_SollyaObject(val).value):
+        PyBytes_AsString(name.encode("ascii")), as_SollyaObject(val).value):
       raise RuntimeError("update of Sollya srstructure failed")
     sollya_lib_clear_obj(old_struct)
 
@@ -796,7 +799,7 @@ cdef sollya_obj_t function_to_sollya_obj_t(fun) except NULL:
   Py_INCREF(fun)
   cdef sollya_obj_t sollya_obj = sollya_lib_externalprocedure_with_data(
       SOLLYA_EXTERNALPROC_TYPE_OBJECT, sollya_argspec, arity,
-      "py_" + fun.__name__, callback, <void *>fun,
+      ("py_" + fun.__name__).encode("ascii"), callback, <void *>fun,
       __dealloc_callback)
   free(sollya_argspec)
   return sollya_obj

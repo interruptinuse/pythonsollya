@@ -10,8 +10,8 @@ given at the Pequan seminar at LIP6 on 2016-01-18.
 >>> sollya.SollyaObject(42) + 17
 59
 
->>> type(_)
-<type 'sollya.SollyaObject'>
+>>> type(_) # doctest: +ELLIPSIS
+<... 'sollya.SollyaObject'>
 
 >>> int(sollya.SollyaObject(42) + 17)
 59
@@ -104,10 +104,10 @@ Hello world
 >>> SollyaObject(True)
 true
 
->>> if SollyaObject(True): print "a"
+>>> if SollyaObject(True): print("a")
 a
 
->>> if SollyaObject(False): print "b"
+>>> if SollyaObject(False): print("b")
 
 >>> exp(17) < 2**42
 True
