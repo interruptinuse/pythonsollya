@@ -1,4 +1,4 @@
-<TeXmacs|1.99.2>
+<TeXmacs|1.99.4>
 
 <style|<tuple|generic|american>>
 
@@ -70,7 +70,8 @@
     <\unfolded-io>
       \<gtr\>\<gtr\>\<gtr\>\ 
     <|unfolded-io>
-      sollya.SollyaObject([True, "hello", SollyaObject([]), None, Ellipsis])
+      sollya.SollyaObject([True, "hello", sollya.SollyaObject([]), None,
+      Ellipsis])
     <|unfolded-io>
       [\|true, "hello", [\| \|], void...\|]
     </unfolded-io>
@@ -236,7 +237,7 @@
     </unfolded-io>
   </session>
 
-  Destructuring of Sollya ``functions'' (symbolic expressions):
+  Destructuring of Sollya \Pfunctions\Q (symbolic expressions):
 
   <\session|python|default>
     <\unfolded-io>
