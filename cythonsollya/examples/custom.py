@@ -3,6 +3,10 @@ import sollya
 class BinaryFloatingPointFormat(object):
     r"""
     An object with a custom conversion to Sollya.
+
+    >>> import sollya
+    >>> sollya.SollyaObject(BinaryFloatingPointFormat(16))
+    halfprecision
     """
 
     def __init__(self, size):

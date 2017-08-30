@@ -8,9 +8,9 @@ PYTHONPATH = $(shell PYTHONUSERBASE=${PREFIX} ${PYTHON} -c "import site; \
 
 export LDFLAGS CPPFLAGS PYTHONPATH
 
-.PHONY: build install srctarball
+.PHONY: install srctarball test
 
-build: sollya_func.pxi sollya_settings.pxi sollya_ops.pxi csollya_ops.pxd
+sollya.so: sollya_func.pxi sollya_settings.pxi sollya_ops.pxi csollya_ops.pxd
 	${PYTHON} setup.py build_ext --inplace
 
 install:
@@ -30,3 +30,13 @@ gitrev = $(shell git rev-parse --short HEAD)
 
 srctarball:
 	git archive -o cythonsollya-$(gitrev).tar.gz HEAD
+
+TESTS=examples/more.py examples/pequan.py examples/walkthrough.py
+
+test: sollya.so
+	@for f in ${TESTS}; do \
+	    echo Testing $$f; \
+	    LD_LIBRARY_PATH=${SOLLYA_DIR}/lib \
+	    PYTHONPATH=${PWD} \
+	    ${PYTHON} -m doctest $$f; \
+	done
