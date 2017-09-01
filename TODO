@@ -11,3 +11,4 @@
   a file???
 - valgrind
 - support min([a, b, c]), plot([f, g], ...), etc.?
+- support interruption by signals, probably using cysignals

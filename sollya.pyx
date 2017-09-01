@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*- vim: sw=2
 
-DEF HAVE_SAGE = False
+from __future__ import division, print_function
 
 from csollya cimport *
 cimport libc.stdint
+from cpython.bytes cimport PyBytes_AsString, PyBytes_FromString
 from cpython.int cimport PyInt_AsLong
 from cpython.long cimport PyLong_AsLong
 from cpython.object cimport Py_LT, Py_LE, Py_EQ, Py_NE, Py_GT, Py_GE
 from cpython.ref cimport Py_INCREF, Py_DECREF
-from cpython.string cimport PyString_AsString, PyString_FromString
 from libc.stdlib cimport malloc, free
 
 IF HAVE_SAGE:
@@ -22,7 +22,8 @@ IF HAVE_SAGE:
       RealIntervalFieldElement)
   from sage.rings.real_mpfr cimport RealNumber, RealField_class
 
-import __builtin__, atexit, collections, inspect, itertools
+from six.moves import builtins
+import atexit, collections, contextlib, inspect, itertools, locale
 import sys, traceback, types, warnings
 
 IF HAVE_SAGE:
@@ -49,6 +50,20 @@ cdef SollyaObject as_SollyaObject(op):
     return op
   else:
     return SollyaObject(op)
+
+cdef decode_string(b):
+  # The user will need to call setlocale(LC_ALL, '') for strings returned by
+  # Sollya to be displayed according to the user's LC_CTYPE if it is not set to
+  # (ASCII or) UTF-8. Not sure if that's the right thing to do.
+  enc = locale.getpreferredencoding(False)
+  try:
+    return b.decode(encoding=enc)
+  except UnicodeDecodeError:
+    return b.decode(encoding='utf-8')
+
+cdef encode_string(s):
+  enc = locale.getpreferredencoding(False)
+  return s.encode(enc)
 
 # WARNING: We rely pretty extensively on the lifetime of temporary
 # SollyaObjects extending at least up to the next call to Python (e.g. in
@@ -90,7 +105,7 @@ cdef class SollyaObject:
     if n > 0:
       result_str = <char*>malloc(n+1)
       sollya_lib_snprintf(result_str, n+1, <char*>"%b", <sollya_obj_t>self.value)
-      return result_str
+      return decode_string(result_str)
     else:
       return ""
 
@@ -164,7 +179,10 @@ cdef class SollyaObject:
       for i in range(len):
         res = (res << 64) + value[len-1-i]
       sollya_lib_free(value)
-      res *= cmp(sign, 0)
+      if sign == 0:
+        res = 0
+      elif sign < 0:
+        res = -res
       # Attempt to return a Python int (instead of a long) when possible
       try:
         return PyLong_AsLong(res)
@@ -359,7 +377,8 @@ cdef class SollyaObject:
       if not sollya_lib_get_structure_elements(&names, &objs, &length,
                                                self.value):
         raise RuntimeError("conversion of Sollya structure failed")
-      pairs = [(PyString_FromString(names[i]), wrap(objs[i]))
+      pairs = [(str(PyBytes_FromString(names[i]).decode("ascii")),
+                wrap(objs[i]))
                for i in range(length)]
       for i in range(length):
         sollya_lib_free(names[i])
@@ -444,6 +463,13 @@ cdef class SollyaObject:
     result.value = sollya_lib_div(op0.value, op1.value)
     return result
 
+  def __truediv__(left, right):
+    cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
+    cdef SollyaObject op0 = as_SollyaObject(left)
+    cdef SollyaObject op1 = as_SollyaObject(right)
+    result.value = sollya_lib_div(op0.value, op1.value)
+    return result
+
   def __pow__(self, op, modulo):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
     cdef SollyaObject op0 = as_SollyaObject(self)
@@ -492,7 +518,7 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
   if isinstance(op, SollyaObject):
     return sollya_lib_copy_obj((<SollyaObject>op).value)
   elif hasattr(op, '_sollya_'):
-    return sollya_lib_copy_obj((<SollyaObject>(op._sollya_())).value)
+    return sollya_lib_copy_obj((<SollyaObject ?>(op._sollya_())).value)
   elif isinstance(op, float):
     return sollya_lib_constant_from_double(<double>op)
   elif isinstance(op, bool):
@@ -506,7 +532,7 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
   elif isinstance(op, basestring):
     # Sollya strings are byte arrays, with no associated encoding. Can/should
     # we do better than the following for some types of Python strings?
-    return sollya_lib_string(PyString_AsString(op))
+    return sollya_lib_string(PyBytes_AsString(encode_string(op)))
   elif isinstance(op, collections.Sequence):
     n = len(op)
     if n > 0 and op[-1] is Ellipsis:
@@ -532,7 +558,8 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
     for name in op.keys():
       old_sollya_obj = sollya_obj
       if not sollya_lib_create_structure(&sollya_obj, sollya_obj,
-          PyString_AsString(name), as_SollyaObject(op[name]).value):
+          PyBytes_AsString(name.encode('ascii')),
+          as_SollyaObject(op[name]).value):
         raise RuntimeError("creation of Sollya structure failed")
       sollya_lib_clear_obj(old_sollya_obj)
     return sollya_obj
@@ -580,8 +607,21 @@ cdef sollya_obj_t pylong_to_sollya_obj_t(op):
     sollya_obj = sollya_lib_build_function_neg(sollya_obj)
   return sollya_lib_simplify(sollya_obj)
 
-include "sollya_settings.pxi"
 include "sollya_func.pxi"
+include "sollya_settings.pxi"
+
+class __Settings(__Settings0):
+
+  @contextlib.contextmanager
+  def __call__(self, **kwds):
+    saved = {name: getattr(self, name) for name in kwds}
+    for name, value in kwds.iteritems():
+      setattr(self, name, value)
+    yield
+    for name, value in saved.iteritems():
+      setattr(self, name, value)
+
+settings = __Settings()
 
 # Commands and built-in procedures requiring special handling
 
@@ -624,7 +664,7 @@ def autoprint(obj):
   """
   if isinstance(obj, SollyaObject):
     sollya_lib_autoprint((<SollyaObject> obj).value, NULL)
-    __builtin__._ = obj
+    builtins._ = obj
   else:
     __displayhook(obj)
 
@@ -633,7 +673,7 @@ def libraryconstant(arg):
     Py_INCREF(arg)
     return wrap(
         sollya_lib_libraryconstant_with_data(
-          arg.__name__,
+          ("py_" + arg.__name__).encode("ascii"),
           __libraryconstant_callback,
           <void *> arg,
           __dealloc_callback))
@@ -646,7 +686,7 @@ def function(arg):
     Py_INCREF(arg)
     sobj = sollya_lib_libraryfunction_with_data(
           (<SollyaObject> _x_).value,
-          arg.__name__,
+          ("py_" + arg.__name__).encode("ascii"),
           __libraryfunction_callback,
           <void *> arg,
           __dealloc_callback)
@@ -665,9 +705,13 @@ IF HAVE_SAGE:
     """
     cdef sollya_obj_t sobj
     Py_INCREF(arg)
+    try:
+      name = arg.__name__
+    except AttributeError:
+      name = str(arg)
     sobj = sollya_lib_libraryfunction_with_data(
           (<SollyaObject> _x_).value,
-          str(arg),
+          "sage_" + name,
           __sage_libraryfunction_callback,
           <void *> arg,
           __dealloc_callback)
@@ -733,7 +777,8 @@ cdef class SollyaStructureWrapper:
 
   def __getattribute__(self, name):
     cdef SollyaObject res = SollyaObject.__new__(SollyaObject)
-    if not sollya_lib_get_element_in_structure(&res.value, PyString_AsString(name),
+    if not sollya_lib_get_element_in_structure(&res.value,
+        PyBytes_AsString(name.encode("ascii")),
         self.obj.value):
       raise AttributeError(name) # ?
     else:
@@ -742,7 +787,7 @@ cdef class SollyaStructureWrapper:
   def __setattr__(self, name, val):
     cdef sollya_obj_t old_struct = self.obj.value
     if not sollya_lib_create_structure(&self.obj.value, self.obj.value,
-        PyString_AsString(name), as_SollyaObject(val).value):
+        PyBytes_AsString(name.encode("ascii")), as_SollyaObject(val).value):
       raise RuntimeError("update of Sollya srstructure failed")
     sollya_lib_clear_obj(old_struct)
 
@@ -761,7 +806,7 @@ cdef sollya_obj_t function_to_sollya_obj_t(fun) except NULL:
   Py_INCREF(fun)
   cdef sollya_obj_t sollya_obj = sollya_lib_externalprocedure_with_data(
       SOLLYA_EXTERNALPROC_TYPE_OBJECT, sollya_argspec, arity,
-      fun.__name__, callback, <void *>fun,
+      ("py_" + fun.__name__).encode("ascii"), callback, <void *>fun,
       __dealloc_callback)
   free(sollya_argspec)
   return sollya_obj
@@ -840,13 +885,14 @@ cdef void __dealloc_callback(void *c_fun):
   Py_DECREF(fun)
 
 _print_backtraces = False
+_print_native_messages = False
 
-cdef int __msg_callback(sollya_msg_t msg, void *data):
+cdef bint __msg_callback(sollya_msg_t msg, void *data):
     sys.stderr.write(sollya_lib_msg_to_text(msg) + "\n")
     # Quick hack to help debugging python codes that use cythonsollya
     if _print_backtraces:
       traceback.print_stack(None, None, sys.stderr)
-    return 0
+    return _print_native_messages
 
 
 def cbrt(x):

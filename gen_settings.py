@@ -21,9 +21,9 @@ sollya_settings = [
   "hopitalrecursions",
 ]
 
-print "cdef class __Settings(object):"
+print("cdef class __Settings0(object):")
 for name in sollya_settings:
-    print r"""
+    print(r"""
     property {name}:
         def __get__(self):
             return wrap(sollya_lib_get_{name}())

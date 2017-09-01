@@ -25,7 +25,7 @@ build PythonSollya with Sage support if possible. Thus, with a typical setup,
 
 will build pure Python bindings, while
 
-    $ sage -sh -c make SOLLYA_DIR="$HOME/opt/sollya"
+    $ sage -sh -c "make SOLLYA_DIR=$HOME/opt/sollya"
 
 will build Python+Sage bindings.
 
@@ -34,3 +34,21 @@ USAGE:
 There is no real user manual (yet?), but see the examples/ directory for
 some usage examples. Most functions behave like their interactive Sollya
 counterparts.
+
+MISCELLANEOUS NOTES:
+
+- Using PythonSollya with Sollya plugins
+
+  When loaded from Sollya, plugins such as externalprocs and libraryfunctions
+  can call libsollya functions without having to link to libsollya. Under
+  PythonSollya, however, libsollya symbols typically are not accessible to
+  shared libraries loaded after the sollya module is imported. To make Sollya
+  plugins that call into libsollya work with PythonSollya, please either
+  explicitly link to libsollya when compiling the plugin, or force Python to
+  load PythonSollya with global symbol visibility, using something like:
+
+    import sys, DLFCN
+    sys.setdlopenflags(DLFCN.RTLD_NOW | DLFCN.RTLD_GLOBAL)
+    import sollya
+
+  See dlopen(3) for more information.
