@@ -2,10 +2,11 @@ image: registry.gitlab.com/metalibm-dev/pythonsollya:ci
 
 before_script:
 
-python2:
-    - export LD_LIBRARY_PATH=/usr/local/lib # exposing libsollya.so
-    - export PYTHON=python2
-    - make build # building pythonsollya
-    - make install # installing pythonsollya
-    - make test # testing pythonsollya
+valid_python2:
+    script:
+        - export LD_LIBRARY_PATH=/usr/local/lib # exposing libsollya.so
+        - export PYTHON=python2
+        - make build # building pythonsollya
+        - make install # installing pythonsollya
+        - make test # testing pythonsollya
 
