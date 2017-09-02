@@ -1,4 +1,4 @@
-PYTHON = python2
+PYTHON ?= python2
 PREFIX = /usr/local
 SOLLYA_DIR = /usr/local
 CPPFLAGS = -I${SOLLYA_DIR}/include
