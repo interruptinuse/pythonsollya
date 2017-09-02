@@ -33,7 +33,7 @@ ext_modules = [
 
 setup(
   name="sollya",
-  version="0.1",
+  version="0.1.c",
   description="Python wrapper to sollya library",
   author="Nicolas Brunie, Marc Mezzarobba",
   author_email="nicolas.brunie@kalray.eu",

@@ -10,10 +10,13 @@ export LDFLAGS CPPFLAGS PYTHONPATH
 
 .PHONY: install srctarball test
 
-sollya.so: sollya_func.pxi sollya_settings.pxi sollya_ops.pxi csollya_ops.pxd
+PYTHONSOLLYA_GEN_DEPS := sollya_func.pxi sollya_settings.pxi \
+                         sollya_ops.pxi csollya_ops.pxd
+
+sollya.so: $(PYTHONSOLLYA_GEN_DEPS)
 	${PYTHON} setup.py build_ext --inplace
 
-install:
+install: sollya.so
 	@mkdir -p ${PYTHONPATH}
 	${PYTHON} setup.py install --prefix ${PREFIX}
 
