@@ -21,8 +21,8 @@ void
 >>> SollyaObject([1, Ellipsis])
 [|1...|]
 
->>> SollyaObject({"field": "value", "other_field": 42})
-{ .field = "value", .other_field = 42 }
+>>> sorted(SollyaObject({"field": "value", "other_field": 42}))
+[('field', value), ('other_field', 42)]
 
 >>> SollyaObject(lambda x: x+1)(16)
 17

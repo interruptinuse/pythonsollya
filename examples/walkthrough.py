@@ -115,8 +115,8 @@ Sollya structures are supported, and can be converted from/to Python
 dictionaries:
 
 >>> s = SollyaObject({"field": "value", "other_field": 17})
->>> s
-{ .field = "value", .other_field = 17 }
+>>> sorted(s)
+[('field', value), ('other_field', 17)]
 
 >>> s.is_structure()
 True
@@ -129,14 +129,16 @@ value
 
 >>> s.struct.field = None
 
->>> s
-{ .other_field = 17, .field = void }
+>>> sorted(s)
+[('field', void), ('other_field', 17)]
 
->>> dict(s)
-{'other_field': 17, 'field': void}
+>>> sorted(dict(s).items())
+[('field', void), ('other_field', 17)]
 
->>> list(s)
-[('other_field', 17), ('field', void)]
+
+>>> sorted(list(s))
+[('field', void), ('other_field', 17)]
+
 
 >>> SollyaObject({"éé": 1}) # doctest: +ELLIPSIS
 Traceback (most recent call last):

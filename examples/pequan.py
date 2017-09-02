@@ -144,19 +144,20 @@ Coucou
 ...    "f": exp(x),
 ...    "I": Interval(-1, 1)
 ... })
->>> a
-{ .f = exp(_x_), .I = [-1;1] }
+>>> sorted(a)
+[('I', [-1;1]), ('f', exp(_x_))]
+
 
 >>> a.struct.f
 exp(_x_)
 
 >>> a.struct.I = Interval(-2, 2)
 >>> a.struct.accuracy = 2**-45
->>> a
-{ .accuracy = 2.8421709430404007434844970703125e-14, .f = exp(_x_), .I = [-2;2] }
+>>> sorted(a)
+[('I', [-2;2]), ('accuracy', 2.8421709430404007434844970703125e-14), ('f', exp(_x_))]
 
->>> dict(a)
-{'I': [-2;2], 'f': exp(_x_), 'accuracy': 2.8421709430404007434844970703125e-14}
+>>> sorted(dict(a).items())
+[('I', [-2;2]), ('accuracy', 2.8421709430404007434844970703125e-14), ('f', exp(_x_))]
 
 >>> succ = parse("proc(i) { return i+1; };")
 >>> succ(1)
