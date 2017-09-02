@@ -621,6 +621,7 @@ class __Settings(__Settings0):
     for name, value in saved.iteritems():
       setattr(self, name, value)
 
+## defining settings global variable
 settings = __Settings()
 
 # Commands and built-in procedures requiring special handling
