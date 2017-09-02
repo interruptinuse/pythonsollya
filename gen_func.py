@@ -1,8 +1,9 @@
 # coding: utf-8 vim:sw=2
+from __future__ import print_function
+
 import os
 
 
-from __future__ import print_function
 
 class sollya_obj_t: 
   python_class     = "SollyaObject"
