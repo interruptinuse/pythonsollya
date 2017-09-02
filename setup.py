@@ -1,32 +1,42 @@
-from distutils.core import setup
-from distutils.extension import Extension
-from Cython.Build import cythonize
-import os
+# -*- coding: utf-8 -*- vim:sw=2
 
-# if env's variable SOLLYA_INSTALL_DIR is set
-# use it to determine path for sollya header
-# and library
-# if not fallback on default directories
-sollya_include_dir = os.path.join(os.environ['SOLLYA_INSTALL_DIR'], "include") if "SOLLYA_INSTALL_DIR" in os.environ else ""
-sollya_library_dir = os.path.join(os.environ['SOLLYA_INSTALL_DIR'], "lib") if "SOLLYA_INSTALL_DIR" in os.environ else ""
+import logging
+from setuptools import setup
+from Cython.Distutils.extension import Extension
+from Cython.Distutils.build_ext import build_ext
 
+logging.basicConfig(level=logging.INFO)
+
+options = {
+  "cython_compile_time_env": {}
+}
+# try:
+#   import sage.env
+#   logging.info("Building with SageMath support")
+#   options["include_dirs"] = sage.env.sage_include_directories()
+#   options["cython_compile_time_env"]["HAVE_SAGE"] = True
+# except ImportError:
+#   logging.info("SageMath not found, building in pure Python mode")
+#   options["cython_compile_time_env"]["HAVE_SAGE"] = False
+#   pass
+#
+options["cython_compile_time_env"]["HAVE_SAGE"] = False
+
+ext_modules = [
+  Extension(
+    "sollya",
+    ["sollya.pyx"],
+    libraries=["sollya"],
+    **options
+  ),
+]
 
 setup(
-  name = "sollya",
-  version = "0.1",
-  description = "Python wrapper to sollya library",
-  author = "Nicolas Brunie, Marc Mezzarobba",
-  author_email = "nicolas.brunie@kalray.eu",
-  ext_modules = 
-    cythonize(
-    [
-      Extension(
-        "sollya", 
-        ["sollya.pyx"],
-        include_dirs = [sollya_include_dir], 
-        library_dirs = [sollya_library_dir], 
-        libraries = ["sollya"]
-      )
-    ],
-  ),
+  name="sollya",
+  version="0.1",
+  description="Python wrapper to sollya library",
+  author="Nicolas Brunie, Marc Mezzarobba",
+  author_email="nicolas.brunie@kalray.eu",
+  ext_modules=ext_modules,
+  cmdclass = {'build_ext': build_ext},
 )
