@@ -3,6 +3,7 @@
 from __future__ import division, print_function
 
 from csollya cimport *
+from sollya cimport *
 cimport libc.stdint
 from cpython.bytes cimport PyBytes_AsString, PyBytes_FromString
 from cpython.int cimport PyInt_AsLong
@@ -896,20 +897,6 @@ cdef bint __msg_callback(sollya_msg_t msg, void *data):
     return _print_native_messages
 
 
-def cbrt(x):
-  """ Custom wrapper for MPFR Cubic Root function """
-  cdef mpfr_t op, result
-  cdef int prec = 100
-  cdef SollyaObject res = SollyaObject.__new__(SollyaObject)
-
-  mpfr_init2(op, prec)
-  mpfr_init2(result, prec)
-  sollya_lib_get_constant(op, as_SollyaObject(x).value)
-  mpfr_cbrt(result, op, MPFR_RNDN)
-  res.value = sollya_lib_constant(result)
-  mpfr_clear(op)
-  mpfr_clear(result)
-  return res
 
 # Global constants
 

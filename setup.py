@@ -29,6 +29,12 @@ ext_modules = [
     libraries=["sollya"],
     **options
   ),
+  Extension(
+    "sollya_extra_functions",
+    ["sollya.pyx", "extra_functions.pyx"],
+    libraries=["sollya"],
+    **options
+  ),
 ]
 
 setup(
