@@ -1,6 +1,8 @@
-image: registry.gitlab.com/metalibm-dev/pythonsollya:ci
+image: registry.gitlab.com/metalibm-dev/pythonsollya:ci_sollya_master
 
 before_script:
+    - git clone https://scm.gforge.inria.fr/anonscm/git/sollya/sollya.git -b master sollya_git
+    - cd sollya_git && sh autogen.sh && ./configure && make && make install && cd ..
     - export LD_LIBRARY_PATH=/usr/local/lib # exposing libsollya.so
 
 valid_python2:
