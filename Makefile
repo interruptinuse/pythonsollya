@@ -37,7 +37,8 @@ gitrev = $(shell git rev-parse --short HEAD)
 srctarball:
 	git archive -o cythonsollya-$(gitrev).tar.gz HEAD
 
-TESTS=examples/more.py examples/pequan.py examples/walkthrough.py
+TESTS=examples/more.py examples/pequan.py examples/walkthrough.py \
+      examples/extra_functions.py
 
 test: sollya.so
 	@for f in ${TESTS}; do \
