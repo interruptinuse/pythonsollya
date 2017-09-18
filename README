@@ -3,8 +3,13 @@ http://sollya.gforge.inria.fr/
 
 AUTHORS:
 
-- Nicolas Brunie <nicolas.brunie@kalray.eu>
 - Marc Mezzarobba <marc@mezzarobba.net>
+- Nicolas Brunie <nicolas.brunie@kalray.eu>
+
+LICENSE
+
+  This software is distributed under the CECILL-C V2.1 license
+as detailed in the LICENSE file
 
 REQUIREMENTS:
 
