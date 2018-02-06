@@ -886,11 +886,16 @@ cdef void __dealloc_callback(void *c_fun):
   fun = <object> c_fun
   Py_DECREF(fun)
 
+# enabling display of backtraces on error
 _print_backtraces = False
+# enable display of native (sollya) messages
 _print_native_messages = False
+# enabling display of error messages
+_print_error_messages = False
 
 cdef bint __msg_callback(sollya_msg_t msg, void *data):
-    sys.stderr.write(sollya_lib_msg_to_text(msg) + "\n")
+    if _print_error_messages:
+        sys.stderr.write(sollya_lib_msg_to_text(msg) + "\n")
     # Quick hack to help debugging python codes that use cythonsollya
     if _print_backtraces:
       traceback.print_stack(None, None, sys.stderr)
