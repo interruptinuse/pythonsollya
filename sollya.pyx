@@ -895,7 +895,7 @@ _print_error_messages = False
 
 cdef bint __msg_callback(sollya_msg_t msg, void *data):
     if _print_error_messages:
-        sys.stderr.write(sollya_lib_msg_to_text(msg) + "\n")
+        sys.stderr.write(str(sollya_lib_msg_to_text(msg), 'utf-8') + "\n")
     # Quick hack to help debugging python codes that use cythonsollya
     if _print_backtraces:
       traceback.print_stack(None, None, sys.stderr)
