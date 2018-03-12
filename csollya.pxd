@@ -17,7 +17,7 @@ ELSE:
 cdef extern from "sollya.h":  # ???
   ctypedef struct __mpfr_struct:
       pass
-  ctypedef __mpfr_struct * mpfr_t
+  ctypedef __mpfr_struct mpfr_t[1]
   # as far as I understand, the generated code will use the true mp_prec_t
   # even if != long
   void mpfr_set_prec (mpfr_t x, mp_prec_t prec)
