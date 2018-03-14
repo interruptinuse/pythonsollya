@@ -977,5 +977,3 @@ def Interval(left, right=None):
     as_SollyaObject(left).value,
     as_SollyaObject(right).value))
 
-S2 = SollyaObject(2)
-

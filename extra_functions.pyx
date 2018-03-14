@@ -31,3 +31,5 @@ def cbrt(x):
   mpfr_clear(op)
   mpfr_clear(result)
   return res
+
+S2 = sollya.SollyaObject(2)
