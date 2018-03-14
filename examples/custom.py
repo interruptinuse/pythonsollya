@@ -7,6 +7,19 @@ class BinaryFloatingPointFormat(object):
     >>> import sollya
     >>> sollya.SollyaObject(BinaryFloatingPointFormat(16))
     halfprecision
+
+    >>> sollya.settings.display = sollya.binary
+
+    >>> for sz in [16, 32, 64, 65]:
+    ...     fmt = BinaryFloatingPointFormat(sz)
+    ...     try:
+    ...         print sollya.round(sollya.pi, fmt, sollya.RN)
+    ...     except ValueError:
+    ...         print "unsupported"
+    1.1001001_2 * 2^(1)
+    1.10010010000111111011011_2 * 2^(1)
+    1.1001001000011111101101010100010001000010110100011_2 * 2^(1)
+    unsupported
     """
 
     def __init__(self, size):
@@ -26,11 +39,3 @@ class BinaryFloatingPointFormat(object):
         else:
             raise ValueError
 
-sollya.settings.display = sollya.binary
-
-for sz in [16, 32, 64, 65]:
-    fmt = BinaryFloatingPointFormat(sz)
-    try:
-        print sollya.round(sollya.pi, fmt, sollya.RN)
-    except ValueError:
-        print "unsupported"
