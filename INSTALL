@@ -2,6 +2,9 @@
 # Cython (tested with 0.20.0post1 )
 # Sollya (tested with git 9c480f45a37846ac1447bdb4cbb77c1440632095,
 #         should mostly work with slightly older versions)
+#
+# Sollya can be downloaded from http://www.sollya.org/
+#        Please follow Sollya install instructions
 
 # if Sollya install is not accessible in default path
 # the environment variable SOLLYA_INSTALL_DIR MUST be set
@@ -10,9 +13,10 @@
 
 # export SOLLYA_INSTALL_DIR=<custom sollya install dir>
 
-make build 
-# INSTALL_DIR is install directory of pythonsollya
+make build
+# INSTALL_DIR defines the install directory of pythonsollya
 make install INSTALL_DIR=$INSTALL_DIR
 # LD_LIBRARY_PATH should contain the path towards
-# Sollya library shared object
+# Sollya library shared object (if it is not located in
+# a standard location)
 make test
