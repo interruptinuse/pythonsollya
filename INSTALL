@@ -20,10 +20,17 @@
 # For more details please follow Sollya build and install instructions
 
 
+# To build python sollya:
 make build
-# INSTALL_DIR defines the install directory of pythonsollya
-make install INSTALL_DIR=$INSTALL_DIR
+
+# for pythonsollya module install
+make install
+
+# use PREFIX to override python default install prefix
+#     make install PREFIX=<pythonsollya install prefix>
 # LD_LIBRARY_PATH should contain the path towards
 # Sollya library shared object (if it is not located in
 # a standard location)
+
+# to check pythonsollya build
 make test
