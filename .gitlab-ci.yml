@@ -6,11 +6,13 @@ before_script:
 valid_python2:
     script:
         - export PYTHON=python2
+        - make build   # building pythonsollya
         - make install # building and installing pythonsollya
         - make test # testing pythonsollya
 
 valid_python3:
     script:
         - export PYTHON=python3
-        - make install # building and installing pythonsollya
+        - make build   # building pythonsollya
+        - make install #  installing pythonsollya
         - make test # testing pythonsollya

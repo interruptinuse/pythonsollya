@@ -16,6 +16,8 @@ PYTHONSOLLYA_GEN_DEPS := sollya_func.pxi sollya_settings.pxi \
 sollya.so: $(PYTHONSOLLYA_GEN_DEPS)
 	${PYTHON} setup.py build_ext --inplace
 
+build: sollya.so
+
 install: sollya.so
 	@mkdir -p ${PYTHONPATH}
 	${PYTHON} setup.py install --prefix ${PREFIX}
