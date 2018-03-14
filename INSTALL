@@ -1,17 +1,24 @@
 # REQUIREMENTS
 # Cython (tested with 0.20.0post1 )
-# Sollya (tested with git 9c480f45a37846ac1447bdb4cbb77c1440632095,
+# Sollya (tested with git $(SOLLYA_SHA1)
 #         should mostly work with slightly older versions)
 #
-# Sollya can be downloaded from http://www.sollya.org/
-#        Please follow Sollya install instructions
-
-# if Sollya install is not accessible in default path
-# the environment variable SOLLYA_INSTALL_DIR MUST be set
-# to points towards the root of Sollya install directory
+# if no compatible Sollya install is accessible in default paths
+# Sollya can be obtained from Sollya's git repository
+# and the environment variable SOLLYA_INSTALL_DIR MUST be set
+# to point towards the root of Sollya install directory
 # uncomment and complete the following
 
 # export SOLLYA_INSTALL_DIR=<custom sollya install dir>
+# SOLLYA_GIT_URL=https://scm.gforge.inria.fr/anonscm/git/sollya/sollya.git \
+# SOLLYA_SHA1=9c480f45a37846ac1447bdb4cbb77c1440632095 \
+# git clone ${SOLLYA_GIT_URL} sollya && cd sollya \
+# && git checkout ${SOLLYA_SHA1} \
+# && ./autogen.sh && ./configure --prefix=${SOLLYA_INSTALL_DIR} \
+# && make -j && make install
+#
+# For more details please follow Sollya build and install instructions
+
 
 make build
 # INSTALL_DIR defines the install directory of pythonsollya
