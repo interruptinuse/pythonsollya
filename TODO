@@ -2,9 +2,7 @@
 - extract and provide as docstrings more of the sollya help
 - install a message callback? (that would result in Python warnings?)
 - bind decompose_externalprocedure & friends?
-- test!
-- better support multiple precision integers, floats, intervals...
-  (perhaps only in cooperation with sage?)
+- add support for gmpy2
 - bind evaluate_function_at_constant_expression, providing Python access to the
   flags it returns
 - provide Python bindings for the versions of externalproc() etc. that dlopen()
