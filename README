@@ -1,5 +1,6 @@
 Python/SageMath bindings for Sollya
 http://sollya.gforge.inria.fr/
+https://gitlab.com/metalibm-dev/pythonsollya
 
 AUTHORS:
 
@@ -17,22 +18,27 @@ REQUIREMENTS:
 - Sollya >= git 95b6c220cf3967c9fddd01f48c8cbef1df5a5d2b
 - SageMath (optional, tested with 7.4.rc0)
 
-INSTALLATION:
+SETUP
+
+- Installing via pip using something like
+
+    $ pip install git+https://gitlab.com/metalibm-dev/pythonsollya
+
+  should work, provided that a suitable version of Sollya can be found in a
+  standard location on the system.
+
+- Manual build and installation:
 
     $ make [SOLLYA_DIR=/sollya/installation/directory]
     $ make install [PREFIX=/destination/]
 
-Note that the build scripts are quite fragile. For now, they will automatically
-try to detect if SageMath (Sage) is available (in the Python search path), and
-build PythonSollya with Sage support if possible. Thus, with a typical setup,
+- Building sagesollya (= pythonsollya + SageMath support) should be possible
+  with
 
-    $ make [SOLLYA_DIR=/sollya/installation/directory]
+    $ make sagesollya.so [SOLLYA_DIR=/sollya/installation/directory] \
+                         [SAGE=/path/to/sage/executable]
 
-will build pure Python bindings, while
-
-    $ sage -sh -c "make SOLLYA_DIR=$HOME/opt/sollya"
-
-will build Python+Sage bindings.
+  but this is currently broken due to Sage bug #24987.
 
 USAGE:
 
