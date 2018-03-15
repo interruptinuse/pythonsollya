@@ -29,7 +29,7 @@ valid_sollya_master_py2:
               export PYTHON=python2
               make install # building and installing pythonsollya
               make test # testing pythonsollya
-         fi
+          fi
 
 valid_sollya_master_py3:
     image: registry.gitlab.com/metalibm-dev/pythonsollya:ci_sollya_master
