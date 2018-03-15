@@ -35,6 +35,9 @@ extensions = [
   ),
 ]
 
+# Not ideal, but this is the only way I found to be able both to pass compile
+# time options and to generate the required .pxi files before cython looks for
+# them while resolving dependencies.
 class build_ext(st_build_ext, object):
   def finalize_options(self):
     subprocess.call(["make", "generated"])
