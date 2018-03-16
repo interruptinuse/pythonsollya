@@ -2,6 +2,8 @@
 
 from __future__ import division, print_function
 
+from csollya cimport *
+
 from cpython.bytes cimport PyBytes_AsString, PyBytes_FromString
 from cpython.int cimport PyInt_AsLong
 from cpython.long cimport PyLong_AsLong
@@ -9,10 +11,7 @@ from cpython.object cimport Py_LT, Py_LE, Py_EQ, Py_NE, Py_GT, Py_GE
 from cpython.ref cimport Py_INCREF, Py_DECREF
 from libc.stdlib cimport malloc, free
 
-from csollya cimport *
-from sollya cimport *
-
-if HAVE_SAGE:
+IF HAVE_SAGE:
   from sage.libs.mpfi cimport mpfi_set
   from sage.libs.mpfr cimport mpfr_rnd_t, mpfr_get_prec
   from sage.libs.mpfr cimport MPFR_RNDN, MPFR_RNDZ, MPFR_RNDU, MPFR_RNDD

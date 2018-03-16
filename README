@@ -32,13 +32,12 @@ SETUP
     $ make [SOLLYA_DIR=/sollya/installation/directory]
     $ make install [PREFIX=/destination/]
 
-- Building sagesollya (= pythonsollya + SageMath support) should be possible
-  with
+- To build sagesollya (= pythonsollya + SageMath support), use
 
     $ make sagesollya.so [SOLLYA_DIR=/sollya/installation/directory] \
                          [SAGE=/path/to/sage/executable]
 
-  but this is currently broken due to Sage bug #24987.
+  (this was broken for some versions of Sage due to Sage bug #24987).
 
 USAGE:
 
