@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*- vim: sw=2
 
-""" Some useful functions are not provided by Sollya directly. 
+""" Some useful functions are not provided by Sollya directly.
     This module wraps such function from mpfr library into SollyaObject """
 
 from csollya cimport *

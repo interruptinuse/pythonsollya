@@ -662,6 +662,7 @@ def printxml(expr, file=None, append=None):
       raise TypeError("incompatible keyword arguments: 'file' and 'append'")
 
 def plot(*args):
+  """ sollya graph plotting function """
   if len(args) < 2:
     raise TypeError("plot() expects at least two arguments")
   if args[-2] in [file, postscript, postscriptfile]:
@@ -1013,3 +1014,5 @@ def Interval(left, right=None):
     as_SollyaObject(left).value,
     as_SollyaObject(right).value))
 
+# TODO: fix metalibm
+S2 = SollyaObject(2)
