@@ -1,6 +1,14 @@
 # coding: utf-8
 r"""
->>> from sollya_extra_functions import cbrt
+>>> from sollya_extra_functions import cbrt, S2
+
+An extension module called sollya_extra_functions, provides a few objects and
+functions which are not part of sollya library. Such as the constant 2:
+
+>>> S2
+2
+
+and the cubic root function:
 
 An extension module called sollya_extra_functions, provides a few functions
 which are not part of sollya library. Such as the cubic root function:

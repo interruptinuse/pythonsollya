@@ -3,8 +3,7 @@
 from __future__ import division, print_function
 
 from csollya cimport *
-from sollya cimport *
-cimport libc.stdint
+
 from cpython.bytes cimport PyBytes_AsString, PyBytes_FromString
 from cpython.int cimport PyInt_AsLong
 from cpython.long cimport PyLong_AsLong
@@ -976,6 +975,4 @@ def Interval(left, right=None):
   return wrap(sollya_lib_range(
     as_SollyaObject(left).value,
     as_SollyaObject(right).value))
-
-S2 = SollyaObject(2)
 
