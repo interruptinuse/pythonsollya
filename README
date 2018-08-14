@@ -37,7 +37,7 @@ SETUP
     $ make sagesollya.so [SOLLYA_DIR=/sollya/installation/directory] \
                          [SAGE=/path/to/sage/executable]
 
-  (this was broken for some versions of Sage due to Sage bug #24987).
+  (see also TROUBLESHOOTING below).
 
 USAGE:
 
@@ -45,7 +45,7 @@ There is no real user manual (yet?), but see the examples/ directory for
 some usage examples. Most functions behave like their interactive Sollya
 counterparts.
 
-MISCELLANEOUS NOTES:
+TROUBLESHOOTING & MISCELLANEOUS NOTES:
 
 - Using PythonSollya with Sollya plugins
 
@@ -62,3 +62,16 @@ MISCELLANEOUS NOTES:
     import sollya
 
   See dlopen(3) for more information.
+
+- Using Sage packages provided by Linux distributions
+
+  Depending how your distribution packages SageMath, you may need header files
+  not installed by default to build sagesollya using your distribution's
+  packages. For example, Debian users need to install the libpari-dev package in
+  addition to sagemath.
+
+- Sagesollya fails to build even with a version of Sage built from source
+
+  Building external packages that link against Sage was broken for a while
+  (around Sage 8.0-8.1) due to Sage bug #24987. Try upgrading to Sage 8.2 or
+  later.
