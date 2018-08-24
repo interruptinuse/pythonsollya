@@ -7,10 +7,14 @@ AUTHORS:
 - Marc Mezzarobba <marc@mezzarobba.net>
 - Nicolas Brunie <nicolas.brunie@kalray.eu>
 
+See also the CREDITS section below for details on material derived from
+existing works.
+
 LICENSE
 
-  This software is distributed under the CECILL-C V2.1 license
-as detailed in the LICENSE file
+  This software (including the documentation and logo available in the git
+repository) is distributed under the CECILL-C V2.1 license as detailed in the
+LICENSE file.
 
 REQUIREMENTS:
 
@@ -75,3 +79,11 @@ TROUBLESHOOTING & MISCELLANEOUS NOTES:
   Building external packages that link against Sage was broken for a while
   (around Sage 8.0-8.1) due to Sage bug #24987. Try upgrading to Sage 8.2 or
   later.
+
+CREDITS:
+
+- The logo in misc/logo.svg is based on that of Sollya (used with
+  permission) and that [1] of SymPy (created by Fredrik Johansson and used
+  under the terms of the SymPy license, see misc/sympy_license.txt).
+
+    [1] https://github.com/sympy/sympy/blob/master/doc/src/logo/sympy.svg
