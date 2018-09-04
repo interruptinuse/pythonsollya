@@ -2,6 +2,7 @@ PYTHON ?= python2
 SAGE ?= sage
 PREFIX = /usr/local
 SOLLYA_DIR = /usr/local
+INSTALL_OPTIONS = --system --target=${PREFIX}
 CPPFLAGS = -I${SOLLYA_DIR}/include
 LDFLAGS = -L${SOLLYA_DIR}/lib
 PYTHONPATH = $(shell PYTHONUSERBASE=${PREFIX} ${PYTHON} -c "import site; \
@@ -37,7 +38,7 @@ sollya_%.pxi: gen_%.py
 generated: ${GEN_DEPS}
 
 install: sollya.so sollya_extra_functions.so
-	pip install --system --target=${PREFIX} .
+	pip install ${INSTALL_OPTIONS} .
 
 clean:
 	${PYTHON} setup.py clean
