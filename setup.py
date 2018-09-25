@@ -50,7 +50,7 @@ class build_ext(st_build_ext, object):
 setuptools.setup(
   name=name,
   ext_modules=extensions,
-  version="0.2",
+  version="0.3",
   description="Cython wrapper for the Sollya library",
   url="https://gitlab.com/metalibm-dev/pythonsollya",
   author="Nicolas Brunie, Marc Mezzarobba",

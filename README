@@ -19,7 +19,7 @@ LICENSE file.
 REQUIREMENTS:
 
 - Cython (tested with 0.24.1)
-- Sollya >= git 95b6c220cf3967c9fddd01f48c8cbef1df5a5d2b
+- Sollya (7.0)
 - SageMath (optional, tested with 7.4.rc0)
 
 SETUP
