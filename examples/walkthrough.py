@@ -10,7 +10,7 @@ syntax.
 cos(x)
 
 Its return value is a Python object of type sollya.SollyaObject. These
-objects are Pyton wrappers for Sollya objects, and can also be
+objects are Python wrappers for Sollya objects, and can also be
 manipulated directly.
 
 >>> sollya.x
