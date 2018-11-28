@@ -51,6 +51,14 @@ cdef SollyaObject as_SollyaObject(op):
   else:
     return SollyaObject(op)
 
+cdef object as_PyObject(sollya_obj_t sollya_object):
+  cdef void *obj
+  cdef void (*dealloc)(void*)
+  if sollya_lib_decompose_externaldata(&obj, &dealloc, sollya_object):
+    if dealloc == __dealloc_callback:
+      return <object> obj
+  return wrap(sollya_lib_copy_obj(sollya_object))
+
 cdef decode_string(b):
   # The user will need to call setlocale(LC_ALL, '') for strings returned by
   # Sollya to be displayed according to the user's LC_CTYPE if it is not set to
@@ -153,6 +161,9 @@ cdef class SollyaObject:
 
   def is_externalprocedure(self):
     return sollya_lib_obj_is_externalprocedure(self.value)
+
+  def is_externaldata(self):
+    return sollya_lib_obj_is_externaldata(self.value)
 
   # Conversions
 
@@ -301,6 +312,14 @@ cdef class SollyaObject:
       except IndexError:
         pass
     return ops
+
+  def python(self):
+    cdef void *obj
+    cdef void (*dealloc)(void*)
+    if sollya_lib_decompose_externaldata(&obj, &dealloc, self.value):
+      if dealloc == __dealloc_callback:
+        return <object> obj
+    raise ValueError("not a Python object wrapper")
 
   # Access to fields
 
@@ -669,12 +688,26 @@ def autoprint(obj):
   else:
     __displayhook(obj)
 
+def externaldata(*args):
+  if len(args) == 1:
+    obj = args[0]
+    Py_INCREF(obj)
+    return wrap(sollya_lib_externaldata(NULL, <void *> obj, __dealloc_callback))
+  elif len(args) == 2:
+    name, obj = args
+    name = name.encode("ascii")
+    Py_INCREF(obj)
+    return wrap(sollya_lib_externaldata(name, <void *> obj, __dealloc_callback))
+  else:
+    raise TypeError("externaldata() takes 1 or 2 arguments")
+
 def libraryconstant(arg):
   if isinstance(arg, types.FunctionType):
+    name = ("py_" + arg.__name__).encode("ascii")
     Py_INCREF(arg)
     return wrap(
         sollya_lib_libraryconstant_with_data(
-          ("py_" + arg.__name__).encode("ascii"),
+          name,
           __libraryconstant_callback,
           <void *> arg,
           __dealloc_callback))
@@ -816,7 +849,7 @@ cdef bint __externalproc_callback(sollya_obj_t *c_res,
                                   void **c_args, void *c_fun):
   try:
     fun = <object> c_fun
-    args = [wrap(sollya_lib_copy_obj(<sollya_obj_t>(c_args[i])))
+    args = [as_PyObject(<sollya_obj_t>(c_args[i]))
             for i in range(fun.__code__.co_argcount)]
     res0 = fun(*args)
     res = as_SollyaObject(res0)

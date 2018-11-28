@@ -48,6 +48,9 @@ commands and built-in procedures available interactively in Sollya are
 bound to Python functions with the same name that automatically convert
 their input to Sollya objects (and return Sollya objects).
 
+(Arbitrary Python objects can also be wrapped into Sollya objects without
+conversion using externaldata(), see below for an example.)
+
 >>> sollya.SollyaObject(1) + sollya.Interval(1, 2)
 [2;3]
 
@@ -179,7 +182,7 @@ Or using a context manager:
 >>> print(sollya.SollyaObject(17))
 17
 
-Calling Python functions from Sollya:
+We can call Python functions from Sollya:
 
 >>> def myproc(x, y): return x + y
 >>> foo = SollyaObject(myproc)
@@ -189,7 +192,37 @@ Calling Python functions from Sollya:
 >>> parse("proc(fun) { return fun(1, 2); };")(foo)
 3
 
-Implementing new mathematical functions in Python:
+Native Sollya values are passed as parameters of type SollyaObject, even
+in cases where they could be converted to Python objects:
+
+>>> sollya.SollyaObject(lambda obj: str(type(obj)))(1) # doctest: +ELLIPSIS
+<... 'sollya.SollyaObject'>
+
+However, Python objects wrapped using externaldata() are automatically
+unwrapped when passed to a Python function:
+
+>>> class C(object):
+...     def __init__(self):
+...         self.value = 0
+...     def incr(self):
+...         self.value += 1
+...         return self.value
+...     def _sollya_(self):
+...         # automatically wrap these objects when passing them
+...         # to Sollya
+...         return sollya.externaldata(self)
+
+>>> c = C()
+
+>>> f = sollya.SollyaObject(lambda obj: obj.incr())
+
+>>> f(c)
+1
+
+>>> f(c)
+2
+
+We can also use new mathematical functions implemented in Python from Sollya:
 
 >>> def myfunction(x, diff_order, prec): return exp(x)
 
