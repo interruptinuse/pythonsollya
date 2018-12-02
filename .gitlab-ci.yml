@@ -4,6 +4,7 @@ before_script:
     - export LD_LIBRARY_PATH=/usr/local/lib # exposing libsollya.so
 
 valid_python2:
+    allow_failure: true
     script:
         - export PYTHON=python2
         - make build   # building pythonsollya
@@ -11,6 +12,7 @@ valid_python2:
         - make test # testing pythonsollya
 
 valid_python3:
+    allow_failure: true
     script:
         - export PYTHON=python3
         - make build   # building pythonsollya
