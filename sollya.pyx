@@ -718,9 +718,11 @@ def function(arg):
   cdef sollya_obj_t sobj
   if isinstance(arg, types.FunctionType):
     Py_INCREF(arg)
+    s = ("py_" + arg.__name__)
+    s = s.encode("ascii")
     sobj = sollya_lib_libraryfunction_with_data(
           (<SollyaObject> _x_).value,
-          ("py_" + arg.__name__).encode("ascii"),
+          s,
           __libraryfunction_callback,
           <void *> arg,
           __dealloc_callback)
@@ -838,9 +840,11 @@ cdef sollya_obj_t function_to_sollya_obj_t(fun) except NULL:
   for i in range(arity):
     sollya_argspec[i] = SOLLYA_EXTERNALPROC_TYPE_OBJECT
   Py_INCREF(fun)
+  s = ("py_" + fun.__name__)
+  s = s.encode("ascii")
   cdef sollya_obj_t sollya_obj = sollya_lib_externalprocedure_with_data(
       SOLLYA_EXTERNALPROC_TYPE_OBJECT, sollya_argspec, arity,
-      ("py_" + fun.__name__).encode("ascii"), callback, <void *>fun,
+      s, callback, <void *>fun,
       __dealloc_callback)
   free(sollya_argspec)
   return sollya_obj
