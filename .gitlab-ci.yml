@@ -1,45 +1,24 @@
-image: registry.gitlab.com/metalibm-dev/pythonsollya:ci
+image: registry.gitlab.com/metalibm-dev/pythonsollya:ci_sollya_master
 
 before_script:
     - export LD_LIBRARY_PATH=/usr/local/lib # exposing libsollya.so
 
 valid_python2:
     script:
+        - git clone https://scm.gforge.inria.fr/anonscm/git/sollya/sollya.git -b master sollya_git
+        - cd sollya_git && sh autogen.sh && ./configure && make && make install && cd ..
+        - export LD_LIBRARY_PATH=/usr/local/lib # exposing libsollya.so
         - export PYTHON=python2
-        - make build   # building pythonsollya
         - make install # building and installing pythonsollya
         - make test # testing pythonsollya
 
 valid_python3:
     script:
+        - git clone https://scm.gforge.inria.fr/anonscm/git/sollya/sollya.git -b master sollya_git
+        - cd sollya_git && sh autogen.sh && ./configure && make && make install && cd ..
+        - export LD_LIBRARY_PATH=/usr/local/lib # exposing libsollya.so
         - export PYTHON=python3
-        - make build   # building pythonsollya
-        - make install #  installing pythonsollya
+        - make install # building and installing pythonsollya
         - make test # testing pythonsollya
 
 
-valid_sollya_master_py2:
-    image: registry.gitlab.com/metalibm-dev/pythonsollya:ci_sollya_master
-    script:
-         - |
-          if [ "$VALID_SOLLYA_GIT" == "TRUE" ]; then
-              git clone https://scm.gforge.inria.fr/anonscm/git/sollya/sollya.git -b master sollya_git
-              cd sollya_git && sh autogen.sh && ./configure && make && make install && cd ..
-              export LD_LIBRARY_PATH=/usr/local/lib # exposing libsollya.so
-              export PYTHON=python2
-              make install # building and installing pythonsollya
-              make test # testing pythonsollya
-          fi
-
-valid_sollya_master_py3:
-    image: registry.gitlab.com/metalibm-dev/pythonsollya:ci_sollya_master
-    script:
-        - | 
-         if [ "$VALID_SOLLYA_GIT" == "TRUE" ]; then
-            git clone https://scm.gforge.inria.fr/anonscm/git/sollya/sollya.git -b master sollya_git
-            cd sollya_git && sh autogen.sh && ./configure && make && make install && cd ..
-            export LD_LIBRARY_PATH=/usr/local/lib # exposing libsollya.so
-            export PYTHON=python3
-            make install # building and installing pythonsollya
-            make test # testing pythonsollya
-         fi
