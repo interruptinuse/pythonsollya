@@ -31,10 +31,10 @@ SETUP
   should work, provided that a suitable version of Sollya can be found in a
   standard location on the system.
 
-- Manual build and installation:
+- Manual build and installation, use PYTHON and PIP variable to change between python2/python3 install:
 
-    $ make [SOLLYA_DIR=/sollya/installation/directory]
-    $ make install [PREFIX=/destination/]
+    $ make [SOLLYA_DIR=/sollya/installation/directory] [PYTHON=python3 PIP=pip3]
+    $ make install [PREFIX=/destination/] [PYTHON=python3 PIP=pip3]
 
 - To build sagesollya (= pythonsollya + SageMath support), use
 

@@ -1,4 +1,7 @@
+# set to python3 for python3 install
 PYTHON ?= python2
+# set to pip3 for python3 install
+PIP ?= pip
 SAGE ?= sage
 PREFIX = /usr/local
 SOLLYA_DIR = /usr/local
@@ -38,7 +41,7 @@ sollya_%.pxi: gen_%.py
 generated: ${GEN_DEPS}
 
 install: sollya.so sollya_extra_functions.so
-	pip install ${INSTALL_OPTIONS} .
+	$(PIP) install ${INSTALL_OPTIONS} .
 
 clean:
 	${PYTHON} setup.py clean
