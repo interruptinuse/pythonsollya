@@ -584,6 +584,9 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
     return sollya_obj
   elif isinstance(op, types.FunctionType):
     return function_to_sollya_obj_t(op)
+  elif isinstance(op, types.MethodType):
+    # imporing a python's object method as a sollya function
+    return method_to_sollya_obj_t(op)
   IF HAVE_SAGE:
     if isinstance(op, Integer):
       return sollya_lib_constant_from_mpz((<Integer> op).value)
@@ -850,6 +853,27 @@ cdef sollya_obj_t function_to_sollya_obj_t(fun) except NULL:
   free(sollya_argspec)
   return sollya_obj
 
+cdef sollya_obj_t method_to_sollya_obj_t(fun) except NULL:
+  cdef void *callback = <void *> __externalproc_method_callback
+  # object's method has always one explicit self argument
+  arity = fun.__code__.co_argcount - 1
+  if arity == 0:
+    callback = <void *> __externalproc_callback_no_args
+  cdef size_t size = arity*sizeof(sollya_externalprocedure_type_t)
+  cdef sollya_externalprocedure_type_t *sollya_argspec = (
+    <sollya_externalprocedure_type_t *>malloc(size))
+  for i in range(arity):
+    sollya_argspec[i] = SOLLYA_EXTERNALPROC_TYPE_OBJECT
+  Py_INCREF(fun)
+  s = ("py_" + fun.__name__)
+  s = s.encode("ascii")
+  cdef sollya_obj_t sollya_obj = sollya_lib_externalprocedure_with_data(
+      SOLLYA_EXTERNALPROC_TYPE_OBJECT, sollya_argspec, arity,
+      s, callback, <void *>fun,
+      __dealloc_callback)
+  free(sollya_argspec)
+  return sollya_obj
+
 cdef bint __externalproc_callback(sollya_obj_t *c_res,
                                   void **c_args, void *c_fun):
   try:
@@ -864,10 +888,36 @@ cdef bint __externalproc_callback(sollya_obj_t *c_res,
     traceback.print_exc() # TBI?
     return False
 
+cdef bint __externalproc_method_callback(sollya_obj_t *c_res,
+                                  void **c_args, void *c_fun):
+  """ callback to call a python's object method (with implicit self
+      argument, and at least ONE other argument) from sollya """
+  try:
+    fun = <object> c_fun
+    args = [as_PyObject(<sollya_obj_t>(c_args[i]))
+            for i in range(fun.__code__.co_argcount - 1)]
+    res0 = fun(*args)
+    res = as_SollyaObject(res0)
+    c_res[0] = sollya_lib_copy_obj(res.value)
+    return True
+  except:
+    traceback.print_exc() # TBI?
+    return False
+
 # sollya requires a different prototype to call external procedures that don't
 # take any argument
 cdef bint __externalproc_callback_no_args(sollya_obj_t *c_res, void *c_fun):
-  return __externalproc_callback(c_res, NULL, c_fun)
+  """ callback to call a python's object method (with implicit self
+      argument, and NO other argument) from sollya """
+  try:
+    fun = <object> c_fun
+    res0 = fun()
+    res = as_SollyaObject(res0)
+    c_res[0] = sollya_lib_copy_obj(res.value)
+    return True
+  except:
+    traceback.print_exc() # TBI?
+    return False
 
 cdef void __libraryconstant_callback(mpfr_t res, mp_prec_t c_prec,
                                      void *c_fun):
