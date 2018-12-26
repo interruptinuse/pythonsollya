@@ -586,7 +586,7 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
     return function_to_sollya_obj_t(op)
   elif isinstance(op, types.MethodType):
     # imporing a python's object method as a sollya function
-    return method_to_sollya_obj_t(op)
+    return function_to_sollya_obj_t(op, True)
   IF HAVE_SAGE:
     if isinstance(op, Integer):
       return sollya_lib_constant_from_mpz((<Integer> op).value)
@@ -833,30 +833,13 @@ cdef class SollyaStructureWrapper:
 
 # Calling Python functions from Sollya
 
-cdef sollya_obj_t function_to_sollya_obj_t(fun) except NULL:
+cdef sollya_obj_t function_to_sollya_obj_t(fun, method=False) except NULL:
+  """ Converting python function to Sollya object using externalprocedure API
+      if the function is a method than the explicit self argument must
+      be taken into account to compute actual function arity"""
   cdef void *callback = <void *> __externalproc_callback
-  arity = fun.__code__.co_argcount
-  if arity == 0:
-    callback = <void *> __externalproc_callback_no_args
-  cdef size_t size = arity*sizeof(sollya_externalprocedure_type_t)
-  cdef sollya_externalprocedure_type_t *sollya_argspec = (
-    <sollya_externalprocedure_type_t *>malloc(size))
-  for i in range(arity):
-    sollya_argspec[i] = SOLLYA_EXTERNALPROC_TYPE_OBJECT
-  Py_INCREF(fun)
-  s = ("py_" + fun.__name__)
-  s = s.encode("ascii")
-  cdef sollya_obj_t sollya_obj = sollya_lib_externalprocedure_with_data(
-      SOLLYA_EXTERNALPROC_TYPE_OBJECT, sollya_argspec, arity,
-      s, callback, <void *>fun,
-      __dealloc_callback)
-  free(sollya_argspec)
-  return sollya_obj
-
-cdef sollya_obj_t method_to_sollya_obj_t(fun) except NULL:
-  cdef void *callback = <void *> __externalproc_method_callback
   # object's method has always one explicit self argument
-  arity = fun.__code__.co_argcount - 1
+  arity = fun.__code__.co_argcount - (1 if method else 0)
   if arity == 0:
     callback = <void *> __externalproc_callback_no_args
   cdef size_t size = arity*sizeof(sollya_externalprocedure_type_t)
