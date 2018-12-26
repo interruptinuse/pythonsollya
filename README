@@ -80,6 +80,8 @@ TROUBLESHOOTING & MISCELLANEOUS NOTES:
   (around Sage 8.0-8.1) due to Sage bug #24987. Try upgrading to Sage 8.2 or
   later.
 
+- In python2 sollya can not execute unbounded methods properly
+
 CREDITS:
 
 - The logo in misc/logo.svg is based on that of Sollya (used with

@@ -27,4 +27,16 @@ exporting a's method without any argument (except self) as Sollya's function
 >>> g()
 42
 
+exporting an unbounded method (only works for python3)
+
+# >>> h = sollya.SollyaObject(MyObject.my_noarg_method)
+# >>> ext_data = sollya.externaldata(MyObject(13.0))
+# >>> h(ext_data)
+# 42
+
+# >>> i = sollya.SollyaObject(MyObject.my_method)
+# >>> result = i(sollya.externaldata(MyObject(13.0)), 2.0, -16.0)
+# >>> print(result)
+# 10
+
 """
