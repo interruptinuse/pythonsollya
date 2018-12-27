@@ -837,11 +837,18 @@ cdef sollya_obj_t function_to_sollya_obj_t(fun, method=False) except NULL:
   """ Converting python function to Sollya object using externalprocedure API
       if the function is a method than the explicit self argument must
       be taken into account to compute actual function arity"""
-  cdef void *callback = <void *> __externalproc_callback
+  cdef void *callback
+  callback = <void *> __externalproc_callback
+
+  if fun.__code__.co_flags & (inspect.CO_VARARGS | inspect.CO_VARKEYWORDS):
+    raise ValueError("function conversion does not support varargs nor varkeywords")
+
   # object's method has always one explicit self argument
   arity = fun.__code__.co_argcount - (1 if method else 0)
   if arity == 0:
     callback = <void *> __externalproc_callback_no_args
+  elif method:
+    callback = <void *> __externalproc_method_callback
   cdef size_t size = arity*sizeof(sollya_externalprocedure_type_t)
   cdef sollya_externalprocedure_type_t *sollya_argspec = (
     <sollya_externalprocedure_type_t *>malloc(size))

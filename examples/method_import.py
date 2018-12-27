@@ -12,6 +12,13 @@ r"""
 ...    def my_noarg_method(self):
 ...        # example of method with multiple arguments
 ...        return sollya.SollyaObject(42)
+...    def my_vararg_method(self, *args):
+...        # example of method with multiple arguments
+...        return sollya.SollyaObject(42)
+...    def my_varkw_method(self, **kw):
+...        # example of method with multiple arguments
+...        return sollya.SollyaObject(42)
+
 
 >>> a = MyObject(17.0)
 
@@ -38,5 +45,16 @@ exporting an unbounded method (only works for python3)
 # >>> result = i(sollya.externaldata(MyObject(13.0)), 2.0, -16.0)
 # >>> print(result)
 # 10
+
+
+>>> j = sollya.SollyaObject(a.my_vararg_method)
+Traceback (most recent call last):
+    ...
+ValueError: function conversion does not support varargs nor varkeywords
+
+>>> k = sollya.SollyaObject(a.my_varkw_method)
+Traceback (most recent call last):
+    ...
+ValueError: function conversion does not support varargs nor varkeywords
 
 """
