@@ -18,9 +18,13 @@ LICENSE file.
 
 REQUIREMENTS:
 
+As of pythonsollya 0.3:
+
 - Cython (tested with 0.24.1)
 - Sollya (7.0)
 - SageMath (optional, tested with 7.4.rc0)
+
+(The development branch of pythonsollya may require more recent versions.)
 
 SETUP
 
