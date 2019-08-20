@@ -18,6 +18,7 @@ valid_python3:
         - cd sollya_git && sh autogen.sh && ./configure && make && make install && cd ..
         - export LD_LIBRARY_PATH=/usr/local/lib # exposing libsollya.so
         - export PYTHON=python3
+        - export PIP=pip3
         - make install # building and installing pythonsollya
         - make test # testing pythonsollya
 

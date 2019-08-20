@@ -1,10 +1,12 @@
-# set to python3 for python3 install
-PYTHON ?= python2
-# set to pip3 for python3 install
-PIP ?= pip
+# set to python2 for python2 install
+PYTHON ?= python3
+# set to pip2 for python2 install
+PIP ?= pip3
 SAGE ?= sage
 PREFIX = /usr/local
 SOLLYA_DIR = /usr/local
+# overload on command line if you do not want a system wide
+# install or if your local pip version does not support "--system" option
 INSTALL_OPTIONS = --system --target=${PREFIX}
 CPPFLAGS = -I${SOLLYA_DIR}/include
 LDFLAGS = -L${SOLLYA_DIR}/lib
