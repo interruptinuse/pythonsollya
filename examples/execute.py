@@ -25,7 +25,7 @@ Sollya procedure:
 Mutual recursion between a Sollya procedure and a Python function:
 
 >>> def g(x):
-...     print "g(): called with x = {}".format(x)
+...     print("g(): called with x = {}".format(x))
 ...     if x == 1:
 ...         return 0
 ...     else:

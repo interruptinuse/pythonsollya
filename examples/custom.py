@@ -13,9 +13,9 @@ class BinaryFloatingPointFormat(object):
     >>> for sz in [16, 32, 64, 65]:
     ...     fmt = BinaryFloatingPointFormat(sz)
     ...     try:
-    ...         print sollya.round(sollya.pi, fmt, sollya.RN)
+    ...         print(sollya.round(sollya.pi, fmt, sollya.RN))
     ...     except ValueError:
-    ...         print "unsupported"
+    ...         print("unsupported")
     1.1001001_2 * 2^(1)
     1.10010010000111111011011_2 * 2^(1)
     1.1001001000011111101101010100010001000010110100011_2 * 2^(1)
