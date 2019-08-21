@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*- vim:sw=2
 
-CYTHONSOLLYA_VERSION = "\"0.1c\""
+PYTHONSOLLYA_VERSION = "\"0.3.1\""
 
 sollya_settings = [
   "prec",
@@ -39,5 +39,5 @@ print(r"""
     property __version__:
         def __get__(self):
             return {version}
-""".format(version=CYTHONSOLLYA_VERSION))
+""".format(version=PYTHONSOLLYA_VERSION))
 
