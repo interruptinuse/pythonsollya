@@ -23,8 +23,15 @@ IF HAVE_SAGE:
   from sage.rings.real_mpfr cimport RealNumber, RealField_class
 
 from six.moves import builtins
-import atexit, collections, contextlib, inspect, itertools, locale
+import atexit, contextlib, inspect, itertools, locale
 import sys, traceback, types, warnings
+
+# fiXing Abstract Basic Classes (abc) being move from collections
+# to collections.abc (started in Python 3.3, final in Python 3.8)
+try:
+  from collections.abc import Sequence, Mapping
+except ImportError:
+  from collections import Sequence, Mapping
 
 IF HAVE_SAGE:
   from sage.rings.real_mpfi import RealIntervalField
@@ -335,6 +342,7 @@ cdef class SollyaObject:
     cdef char **names = NULL
     cdef sollya_obj_t *objs = NULL
     cdef int struct_len = -1
+    # compute len for structure type object
     if sollya_lib_obj_is_structure(self.value):
       sollya_lib_get_structure_elements(&names, &objs, &struct_len, self.value)
       for i in range(struct_len):
@@ -552,7 +560,7 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
     # Sollya strings are byte arrays, with no associated encoding. Can/should
     # we do better than the following for some types of Python strings?
     return sollya_lib_string(PyBytes_AsString(encode_string(op)))
-  elif isinstance(op, collections.Sequence):
+  elif isinstance(op, Sequence):
     n = len(op)
     if n > 0 and op[-1] is Ellipsis:
       n -= 1
@@ -570,7 +578,7 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
       sollya_lib_clear_obj(sollya_list[i])
     free(sollya_list)
     return sollya_obj
-  elif isinstance(op, collections.Mapping):
+  elif isinstance(op, Mapping):
     if not op:
       raise ValueError("empty structures are not supported by Sollya")
     sollya_obj = NULL
@@ -863,6 +871,7 @@ cdef sollya_obj_t function_to_sollya_obj_t(fun, method=False) except NULL:
       __dealloc_callback)
   free(sollya_argspec)
   return sollya_obj
+
 
 cdef bint __externalproc_callback(sollya_obj_t *c_res,
                                   void **c_args, void *c_fun):
