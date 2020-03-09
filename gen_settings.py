@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*- vim:sw=2
 
-PYTHONSOLLYA_VERSION = "\"0.3.1\""
+PYTHONSOLLYA_VERSION = "\"0.3.2\""
 
 sollya_settings = [
   "prec",
