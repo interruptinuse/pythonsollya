@@ -1,13 +1,15 @@
-image: registry.gitlab.com/metalibm-dev/pythonsollya:ci_python3.8
+image: registry.gitlab.com/metalibm-dev/pythonsollya:ci_sollya_master
 
 before_script:
     - export LD_LIBRARY_PATH=/usr/local/lib # exposing libsollya.so
 
 valid_python3.8:
     script:
+        - git clone https://scm.gforge.inria.fr/anonscm/git/sollya/sollya.git -b master sollya_git
+        - cd sollya_git && sh autogen.sh && ./configure && make && make install && cd ..
         - export PATH=/app/local/bin:$PATH # adding sollya to $PATH
         - export LD_LIBRARY_PATH=/usr/local/lib:/app/local/lib  # exposing libsollya.so
-        - export PYTHON=python3.8
+        - export PYTHON=python3
         - export PIP=pip3
         - make install SOLLYA_DIR=/app/local/ # building and installing pythonsollya
         - make test SOLLYA_DIR=/app/local/ # testing pythonsollya
