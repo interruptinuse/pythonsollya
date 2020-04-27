@@ -59,7 +59,7 @@ TESTS=${wildcard examples/*.py}
 test: sollya.so ${TESTS}
 	@for f in ${TESTS}; do \
 	    echo Testing $$f; \
-	    LD_LIBRARY_PATH=${SOLLYA_DIR}/lib \
+	    LD_LIBRARY_PATH=${SOLLYA_DIR}/lib:${LD_LIBRARY_PATH} \
 	    ${PYTHON} -m doctest $$f; \
 	done
 
