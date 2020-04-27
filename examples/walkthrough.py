@@ -244,7 +244,7 @@ Same thing for constants:
 
 >>> def myconstant(prec): return 17
 
->>> c = libraryconstant(myconstant)
+>>> c = sollya.libraryconstant(myconstant)
 
 >>> (c/2).approx()
 8.5
