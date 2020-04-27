@@ -45,6 +45,10 @@ sollya_lib_install_msg_callback(__msg_callback, NULL)
 def has_sage_support():
   return HAVE_SAGE
 
+cdef void __dealloc_callback(void *c_fun):
+  fun = <object> c_fun
+  Py_DECREF(fun)
+
 # Create a new SollyaObject wrapping sollya_val, taking ownership of sollya_val
 # (which will thus be cleared when the SollyaObject gets garbage-collected)
 cdef SollyaObject wrap(sollya_obj_t sollya_val):
@@ -967,10 +971,6 @@ IF HAVE_SAGE:
     except Exception:
       traceback.print_exc() # TBI?
       return 0
-
-cdef void __dealloc_callback(void *c_fun):
-  fun = <object> c_fun
-  Py_DECREF(fun)
 
 # enabling display of backtraces on error
 _print_backtraces = False
