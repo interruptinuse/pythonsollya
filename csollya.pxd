@@ -25,8 +25,9 @@ cdef extern from "sollya.h":  # ???
 cdef extern from "sollya.h":
 
   ctypedef int mpfr_rnd_t
-  mpfr_t mpfr_cbrt(mpfr_t, mpfr_t, mpfr_rnd_t)
-  mpfr_t mpfr_gamma(mpfr_t, mpfr_t, mpfr_rnd_t)
+  int mpfr_cbrt(mpfr_t, mpfr_t, mpfr_rnd_t)
+  int mpfr_gamma(mpfr_t, mpfr_t, mpfr_rnd_t)
+  int mpfr_lgamma(mpfr_t, int*, mpfr_t, mpfr_rnd_t)
   void mpfr_clear(mpfr_t)
   void mpfr_init2(mpfr_t, int)
   mpfr_rnd_t MPFR_RNDN

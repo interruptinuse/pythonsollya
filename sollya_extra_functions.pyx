@@ -53,4 +53,25 @@ def gamma(x):
   mpfr_clear(result)
   return res
 
+def lgamma(x):
+  """ Custom wrapper for MPFR LGamma function """
+  cdef mpfr_t op, result
+  cdef int prec
+  cdef int signp
+  cdef sollya.SollyaObject res = sollya.SollyaObject.__new__(sollya.SollyaObject)
+
+  if not sollya_lib_get_constant_as_int(&prec, sollya_lib_get_prec()):
+    raise ValueError("unable to get sollya's prec in cbrt")
+
+  mpfr_init2(op, prec)
+  mpfr_init2(result, prec)
+  cdef sollya.SollyaObject sollya_object = as_SollyaObject(x)
+  sollya_lib_get_constant(op, sollya_object.value)
+  # TODO/FIXME: signp is not used
+  mpfr_lgamma(result, &signp, op, MPFR_RNDN)
+  res.value = sollya_lib_constant(result)
+  mpfr_clear(op)
+  mpfr_clear(result)
+  return res
+
 S2 = sollya.SollyaObject(2)
