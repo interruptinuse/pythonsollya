@@ -27,6 +27,7 @@ import atexit, contextlib, inspect, itertools, locale
 import sys, traceback, types, warnings
 
 import bigfloat
+cimport mpfr
 
 # fiXing Abstract Basic Classes (abc) being move from collections
 # to collections.abc (started in Python 3.3, final in Python 3.8)
@@ -602,7 +603,7 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
     # imporing a python's object method as a sollya function
     return function_to_sollya_obj_t(op, True)
   elif isinstance(op, bigfloat.BigFloat):
-    raise NotImplementedError
+    return sollya_lib_constant(&(<mpfr.Mpfr_t>op)._value)
   IF HAVE_SAGE:
     if isinstance(op, Integer):
       return sollya_lib_constant_from_mpz((<Integer> op).value)
