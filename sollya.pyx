@@ -478,8 +478,12 @@ cdef class SollyaObject:
         result.value = sollya_lib_add(op0.value, op1.value)
       return result
 
-  def __radd__(left, right):
-    return SollyaObject.__add__(SollyaObject(right), left)
+  def __radd__(right, left):
+    if isinstance(left, list) and isinstance(right, SollyaObject):
+        return left + list(right)
+    elif isinstance(left, SollyaObject) and isinstance(right, list):
+      return list(left) + right
+    return SollyaObject.__add__(SollyaObject(left), right)
 
   def __sub__(left, right):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
@@ -488,8 +492,8 @@ cdef class SollyaObject:
     result.value = sollya_lib_sub(op0.value, op1.value)
     return result
 
-  def __rsub__(left, right):
-    return SollyaObject.__sub__(SollyaObject(right), left)
+  def __rsub__(right, left):
+    return SollyaObject.__sub__(SollyaObject(left), right)
 
   def __mul__(left, right):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
@@ -511,8 +515,18 @@ cdef class SollyaObject:
       result.value = sollya_lib_mul(op0.value, op1.value)
       return result
 
-  def __rmul__(left, right):
-      return SollyaObject.__mul__(SollyaObject(right), left)
+  def __rmul__(right, left):
+    if isinstance(left, list):
+      return left * int(right)
+    elif isinstance(right, list):
+      return int(left) * right
+    elif (isinstance(left, SollyaObject)
+        and sollya_lib_obj_is_list((<SollyaObject>left).value)):
+      return list(left) * int(right)
+    elif (isinstance(right, SollyaObject)
+        and sollya_lib_obj_is_list((<SollyaObject>right).value)):
+      return int(left) * list(right)
+    return SollyaObject.__mul__(SollyaObject(left), right)
 
   def __div__(left, right):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
@@ -521,8 +535,8 @@ cdef class SollyaObject:
     result.value = sollya_lib_div(op0.value, op1.value)
     return result
 
-  def __rdiv__(left, right):
-    return SollyaObject.__div__(SollyaObject(right), left)
+  def __rdiv__(right, left):
+    return SollyaObject.__div__(SollyaObject(left), right)
 
   def __truediv__(left, right):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
@@ -531,8 +545,8 @@ cdef class SollyaObject:
     result.value = sollya_lib_div(op0.value, op1.value)
     return result
 
-  def __rtruediv__(left, right):
-    return SollyaObject.__truediv__(SollyaObject(right), left)
+  def __rtruediv__(right, left):
+    return SollyaObject.__truediv__(SollyaObject(left), right)
 
   def __pow__(self, op, modulo):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
