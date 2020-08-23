@@ -573,7 +573,12 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
   elif isinstance(op, bool):
     return sollya_lib_true() if op else sollya_lib_false()
   elif isinstance(op, int):
-    return sollya_lib_constant_from_int64(PyInt_AsLong(op))
+    # on 32-bit platofmrs (such as Raspberry-pi, some python int are
+    # too long to be converted to C long
+    try:
+      return sollya_lib_constant_from_int64(PyInt_AsLong(op))
+    except OverflowError:
+      return pylong_to_sollya_obj_t(op)
   elif isinstance(op, long):
     return pylong_to_sollya_obj_t(op)
   elif op is None:
