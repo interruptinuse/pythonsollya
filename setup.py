@@ -21,6 +21,10 @@ if "WITH_SAGE" in os.environ:
   cy_options["compile_time_env"]["HAVE_SAGE"] = True
   ext_options["include_dirs"] = sage.env.sage_include_directories()
 
+# enabling sollya's feature not in mainstream yet: externaldata wrapping
+if "WITH_EXTERNALDATA" in os.environ:
+  cy_options["compile_time_env"]["HAVE_EXTERNALDATA"] = True
+
 extensions = [
   Extension(
     name,
@@ -51,7 +55,7 @@ class build_ext(st_build_ext, object):
 setuptools.setup(
   name=name,
   ext_modules=extensions,
-  version="0.3.3",
+  version="0.4.0",
   description="Cython wrapper for the Sollya library",
   url="https://gitlab.com/metalibm-dev/pythonsollya",
   author="Nicolas Brunie, Marc Mezzarobba",

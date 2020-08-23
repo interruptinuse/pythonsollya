@@ -18,11 +18,12 @@ LICENSE file.
 
 REQUIREMENTS:
 
-As of pythonsollya 0.3.3:
+As of pythonsollya 0.4.0:
 
 - Cython (tested with 0.24.1)
 - Sollya (master, tested with weekly http://sollya.gforge.inria.fr/sollya-weekly-09-23-2019.tar.gz)
 - SageMath (optional, tested with 7.4.rc0)
+- bigfloat (tested with 0.4.0)
 
 (The development branch of pythonsollya may require more recent versions.)
 
@@ -35,9 +36,9 @@ SETUP
   should work, provided that a suitable version of Sollya can be found in a
   standard location on the system.
 
-- Manual build and installation, use PYTHON and PIP variable to change between python2/python3 install:
+- Manual build and installation, use PYTHON and PIP variable to change between python2/python3 install, and WITH_EXTERNALDATA to enable support of Sollya's externaldata feature:
 
-    $ make [SOLLYA_DIR=/sollya/installation/directory] [PYTHON=python3 PIP=pip3]
+    $ make [SOLLYA_DIR=/sollya/installation/directory] [PYTHON=python3 PIP=pip3] [WITH_EXTERNALDATA=yes]
     $ make install [PREFIX=/destination/] [PYTHON=python3 PIP=pip3]
 
 - To build sagesollya (= pythonsollya + SageMath support), use

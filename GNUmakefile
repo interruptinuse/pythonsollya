@@ -55,9 +55,16 @@ srctarball:
 	git archive -o cythonsollya-$(gitrev).tar.gz HEAD
 
 TESTS=${wildcard examples/*.py}
+TESTS_EXTRA=${wildcard examples/extras/*.py}
 
 test: sollya.so ${TESTS}
 	@for f in ${TESTS}; do \
+	    echo Testing $$f; \
+	    LD_LIBRARY_PATH=${SOLLYA_DIR}/lib:${LD_LIBRARY_PATH} \
+	    ${PYTHON} -m doctest $$f || exit -1; \
+	done
+test-extra: sollya.so ${TESTS_EXTRA}
+	@for f in ${TESTS_EXTRA}; do \
 	    echo Testing $$f; \
 	    LD_LIBRARY_PATH=${SOLLYA_DIR}/lib:${LD_LIBRARY_PATH} \
 	    ${PYTHON} -m doctest $$f || exit -1; \
