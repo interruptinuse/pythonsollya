@@ -2,6 +2,7 @@ image: registry.gitlab.com/metalibm-dev/pythonsollya:ci_python3.8
 
 before_script:
     - export LD_LIBRARY_PATH=/usr/local/lib # exposing libsollya.so
+    - python3.8 -m pip install bigfloat
 
 valid_python3.8:
     script:

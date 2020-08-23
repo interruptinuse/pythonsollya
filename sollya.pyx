@@ -26,6 +26,9 @@ from six.moves import builtins
 import atexit, contextlib, inspect, itertools, locale
 import sys, traceback, types, warnings
 
+import bigfloat
+cimport mpfr
+
 # fiXing Abstract Basic Classes (abc) being move from collections
 # to collections.abc (started in Python 3.3, final in Python 3.8)
 try:
@@ -332,6 +335,18 @@ cdef class SollyaObject:
         return <object> obj
     raise ValueError("not a Python object wrapper")
 
+  def bigfloat(self):
+    """ convert SollyaObject to bigfloat """
+    cdef int prec
+
+    # extracting internal precision
+    if not sollya_lib_get_constant_as_int(&prec, sollya_lib_get_prec()):
+      raise ValueError("unable to get sollya's prec in SollyaObject.bigfloat method")
+    res = bigfloat.BigFloat(0)
+    mpfr_init2(&((<mpfr.Mpfr_t>res)._value), prec)
+    sollya_lib_get_constant(&((<mpfr.Mpfr_t>res)._value), self.value)
+    return res
+
   # Access to fields
 
   property struct:
@@ -599,6 +614,8 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
   elif isinstance(op, types.MethodType):
     # imporing a python's object method as a sollya function
     return function_to_sollya_obj_t(op, True)
+  elif isinstance(op, bigfloat.BigFloat):
+    return sollya_lib_constant(&((<mpfr.Mpfr_t>op)._value))
   IF HAVE_SAGE:
     if isinstance(op, Integer):
       return sollya_lib_constant_from_mpz((<Integer> op).value)
@@ -610,6 +627,7 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
     elif isinstance(op, RealNumber):
       return sollya_lib_constant((<RealNumber> op).value)
   raise TypeError("unsupported conversion to sollya object", op, op.__class__)
+
 
 # Warning: quadratic complexity! (Alt options: use the undocumented format of
 # Python longs, go through a base 16 or 32 string representation.)
