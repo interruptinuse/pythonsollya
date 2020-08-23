@@ -555,6 +555,9 @@ cdef class SollyaObject:
     result.value = sollya_lib_pow(op0.value, op1.value)
     return result
 
+  def __rpow__(op, self, modulo):
+    return SollyaObject.__pow__(SollyaObject(self), op, modulo)
+
   def __abs__(self):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
     cdef SollyaObject op0 = as_SollyaObject(self)
