@@ -10,7 +10,8 @@ name = "sollya"
 ext_options = {}
 cy_options = {
   "compile_time_env": {
-    "HAVE_SAGE": False
+    "HAVE_SAGE": False,
+    "HAVE_EXTERNALDATA": False,
   }
 }
 

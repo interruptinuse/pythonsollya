@@ -68,9 +68,10 @@ cdef SollyaObject as_SollyaObject(op):
 cdef object as_PyObject(sollya_obj_t sollya_object):
   cdef void *obj
   cdef void (*dealloc)(void*)
-  if sollya_lib_decompose_externaldata(&obj, &dealloc, sollya_object):
-    if dealloc == __dealloc_callback:
-      return <object> obj
+  IF HAVE_EXTERNALDATA:
+    if sollya_lib_decompose_externaldata(&obj, &dealloc, sollya_object):
+      if dealloc == __dealloc_callback:
+        return <object> obj
   return wrap(sollya_lib_copy_obj(sollya_object))
 
 cdef decode_string(b):
@@ -175,9 +176,10 @@ cdef class SollyaObject:
 
   def is_externalprocedure(self):
     return sollya_lib_obj_is_externalprocedure(self.value)
-
-  def is_externaldata(self):
-    return sollya_lib_obj_is_externaldata(self.value)
+  
+  IF HAVE_EXTERNALDATA:
+    def is_externaldata(self):
+      return sollya_lib_obj_is_externaldata(self.value)
 
   # Conversions
 
@@ -330,9 +332,10 @@ cdef class SollyaObject:
   def python(self):
     cdef void *obj
     cdef void (*dealloc)(void*)
-    if sollya_lib_decompose_externaldata(&obj, &dealloc, self.value):
-      if dealloc == __dealloc_callback:
-        return <object> obj
+    IF HAVE_EXTERNALDATA:
+        if sollya_lib_decompose_externaldata(&obj, &dealloc, self.value):
+          if dealloc == __dealloc_callback:
+            return <object> obj
     raise ValueError("not a Python object wrapper")
 
   def bigfloat(self):
@@ -722,18 +725,19 @@ def autoprint(obj):
   else:
     __displayhook(obj)
 
-def externaldata(*args):
-  if len(args) == 1:
-    obj = args[0]
-    Py_INCREF(obj)
-    return wrap(sollya_lib_externaldata(NULL, <void *> obj, __dealloc_callback))
-  elif len(args) == 2:
-    name, obj = args
-    name = name.encode("ascii")
-    Py_INCREF(obj)
-    return wrap(sollya_lib_externaldata(name, <void *> obj, __dealloc_callback))
-  else:
-    raise TypeError("externaldata() takes 1 or 2 arguments")
+IF HAVE_EXTERNALDATA:
+    def externaldata(*args):
+      if len(args) == 1:
+        obj = args[0]
+        Py_INCREF(obj)
+        return wrap(sollya_lib_externaldata(NULL, <void *> obj, __dealloc_callback))
+      elif len(args) == 2:
+        name, obj = args
+        name = name.encode("ascii")
+        Py_INCREF(obj)
+        return wrap(sollya_lib_externaldata(name, <void *> obj, __dealloc_callback))
+      else:
+        raise TypeError("externaldata() takes 1 or 2 arguments")
 
 def libraryconstant(arg):
   if isinstance(arg, types.FunctionType):
