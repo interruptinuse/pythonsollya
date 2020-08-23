@@ -58,6 +58,6 @@ setuptools.setup(
   license="CeCILL-C V2.1",
   author_email="nicolas.brunie@kalray.eu",
   setup_requires=["cython"],
-  install_requires=["six"],
+  install_requires=["six", "bigfloat"],
   cmdclass = {"build_ext": build_ext},
 )
