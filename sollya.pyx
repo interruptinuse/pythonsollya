@@ -68,9 +68,10 @@ cdef SollyaObject as_SollyaObject(op):
 cdef object as_PyObject(sollya_obj_t sollya_object):
   cdef void *obj
   cdef void (*dealloc)(void*)
-  if sollya_lib_decompose_externaldata(&obj, &dealloc, sollya_object):
-    if dealloc == __dealloc_callback:
-      return <object> obj
+  IF HAVE_EXTERNALDATA:
+    if sollya_lib_decompose_externaldata(&obj, &dealloc, sollya_object):
+      if dealloc == __dealloc_callback:
+        return <object> obj
   return wrap(sollya_lib_copy_obj(sollya_object))
 
 cdef decode_string(b):
@@ -175,9 +176,10 @@ cdef class SollyaObject:
 
   def is_externalprocedure(self):
     return sollya_lib_obj_is_externalprocedure(self.value)
-
-  def is_externaldata(self):
-    return sollya_lib_obj_is_externaldata(self.value)
+  
+  IF HAVE_EXTERNALDATA:
+    def is_externaldata(self):
+      return sollya_lib_obj_is_externaldata(self.value)
 
   # Conversions
 
@@ -330,9 +332,10 @@ cdef class SollyaObject:
   def python(self):
     cdef void *obj
     cdef void (*dealloc)(void*)
-    if sollya_lib_decompose_externaldata(&obj, &dealloc, self.value):
-      if dealloc == __dealloc_callback:
-        return <object> obj
+    IF HAVE_EXTERNALDATA:
+        if sollya_lib_decompose_externaldata(&obj, &dealloc, self.value):
+          if dealloc == __dealloc_callback:
+            return <object> obj
     raise ValueError("not a Python object wrapper")
 
   def bigfloat(self):
@@ -475,12 +478,22 @@ cdef class SollyaObject:
         result.value = sollya_lib_add(op0.value, op1.value)
       return result
 
+  def __radd__(right, left):
+    if isinstance(left, list) and isinstance(right, SollyaObject):
+        return left + list(right)
+    elif isinstance(left, SollyaObject) and isinstance(right, list):
+      return list(left) + right
+    return SollyaObject.__add__(SollyaObject(left), right)
+
   def __sub__(left, right):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
     cdef SollyaObject op0 = as_SollyaObject(left)
     cdef SollyaObject op1 = as_SollyaObject(right)
     result.value = sollya_lib_sub(op0.value, op1.value)
     return result
+
+  def __rsub__(right, left):
+    return SollyaObject.__sub__(SollyaObject(left), right)
 
   def __mul__(left, right):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
@@ -502,12 +515,28 @@ cdef class SollyaObject:
       result.value = sollya_lib_mul(op0.value, op1.value)
       return result
 
+  def __rmul__(right, left):
+    if isinstance(left, list):
+      return left * int(right)
+    elif isinstance(right, list):
+      return int(left) * right
+    elif (isinstance(left, SollyaObject)
+        and sollya_lib_obj_is_list((<SollyaObject>left).value)):
+      return list(left) * int(right)
+    elif (isinstance(right, SollyaObject)
+        and sollya_lib_obj_is_list((<SollyaObject>right).value)):
+      return int(left) * list(right)
+    return SollyaObject.__mul__(SollyaObject(left), right)
+
   def __div__(left, right):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
     cdef SollyaObject op0 = as_SollyaObject(left)
     cdef SollyaObject op1 = as_SollyaObject(right)
     result.value = sollya_lib_div(op0.value, op1.value)
     return result
+
+  def __rdiv__(right, left):
+    return SollyaObject.__div__(SollyaObject(left), right)
 
   def __truediv__(left, right):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
@@ -516,12 +545,18 @@ cdef class SollyaObject:
     result.value = sollya_lib_div(op0.value, op1.value)
     return result
 
+  def __rtruediv__(right, left):
+    return SollyaObject.__truediv__(SollyaObject(left), right)
+
   def __pow__(self, op, modulo):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
     cdef SollyaObject op0 = as_SollyaObject(self)
     cdef SollyaObject op1 = as_SollyaObject(op)
     result.value = sollya_lib_pow(op0.value, op1.value)
     return result
+
+  def __rpow__(op, self, modulo):
+    return SollyaObject.__pow__(SollyaObject(self), op, modulo)
 
   def __abs__(self):
     cdef SollyaObject result = SollyaObject.__new__(SollyaObject)
@@ -570,7 +605,12 @@ cdef sollya_obj_t to_sollya_obj_t(op) except NULL:
   elif isinstance(op, bool):
     return sollya_lib_true() if op else sollya_lib_false()
   elif isinstance(op, int):
-    return sollya_lib_constant_from_int64(PyInt_AsLong(op))
+    # on 32-bit platofmrs (such as Raspberry-pi, some python int are
+    # too long to be converted to C long
+    try:
+      return sollya_lib_constant_from_int64(PyInt_AsLong(op))
+    except OverflowError:
+      return pylong_to_sollya_obj_t(op)
   elif isinstance(op, long):
     return pylong_to_sollya_obj_t(op)
   elif op is None:
@@ -722,18 +762,19 @@ def autoprint(obj):
   else:
     __displayhook(obj)
 
-def externaldata(*args):
-  if len(args) == 1:
-    obj = args[0]
-    Py_INCREF(obj)
-    return wrap(sollya_lib_externaldata(NULL, <void *> obj, __dealloc_callback))
-  elif len(args) == 2:
-    name, obj = args
-    name = name.encode("ascii")
-    Py_INCREF(obj)
-    return wrap(sollya_lib_externaldata(name, <void *> obj, __dealloc_callback))
-  else:
-    raise TypeError("externaldata() takes 1 or 2 arguments")
+IF HAVE_EXTERNALDATA:
+    def externaldata(*args):
+      if len(args) == 1:
+        obj = args[0]
+        Py_INCREF(obj)
+        return wrap(sollya_lib_externaldata(NULL, <void *> obj, __dealloc_callback))
+      elif len(args) == 2:
+        name, obj = args
+        name = name.encode("ascii")
+        Py_INCREF(obj)
+        return wrap(sollya_lib_externaldata(name, <void *> obj, __dealloc_callback))
+      else:
+        raise TypeError("externaldata() takes 1 or 2 arguments")
 
 def libraryconstant(arg):
   if isinstance(arg, types.FunctionType):
