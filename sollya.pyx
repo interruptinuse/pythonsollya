@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*- vim: sw=2
+# cython: language_level=3
 
 from __future__ import division, print_function
 
