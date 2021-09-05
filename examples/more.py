@@ -59,7 +59,7 @@ exp(1)
 >>> l = autodiff(sin(x)/x, 0, Interval(-1,1))
 
 >>> l[0]
-[-infty;infty]
+[NaN;NaN]
 
 >>> evaluate(sin(x)/x, Interval(-1,1))
 [0.5403023058681397174009366074429766037323104206179;1]
