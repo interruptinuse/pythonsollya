@@ -187,7 +187,7 @@ We can call Python functions from Sollya:
 >>> def myproc(x, y): return x + y
 >>> foo = SollyaObject(myproc)
 >>> foo(x, x)
-2 * x
+x * 2
 
 >>> parse("proc(fun) { return fun(1, 2); };")(foo)
 3
