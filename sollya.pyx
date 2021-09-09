@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*- vim: sw=2
+# cython: language_level=3
 
 from __future__ import division, print_function
 
@@ -822,7 +823,7 @@ IF HAVE_SAGE:
       name = str(arg)
     sobj = sollya_lib_libraryfunction_with_data(
           (<SollyaObject> _x_).value,
-          "sage_" + name,
+          b"sage_" + name.encode("ascii"),
           __sage_libraryfunction_callback,
           <void *> arg,
           __dealloc_callback)

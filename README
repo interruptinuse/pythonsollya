@@ -4,8 +4,8 @@ https://gitlab.com/metalibm-dev/pythonsollya
 
 AUTHORS:
 
-- Marc Mezzarobba <marc@mezzarobba.net>
 - Nicolas Brunie <nicolas.brunie@kalray.eu>
+- Marc Mezzarobba <marc@mezzarobba.net>
 
 See also the CREDITS section below for details on material derived from
 existing works.
@@ -20,9 +20,9 @@ REQUIREMENTS:
 
 As of pythonsollya 0.4.0:
 
-- Cython (tested with 0.24.1)
+- Cython (tested with 0.29.14)
 - Sollya (master, tested with weekly http://sollya.gforge.inria.fr/sollya-weekly-09-23-2019.tar.gz)
-- SageMath (optional, tested with 7.4.rc0)
+- SageMath (optional, tested with 9.2.beta12)
 - bigfloat (tested with 0.4.0)
 
 (The development branch of pythonsollya may require more recent versions.)
@@ -34,19 +34,35 @@ SETUP
     $ pip install git+https://gitlab.com/metalibm-dev/pythonsollya
 
   should work, provided that a suitable version of Sollya can be found in a
-  standard location on the system.
+  standard location on the system. The same goes for
 
-- Manual build and installation, use PYTHON and PIP variable to change between python2/python3 install, and WITH_EXTERNALDATA to enable support of Sollya's externaldata feature:
+    $ pip install [-e] .
+
+  run from the root of a pythonsollya git checkout.
+
+- To build sagesollya (= pythonsollya + SageMath support) against a version of
+  SageMath packaged by your distribution, run
+
+    $ WITH_SAGE=true pip install git+https://gitlab.com/metalibm-dev/pythonsollya
+
+  (You may need header files not automatically installed as dependencies of
+  sagemath. For example, Debian users need to install the libpari-dev package in
+  addition to sagemath.)
+
+  With Sage packages from sagemath.org or a version of Sage built from source,
+  you may need to run the above command in a "Sage shell" launched with "sage
+  -sh" or to use "sage -pip" instead of pip.
+
+- Manual build and installation: use PYTHON and PIP variable to change between
+  python2/python3 install, and WITH_EXTERNALDATA to enable support of Sollya's
+  externaldata feature.
 
     $ make [SOLLYA_DIR=/sollya/installation/directory] [PYTHON=python3 PIP=pip3] [WITH_EXTERNALDATA=yes]
     $ make install [PREFIX=/destination/] [PYTHON=python3 PIP=pip3]
 
-- To build sagesollya (= pythonsollya + SageMath support), use
+  Similarly, you can build sagesollya manually using
 
-    $ make sagesollya.so [SOLLYA_DIR=/sollya/installation/directory] \
-                         [SAGE=/path/to/sage/executable]
-
-  (see also TROUBLESHOOTING below).
+    $ make sagesollya.so [...as above...] [SAGE=/path/to/sage/executable]
 
 USAGE:
 
@@ -72,20 +88,11 @@ TROUBLESHOOTING & MISCELLANEOUS NOTES:
 
   See dlopen(3) for more information.
 
-- Using Sage packages provided by Linux distributions
+- Using sagesollya from plain Python
 
-  Depending how your distribution packages SageMath, you may need header files
-  not installed by default to build sagesollya using your distribution's
-  packages. For example, Debian users need to install the libpari-dev package in
-  addition to sagemath.
+  Import sage.all _before_ importing sagesollya.
 
-- Sagesollya fails to build even with a version of Sage built from source
-
-  Building external packages that link against Sage was broken for a while
-  (around Sage 8.0-8.1) due to Sage bug #24987. Try upgrading to Sage 8.2 or
-  later.
-
-- In python2 sollya can not execute unbounded methods properly
+- In python2 sollya can not execute unbounded methods properly.
 
 CREDITS:
 

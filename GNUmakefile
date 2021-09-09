@@ -15,7 +15,7 @@ PYTHONPATH = $(shell PYTHONUSERBASE=${PREFIX} ${PYTHON} -c "import site; \
 
 export LDFLAGS CPPFLAGS PYTHONPATH
 
-.PHONY: install clean generated srctarball test testsage
+.PHONY: install build clean generated srctarball test test-extra test-sage
 
 GEN_DEPS := sollya_func.pxi sollya_settings.pxi sollya_ops.pxi csollya_ops.pxd
 DEPS := csollya.pxd sollya.pyx sollya_extra_functions.pyx ${GEN_DEPS}
@@ -63,6 +63,7 @@ test: sollya.so ${TESTS}
 	    LD_LIBRARY_PATH=${SOLLYA_DIR}/lib:${LD_LIBRARY_PATH} \
 	    ${PYTHON} -m doctest $$f || exit -1; \
 	done
+
 test-extra: sollya.so ${TESTS_EXTRA}
 	@for f in ${TESTS_EXTRA}; do \
 	    echo Testing $$f; \
@@ -70,5 +71,5 @@ test-extra: sollya.so ${TESTS_EXTRA}
 	    ${PYTHON} -m doctest $$f || exit -1; \
 	done
 
-testsage: examples/sagesollya.sage sagesollya.so test
+test-sage: examples/sagesollya.sage sagesollya.so test
 	PYTHONPATH=. ${SAGE} -t $<
