@@ -4,7 +4,7 @@ https://gitlab.com/metalibm-dev/pythonsollya
 
 AUTHORS:
 
-- Nicolas Brunie <nicolas.brunie@kalray.eu>
+- Nicolas Brunie <nibrunie@gmail.com>
 - Marc Mezzarobba <marc@mezzarobba.net>
 
 See also the CREDITS section below for details on material derived from
@@ -21,7 +21,7 @@ REQUIREMENTS:
 As of pythonsollya 0.4.0:
 
 - Cython (tested with 0.29.14)
-- Sollya (master, tested with weekly http://sollya.gforge.inria.fr/sollya-weekly-09-23-2019.tar.gz)
+- Sollya (master, tested weekly with fresh clone of https://gitlab.inria.fr/sollya/sollya.git)
 - SageMath (optional, tested with 9.2.beta12)
 - bigfloat (tested with 0.4.0)
 
