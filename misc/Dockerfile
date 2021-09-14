@@ -9,12 +9,11 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt install -y git
 RUN apt install -y python3 python3-setuptools libpython3-dev python3-pip
+# install sollya's dependency
 RUN apt install -y libmpfr-dev libmpfi-dev libfplll-dev libxml2-dev wget
 RUN apt install -y dh-autoreconf
-
-
 RUN apt install -y build-essential
-# install sollya's dependency
+RUN apt install -y bison flex
 
 FROM ml_ci_base_deps AS ci_pythonsollya_base
 
@@ -23,7 +22,6 @@ WORKDIR  /home/
 
 RUN git clone https://gitlab.inria.fr/sollya/sollya.git -b master sollya_git
 WORKDIR /home/sollya_git/
-RUN apt install -y bison flex
 RUN sh autogen.sh && ./configure && make && make install
 
 #
