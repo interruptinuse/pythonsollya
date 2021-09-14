@@ -1,4 +1,4 @@
-image: registry.gitlab.com/metalibm-dev/pythonsollya:ci_sollya_master
+image: registry.gitlab.com/metalibm-dev/pythonsollya:ci_sollya_master_21.09
 
 before_script:
     - export LD_LIBRARY_PATH=/usr/local/lib # exposing libsollya.so
