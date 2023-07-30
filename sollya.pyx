@@ -49,7 +49,7 @@ sollya_lib_install_msg_callback(__msg_callback, NULL)
 def has_sage_support():
   return HAVE_SAGE
 
-cdef void __dealloc_callback(void *c_fun):
+cdef void __dealloc_callback(void *c_fun) noexcept:
   fun = <object> c_fun
   Py_DECREF(fun)
 
@@ -68,7 +68,7 @@ cdef SollyaObject as_SollyaObject(op):
 
 cdef object as_PyObject(sollya_obj_t sollya_object):
   cdef void *obj
-  cdef void (*dealloc)(void*)
+  cdef void (*dealloc)(void*) noexcept
   IF HAVE_EXTERNALDATA:
     if sollya_lib_decompose_externaldata(&obj, &dealloc, sollya_object):
       if dealloc == __dealloc_callback:
@@ -332,7 +332,7 @@ cdef class SollyaObject:
 
   def python(self):
     cdef void *obj
-    cdef void (*dealloc)(void*)
+    cdef void (*dealloc)(void*) noexcept
     IF HAVE_EXTERNALDATA:
         if sollya_lib_decompose_externaldata(&obj, &dealloc, self.value):
           if dealloc == __dealloc_callback:
@@ -983,7 +983,7 @@ cdef bint __externalproc_callback_no_args(sollya_obj_t *c_res, void *c_fun):
     return False
 
 cdef void __libraryconstant_callback(mpfr_t res, mp_prec_t c_prec,
-                                     void *c_fun):
+                                     void *c_fun) noexcept:
   cdef mp_prec_t res_prec = 0
   try:
     fun = <object> c_fun
@@ -999,7 +999,7 @@ cdef void __libraryconstant_callback(mpfr_t res, mp_prec_t c_prec,
     traceback.print_exc() # TBI?
 
 cdef int __libraryfunction_callback(mpfi_t c_res, mpfi_t c_arg,
-                                     int diff_order, void *c_fun):
+                                     int diff_order, void *c_fun) noexcept:
   try:
     fun = <object> c_fun
     arg = wrap(sollya_lib_range_from_interval(c_arg))
@@ -1039,7 +1039,7 @@ _print_native_messages = False
 # enabling display of error messages
 _print_error_messages = False
 
-cdef bint __msg_callback(sollya_msg_t msg, void *data):
+cdef bint __msg_callback(sollya_msg_t msg, void *data) noexcept:
     if _print_error_messages:
         sys.stderr.write(str(sollya_lib_msg_to_text(msg), 'utf-8') + "\n")
     # Quick hack to help debugging python codes that use cythonsollya
